@@ -27,7 +27,7 @@ public class ItemV3ControllerTest {
 
     @Test
     public void getItemIdTest() throws Exception {
-        this.mockMvc.perform(get("/v3/item/my-item-id"))
+        this.mockMvc.perform(get("/v3/item/my-item-id").header("auth-header", "test-user"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$.id").value("my-item-id"));
