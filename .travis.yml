@@ -1,0 +1,47 @@
+sudo: required
+
+language: java
+jdk:
+  - openjdk8
+
+services:
+  - docker
+
+addons:
+  apt:
+    packages:
+      - docker-ce
+
+branches:
+  except:
+    - /^[0-9]/
+
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+
+before_install: git checkout $(git branch --contains $(git rev-parse HEAD)|tail -n1|tr -d ' ') || true
+
+jobs:
+  include:
+    - stage: build and test artifacts
+      script: docker build -t content-api-2 .
+      env:
+        - job=docker build -t content-api-2 .
+    - stage: build and test artifacts
+      script: ./gradlew build
+      env:
+        - job=./gradlew build
+#    - stage: deploy
+#      jdk: openjdk8
+#      script: ./gradlew build artifactoryPublish -x test
+#      if: type = push
+
+notifications:
+  email: false
+  slack:
+    secure: e3hlzMdp5NYvuXG3vU76d9ksInTV36CPEOGVD/Nw7+Og12UM1pquYOr21OvJ0S4wtLx8EdC29fP9eQZQFUeEypmhlNzQl13+3ZzrHjcHPtjFHMVAv0BxFhneeDSY9QOafQElEC05HQ+51fay8DfEhwuEaYUiNcII095rCW3IYyv67ezURPTtUWjNSxn3nU4/yFPgJ4skSv1Mu41Dm7IHJawIR5tOos7CNi/oT8PLt145Lux/vpaG4uskZWVj33E0sWsS0OYZVVdF+WTRQGIskuZ+9klHt+A2su07QxRzs7ERcCaSYSP4mRBeRQM16RM5QXbdsaX0l7D6MFQEhUisdE0mmrRWAbu8VzOplLGoCDf1gOhItOuZIb5tftIMI+H67mrS9B3EEpuZktE+v6E8aWK/mGEreB6J0o8upJSb6TH8hIoHJneb6BHJD8+Vk29sPPD1J+VGtXDx0lvYPrBYrbYv7nGy3XExMfb88pjExOxXcYSjrdyeAkAcHT4EAODuKmc8LqG4zX9hDpbZ91LIo8e6exWiTp174vNIZdwcUwp1ddJo/lxLv3C7RcjdKqgVEwlQGFrBBcgQ45/PqPzzxPomJLgeirOVLOl/ig8eL20YXEnIWkUeAA9OWqX2Cur/LBMl0y1WD1DhhhwUBtv2OOFpOhB4H7+sqi840TvddG8=
