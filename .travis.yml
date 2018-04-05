@@ -36,10 +36,10 @@ jobs:
       script: ./gradlew build
       env:
         - job=./gradlew build
-#    - stage: deploy
-#      jdk: openjdk8
-#      script: ./gradlew build artifactoryPublish -x test
-#      if: type = push
+    - stage: deploy
+      jdk: openjdk8
+      script: ./gradlew build artifactoryPublish -x test
+      if: type = push
 
 notifications:
   email: false

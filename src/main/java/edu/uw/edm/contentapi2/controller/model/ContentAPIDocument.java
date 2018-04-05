@@ -11,34 +11,38 @@ import lombok.ToString;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 @ToString
-public class Document {
+public class ContentAPIDocument {
+    public static final String METADATA_KEY = "metadata";
+    public static final String ID_KEY = "id";
+    public static final String LABEL_KEY = "label";
+
     private String id;
     private String label;
     private Map<String, Object> metadata = new HashMap<>();
 
-    public Document() {
+    public ContentAPIDocument() {
     }
 
     @SuppressWarnings("unchecked")
-    public Document(Map data) {
-        if (data.containsKey("id") && data.get("id") != null) {
-            this.id = data.get("id").toString();
+    public ContentAPIDocument(Map data) {
+        if (data.containsKey(ID_KEY) && data.get(ID_KEY) != null) {
+            this.id = data.get(ID_KEY).toString();
         }
-        if (data.containsKey("label") && data.get("label") != null) {
+        if (data.containsKey(LABEL_KEY) && data.get(LABEL_KEY) != null) {
 
-            this.label = data.get("label").toString();
+            this.label = data.get(LABEL_KEY).toString();
         }
-        if (data.containsKey("metadata")) {
-            this.metadata = (Map<String, Object>) data.get("metadata");
+        if (data.containsKey(METADATA_KEY)) {
+            this.metadata = (Map<String, Object>) data.get(METADATA_KEY);
         }
     }
 
     public Map<String, Object> asMap() {
         HashMap<String, Object> map = new HashMap<>();
 
-        map.put("id", id);
-        map.put("label", label);
-        map.put("metadata", metadata);
+        map.put(ID_KEY, id);
+        map.put(LABEL_KEY, label);
+        map.put(METADATA_KEY, metadata);
 
         return map;
     }
