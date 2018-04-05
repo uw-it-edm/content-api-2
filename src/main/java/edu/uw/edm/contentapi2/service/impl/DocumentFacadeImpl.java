@@ -1,5 +1,6 @@
 package edu.uw.edm.contentapi2.service.impl;
 
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,6 +10,9 @@ import edu.uw.edm.contentapi2.repository.exceptions.RepositoryException;
 import edu.uw.edm.contentapi2.repository.transformer.ExternalDocumentConverter;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.DocumentFacade;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * @author Maxime Deravet
@@ -28,6 +32,8 @@ public class DocumentFacadeImpl implements DocumentFacade {
 
     @Override
     public ContentAPIDocument getDocumentById(String documentId, User user) throws RepositoryException {
+        checkNotNull(user, "User is required");
+        checkArgument(Strings.isNotEmpty(documentId), "DocumentId is required");
 
         return converter.toContentApiDocument(repository.getDocumentById(documentId, user));
     }

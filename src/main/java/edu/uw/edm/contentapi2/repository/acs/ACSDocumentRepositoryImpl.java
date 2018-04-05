@@ -2,6 +2,7 @@ package edu.uw.edm.contentapi2.repository.acs;
 
 import org.apache.chemistry.opencmis.client.api.CmisObject;
 import org.apache.chemistry.opencmis.client.api.Document;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +11,9 @@ import edu.uw.edm.contentapi2.repository.acs.connection.ACSSessionCreator;
 import edu.uw.edm.contentapi2.repository.exceptions.NotADocumentException;
 import edu.uw.edm.contentapi2.security.User;
 import lombok.extern.slf4j.Slf4j;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * @author Maxime Deravet
@@ -29,6 +33,8 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
 
     @Override
     public Document getDocumentById(String documentId, User user) throws NotADocumentException {
+        checkNotNull(user,"User is required");
+        checkArgument(Strings.isNotEmpty(documentId), "DocumentId is required");
 
         log.debug("getting document {} for user {}",documentId, user.getUsername());
         CmisObject cmisObject = sessionCreator.getSession().getObject(documentId);
@@ -38,7 +44,6 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
         } else {
             throw new NotADocumentException();
         }
-
 
     }
 

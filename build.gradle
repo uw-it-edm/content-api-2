@@ -59,7 +59,11 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-security")
 	compile('org.springframework.boot:spring-boot-starter-actuator')
 
+
+
 	compile("org.apache.chemistry.opencmis:chemistry-opencmis-client-impl:$openCMISVersion")
+
+	compile("com.google.guava:guava")
 
 	compileOnly('org.springframework.boot:spring-boot-configuration-processor')
 	compileOnly('org.projectlombok:lombok')
