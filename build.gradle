@@ -17,6 +17,12 @@ buildscript {
 		classpath("org.jfrog.buildinfo:build-info-extractor-gradle:4.5.4")
 		classpath("nu.studer:gradle-credentials-plugin:1.0.3")
 	}
+
+}
+
+plugins {
+	id 'jacoco'
+	id 'com.github.kt3k.coveralls' version '2.6.3'
 }
 
 apply plugin: 'java'
@@ -176,3 +182,11 @@ if (version.toString().contains("dirty")) {
 }
 
 artifactoryPublish.dependsOn bootJar
+
+//code coverage
+jacocoTestReport {
+    reports {
+        xml.enabled = true // coveralls plugin depends on xml format report
+        html.enabled = true
+    }
+}
