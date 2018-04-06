@@ -35,8 +35,6 @@ apply plugin: 'nu.studer.credentials'
 apply plugin: "com.jfrog.artifactory"
 apply plugin: 'maven-publish'
 
-
-
 group = 'edu.uw.edm'
 sourceCompatibility = 1.8
 
@@ -184,11 +182,3 @@ if (version.toString().contains("dirty")) {
 }
 
 artifactoryPublish.dependsOn bootJar
-
-//code coverage reports
-jacocoTestReport {
-	reports {
-		xml.enabled = true // coveralls plugin depends on xml format report
-		html.enabled = true
-	}
-}
