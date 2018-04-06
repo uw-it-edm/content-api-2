@@ -41,6 +41,9 @@ jobs:
       script: ./gradlew build artifactoryPublish -x test
       if: type = push
 
+after_success:
+- ./gradlew jacocoTestReport coveralls
+
 notifications:
   email: false
   slack:
