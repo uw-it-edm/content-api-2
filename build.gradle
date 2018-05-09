@@ -1,6 +1,6 @@
 buildscript {
 	ext {
-		springBootVersion = '2.0.0.RELEASE'
+		springBootVersion = '2.0.2.RELEASE'
 		openCMISVersion = '1.1.0'
 		springCloudReleaseTrain = 'Finchley.M9'
 	}
