@@ -1,4 +1,4 @@
-FROM openjdk:8 as builder
+FROM openjdk:11 as builder
 WORKDIR .
 
 ENV APP_HOME=/root/dev/app/
@@ -14,7 +14,7 @@ RUN ./gradlew build -x :bootJar -x test -x artifactory --continue
 COPY . .
 RUN ./gradlew build
 
-FROM openjdk:8 as app
+FROM openjdk:11 as app
 WORKDIR /root/
 COPY --from=builder /root/dev/app/build/libs/content-api-2*.jar .
 RUN mv content-api-2*.jar content-api-2.jar
