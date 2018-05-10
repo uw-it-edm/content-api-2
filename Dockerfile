@@ -10,7 +10,7 @@ COPY gradle $APP_HOME/gradle
 
 # download dependencies
 COPY .git .git
-RUN ./gradlew build -x :bootJar -x test -x artifactory --continue
+RUN ./gradlew build -x :bootJar -x test -x artifactoryDeploy -x artifactoryPublish --continue
 COPY . .
 RUN ./gradlew build
 
