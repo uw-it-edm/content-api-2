@@ -17,4 +17,5 @@ public class ACSProperties {
     private String cmisUrl;
     private String user;
     private String password;
+    private String actAsHeader;
 }

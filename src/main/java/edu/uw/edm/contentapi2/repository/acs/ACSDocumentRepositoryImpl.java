@@ -37,7 +37,7 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
         checkArgument(Strings.isNotEmpty(documentId), "DocumentId is required");
 
         log.debug("getting document {} for user {}",documentId, user.getUsername());
-        CmisObject cmisObject = sessionCreator.getSession().getObject(documentId);
+        CmisObject cmisObject = sessionCreator.getSessionForUser(user).getObject(documentId);
 
         if (cmisObject instanceof Document) {
             return (Document) cmisObject;

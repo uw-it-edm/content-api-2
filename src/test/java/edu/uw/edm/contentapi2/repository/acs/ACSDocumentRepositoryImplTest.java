@@ -9,6 +9,7 @@ import edu.uw.edm.contentapi2.repository.acs.connection.ACSSessionCreator;
 import edu.uw.edm.contentapi2.repository.exceptions.NotADocumentException;
 import edu.uw.edm.contentapi2.security.User;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -30,13 +31,13 @@ public class ACSDocumentRepositoryImplTest {
         ACSSessionCreator sessionCreator = mock(ACSSessionCreator.class);
 
         mockSession = mock(Session.class);
-        when(sessionCreator.getSession()).thenReturn(mockSession);
+        when(sessionCreator.getSessionForUser(any(User.class))).thenReturn(mockSession);
 
         documentRepository = new ACSDocumentRepositoryImpl(sessionCreator);
     }
 
     @Test
-    public void cmisGetByIdShouldBECalledTest() throws NotADocumentException {
+    public void cmisGetByIdShouldBeCalledTest() throws NotADocumentException {
 
         when(mockSession.getObject("my-id")).thenReturn(mock(Document.class));
 
