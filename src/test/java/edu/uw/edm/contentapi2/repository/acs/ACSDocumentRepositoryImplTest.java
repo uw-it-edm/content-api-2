@@ -5,6 +5,7 @@ import org.apache.chemistry.opencmis.client.api.Session;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.uw.edm.contentapi2.properties.ACSProperties;
 import edu.uw.edm.contentapi2.repository.acs.connection.ACSSessionCreator;
 import edu.uw.edm.contentapi2.repository.exceptions.NotADocumentException;
 import edu.uw.edm.contentapi2.security.User;
@@ -33,7 +34,7 @@ public class ACSDocumentRepositoryImplTest {
         mockSession = mock(Session.class);
         when(sessionCreator.getSessionForUser(any(User.class))).thenReturn(mockSession);
 
-        documentRepository = new ACSDocumentRepositoryImpl(sessionCreator);
+        documentRepository = new ACSDocumentRepositoryImpl(sessionCreator, new ACSProperties());
     }
 
     @Test

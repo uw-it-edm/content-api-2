@@ -4,7 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.validation.Valid;
 
 import edu.uw.edm.contentapi2.controller.model.ContentAPIDocument;
 import edu.uw.edm.contentapi2.repository.exceptions.RepositoryException;
@@ -31,5 +36,24 @@ public class ItemV3Controller {
     public ContentAPIDocument getItem(@PathVariable("itemId") String itemId, @AuthenticationPrincipal User user) throws RepositoryException {
 
         return documentFacade.getDocumentById(itemId, user);
+    }
+
+    @RequestMapping(method = RequestMethod.POST, path = "")
+    public ContentAPIDocument createItem(
+            @RequestPart(value = "document", required = true) @Valid ContentAPIDocument contentAPIDocument,
+            @RequestPart(value = "attachment", required = false) MultipartFile primaryFile,
+            @AuthenticationPrincipal User user) throws RepositoryException {
+
+        return documentFacade.createDocument(contentAPIDocument, primaryFile, user);
+    }
+
+    @RequestMapping(method = RequestMethod.POST, path = "/{itemId}")
+    public ContentAPIDocument updateItem(
+            @PathVariable("itemId") String itemId,
+            @RequestPart(value = "document", required = true) @Valid ContentAPIDocument updatedContentAPIDocument,
+            @RequestPart(value = "attachment", required = false) MultipartFile primaryFile,
+            @AuthenticationPrincipal User user) throws RepositoryException {
+
+        return documentFacade.updateDocument(itemId, updatedContentAPIDocument, primaryFile, user);
     }
 }

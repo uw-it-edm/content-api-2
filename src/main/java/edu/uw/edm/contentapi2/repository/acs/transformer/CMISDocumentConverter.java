@@ -1,8 +1,10 @@
 package edu.uw.edm.contentapi2.repository.acs.transformer;
 
+import org.apache.chemistry.opencmis.client.api.Document;
 import org.springframework.stereotype.Service;
 
 import edu.uw.edm.contentapi2.controller.model.ContentAPIDocument;
+import edu.uw.edm.contentapi2.repository.constants.Constants;
 import edu.uw.edm.contentapi2.repository.transformer.ExternalDocumentConverter;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -16,14 +18,14 @@ public class CMISDocumentConverter implements ExternalDocumentConverter<org.apac
 
 
     @Override
-    public ContentAPIDocument toContentApiDocument(org.apache.chemistry.opencmis.client.api.Document repositoryDocument) {
-        checkNotNull(repositoryDocument, "repositoryDocument is required");
+    public ContentAPIDocument toContentApiDocument(Document cmisDocument) {
+        checkNotNull(cmisDocument, "cmisDocument is required");
 
         ContentAPIDocument contentAPIDocument = new ContentAPIDocument();
-        contentAPIDocument.setId(repositoryDocument.getId());
-        contentAPIDocument.setLabel(repositoryDocument.getName());
+        contentAPIDocument.setId(cmisDocument.getId());
+        contentAPIDocument.setLabel(cmisDocument.getPropertyValue(Constants.Alfresco.AlfrescoFields.TITLE_FQDN));
 
-        repositoryDocument.getProperties().forEach((property -> {
+        cmisDocument.getProperties().forEach((property -> {
             contentAPIDocument.getMetadata().put(property.getLocalName(), property.getValue());
         }));
 
