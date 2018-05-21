@@ -1,4 +1,4 @@
-package edu.uw.edm.contentapi2.controller;
+package edu.uw.edm.contentapi2.controller.v3;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -11,7 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 
-import edu.uw.edm.contentapi2.controller.model.ContentAPIDocument;
+import edu.uw.edm.contentapi2.controller.v3.model.ContentAPIDocument;
 import edu.uw.edm.contentapi2.repository.exceptions.RepositoryException;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.DocumentFacade;

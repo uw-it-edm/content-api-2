@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import edu.uw.edm.contentapi2.controller.model.ContentAPIDocument;
+import edu.uw.edm.contentapi2.controller.v3.model.ContentAPIDocument;
 import edu.uw.edm.contentapi2.properties.ACSProperties;
 import edu.uw.edm.contentapi2.repository.ExternalDocumentRepository;
 import edu.uw.edm.contentapi2.repository.acs.connection.ACSSessionCreator;
@@ -71,18 +71,10 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
         return getDocumentById(documentId, sessionForUser);
     }
 
-    private Document getDocumentById(String documentId, Session sessionForUser) throws NotADocumentException {
-        CmisObject cmisObject = sessionForUser.getObject(documentId);
-
-        if (cmisObject instanceof Document) {
-            return (Document) cmisObject;
-        } else {
-            throw new NotADocumentException();
-        }
-    }
-
     @Override
     public Document createDocument(ContentAPIDocument document, MultipartFile primaryFile, User user) throws NoSuchProfileException {
+        checkNotNull(user, "User is required");
+        checkNotNull(document, "Document is required");
 
         Session session = sessionCreator.getSessionForUser(user);
 
@@ -95,10 +87,14 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
     }
 
     @Override
-    public Document updateDocument(String itemId, ContentAPIDocument updatedContentAPIDocument, MultipartFile primaryFile, User user) throws NotADocumentException, CannotUpdateDocumentException {
+    public Document updateDocument(String documentId, ContentAPIDocument updatedContentAPIDocument, MultipartFile primaryFile, User user) throws NotADocumentException, CannotUpdateDocumentException {
+        checkNotNull(user, "User is required");
+        checkArgument(!Strings.isNullOrEmpty(documentId), "DocumentId is required");
+        checkNotNull(updatedContentAPIDocument, "Document is required");
+
         Session session = sessionCreator.getSessionForUser(user);
 
-        Document documentById = getDocumentById(itemId, session);
+        Document documentById = getDocumentById(documentId, session);
 
         if (primaryFile != null && !primaryFile.isEmpty()) {
             createNewRevisionWithFile(documentById, updatedContentAPIDocument, primaryFile, session);
@@ -111,6 +107,16 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
         }
 
         return documentById;
+    }
+
+    private Document getDocumentById(String documentId, Session sessionForUser) throws NotADocumentException {
+        CmisObject cmisObject = sessionForUser.getObject(documentId);
+
+        if (cmisObject instanceof Document) {
+            return (Document) cmisObject;
+        } else {
+            throw new NotADocumentException();
+        }
     }
 
     private void createNewRevisionWithFile(Document documentToUpdate, ContentAPIDocument updatedContentAPIDocument, MultipartFile primaryFile, Session session) throws CannotUpdateDocumentException {
@@ -187,9 +193,7 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
         properties.putAll(getFQDNPropertiesForMetadata(document, session));
 
         //update shouldn't be allowed to change Profile
-        if (properties.containsKey(PROFILE_ID)) {
-            properties.remove(PROFILE_ID);
-        }
+        properties.remove(PROFILE_ID);
 
         return properties;
     }

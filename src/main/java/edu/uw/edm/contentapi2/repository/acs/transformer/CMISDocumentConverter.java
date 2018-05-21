@@ -3,7 +3,7 @@ package edu.uw.edm.contentapi2.repository.acs.transformer;
 import org.apache.chemistry.opencmis.client.api.Document;
 import org.springframework.stereotype.Service;
 
-import edu.uw.edm.contentapi2.controller.model.ContentAPIDocument;
+import edu.uw.edm.contentapi2.controller.v3.model.ContentAPIDocument;
 import edu.uw.edm.contentapi2.repository.constants.Constants;
 import edu.uw.edm.contentapi2.repository.transformer.ExternalDocumentConverter;
 

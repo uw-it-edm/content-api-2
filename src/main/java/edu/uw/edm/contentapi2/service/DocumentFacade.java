@@ -2,7 +2,7 @@ package edu.uw.edm.contentapi2.service;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import edu.uw.edm.contentapi2.controller.model.ContentAPIDocument;
+import edu.uw.edm.contentapi2.controller.v3.model.ContentAPIDocument;
 import edu.uw.edm.contentapi2.repository.exceptions.RepositoryException;
 import edu.uw.edm.contentapi2.security.User;
 

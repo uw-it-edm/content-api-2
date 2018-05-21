@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import java.util.Collections;
 
-import edu.uw.edm.contentapi2.controller.model.ContentAPIDocument;
+import edu.uw.edm.contentapi2.controller.v3.model.ContentAPIDocument;
 import edu.uw.edm.contentapi2.repository.constants.Constants;
 
 import static org.hamcrest.Matchers.equalTo;
