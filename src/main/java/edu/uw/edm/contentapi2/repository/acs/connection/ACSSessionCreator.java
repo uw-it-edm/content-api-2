@@ -1,23 +1,20 @@
 package edu.uw.edm.contentapi2.repository.acs.connection;
 
+import org.apache.chemistry.opencmis.client.SessionParameterMap;
 import org.apache.chemistry.opencmis.client.api.Repository;
 import org.apache.chemistry.opencmis.client.api.Session;
 import org.apache.chemistry.opencmis.client.api.SessionFactory;
 import org.apache.chemistry.opencmis.client.runtime.SessionFactoryImpl;
-import org.apache.chemistry.opencmis.commons.SessionParameter;
-import org.apache.chemistry.opencmis.commons.enums.BindingType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import edu.uw.edm.contentapi2.properties.ACSProperties;
+import edu.uw.edm.contentapi2.security.User;
 
 /**
- * @author Maxime Deravet
- * Date: 4/4/18
+ * @author Maxime Deravet Date: 4/4/18
  */
 @Service
 public class ACSSessionCreator {
@@ -31,18 +28,18 @@ public class ACSSessionCreator {
 
     //TODO this need to handle user authentication, not just admin connection
     // it should also probably have some kind of cache/singleton
-    public Session getSession() {
+    public Session getSessionForUser(User user) {
         // default factory implementation
         SessionFactory factory = SessionFactoryImpl.newInstance();
-        Map<String, String> parameters = new HashMap<>();
 
+        SessionParameterMap parameters = new SessionParameterMap();
+        //TODO
 // user credentials
-        parameters.put(SessionParameter.USER, acsProperties.getUser());
-        parameters.put(SessionParameter.PASSWORD, acsProperties.getPassword());
+        parameters.setUserAndPassword(acsProperties.getUser(), acsProperties.getPassword());
+        parameters.addHeader(acsProperties.getActAsHeader(), user.getUsername());
 
 // connection settings
-        parameters.put(SessionParameter.ATOMPUB_URL, acsProperties.getCmisUrl());
-        parameters.put(SessionParameter.BINDING_TYPE, BindingType.ATOMPUB.value());
+        parameters.setAtomPubBindingUrl(acsProperties.getCmisUrl());
 
 // create session
         List<Repository> repositories = factory.getRepositories(parameters);

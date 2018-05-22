@@ -1,4 +1,4 @@
-package edu.uw.edm.contentapi2.controller.model;
+package edu.uw.edm.contentapi2.controller.v3.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

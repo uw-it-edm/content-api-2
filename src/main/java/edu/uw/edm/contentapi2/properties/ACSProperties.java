@@ -6,8 +6,7 @@ import org.springframework.stereotype.Component;
 import lombok.Data;
 
 /**
- * @author Maxime Deravet
- * Date: 4/4/18
+ * @author Maxime Deravet Date: 4/4/18
  */
 @Component
 @ConfigurationProperties(prefix = "uw.repository.acs")
@@ -17,4 +16,8 @@ public class ACSProperties {
     private String cmisUrl;
     private String user;
     private String password;
+    private String actAsHeader;
+
+    private boolean autoUndoCheckout = true;
+
 }
