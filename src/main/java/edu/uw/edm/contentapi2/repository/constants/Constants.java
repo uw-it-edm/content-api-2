@@ -14,6 +14,8 @@ public class Constants {
         public static final class AlfrescoFields {
 
             public static final String TITLE_FQDN = "cm:title";
+            public static final String ITEM_ID_FQDN = "cmis:objectId";
+            public static final String LABEL_FQDN = "cmis:name";
 
         }
 
