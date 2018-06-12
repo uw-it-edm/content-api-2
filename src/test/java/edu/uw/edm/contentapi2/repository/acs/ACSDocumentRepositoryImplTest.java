@@ -30,7 +30,7 @@ public class ACSDocumentRepositoryImplTest {
     ACSDocumentRepositoryImpl documentRepository;
 
     @Mock
-    ProfileProperties profileProperties;
+    ACSProfileRepository profileRepository;
 
     @Before
     public void setUp() {
@@ -39,7 +39,7 @@ public class ACSDocumentRepositoryImplTest {
         mockSession = mock(Session.class);
         when(sessionCreator.getSessionForUser(any(User.class))).thenReturn(mockSession);
 
-        documentRepository = new ACSDocumentRepositoryImpl(sessionCreator, new ACSProperties(), profileProperties);
+        documentRepository = new ACSDocumentRepositoryImpl(sessionCreator, new ACSProperties(), new ProfileProperties(), profileRepository);
     }
 
     @Test

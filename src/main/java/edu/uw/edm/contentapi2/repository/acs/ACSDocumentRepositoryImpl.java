@@ -16,7 +16,6 @@ import org.apache.chemistry.opencmis.commons.definitions.PropertyDefinition;
 import org.apache.chemistry.opencmis.commons.enums.VersioningState;
 import org.apache.chemistry.opencmis.commons.impl.MimeTypes;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -52,13 +51,15 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
 
     private ACSSessionCreator sessionCreator;
     private ACSProperties acsProperties;
+    private ACSProfileRepository profileRepository;
     private ProfileProperties profileProperties;
 
     @Autowired
-    public ACSDocumentRepositoryImpl(ACSSessionCreator sessionCreator, ACSProperties acsProperties, ProfileProperties profileProperties) {
+    public ACSDocumentRepositoryImpl(ACSSessionCreator sessionCreator, ACSProperties acsProperties, ProfileProperties profileProperties, ACSProfileRepository profileRepository) {
         this.sessionCreator = sessionCreator;
         this.acsProperties = acsProperties;
         this.profileProperties = profileProperties;
+        this.profileRepository = profileRepository;
     }
 
 
@@ -218,16 +219,10 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
     }
 
     private Map<String, Object> getFQDNPropertiesForMetadata(ContentAPIDocument document, Session session) throws NoSuchProfileException {
-        Map<String, Object> properties = new HashMap<>();
+        final Map<String, Object> properties = new HashMap<>();
 
-        //TODO, should get the list of types/aspect available for the specified profile
-        /*
-         TODO session.getTypeDefinition("type") is cached without ttl.
-         This should probably extracted in its own class,
-         updated to use session.getTypeDefinition("type",false) to disable the cache and use another cache implementation with ttl
-        */
         final String contentType = getFQDNContentType(document);
-        Map<String, PropertyDefinition<?>> propertyDefinitions = session.getTypeDefinition(contentType).getPropertyDefinitions();
+        final Map<String, PropertyDefinition<?>> propertyDefinitions = profileRepository.getPropertyDefinition(session,contentType);
         propertyDefinitions.putAll(session.getTypeDefinition(AlfrescoAspects.TITLED).getPropertyDefinitions());
 
         propertyDefinitions.forEach((key, propertyDefinition) -> {
@@ -270,15 +265,12 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
 
 
     @Override
-    @Cacheable(value = "profiles", key = "#contentType")
     public Map<String, PropertyDefinition<?>> getPropertyDefinition(User user, String contentType) {
         checkNotNull(user, "User required.");
         checkNotNull(contentType, "Content Type Required");
 
-        log.trace("not hitting cache for user '{}' and content-type '{}' ", user.getUsername(), contentType);
-
         final Session sessionForUser = sessionCreator.getSessionForUser(user);
-        final Map<String, PropertyDefinition<?>> propertyDefinitions = sessionForUser.getTypeDefinition(contentType).getPropertyDefinitions();
+        final Map<String, PropertyDefinition<?>> propertyDefinitions = profileRepository.getPropertyDefinition(sessionForUser,contentType);
 
         return propertyDefinitions;
     }
