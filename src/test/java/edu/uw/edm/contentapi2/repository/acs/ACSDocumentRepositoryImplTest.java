@@ -4,8 +4,10 @@ import org.apache.chemistry.opencmis.client.api.Document;
 import org.apache.chemistry.opencmis.client.api.Session;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import edu.uw.edm.contentapi2.properties.ACSProperties;
+import edu.uw.edm.contentapi2.properties.ProfileProperties;
 import edu.uw.edm.contentapi2.repository.acs.connection.ACSSessionCreator;
 import edu.uw.edm.contentapi2.repository.exceptions.NotADocumentException;
 import edu.uw.edm.contentapi2.security.User;
@@ -27,6 +29,9 @@ public class ACSDocumentRepositoryImplTest {
 
     ACSDocumentRepositoryImpl documentRepository;
 
+    @Mock
+    ProfileProperties profileProperties;
+
     @Before
     public void setUp() {
         ACSSessionCreator sessionCreator = mock(ACSSessionCreator.class);
@@ -34,7 +39,7 @@ public class ACSDocumentRepositoryImplTest {
         mockSession = mock(Session.class);
         when(sessionCreator.getSessionForUser(any(User.class))).thenReturn(mockSession);
 
-        documentRepository = new ACSDocumentRepositoryImpl(sessionCreator, new ACSProperties());
+        documentRepository = new ACSDocumentRepositoryImpl(sessionCreator, new ACSProperties(), profileProperties);
     }
 
     @Test
