@@ -25,7 +25,7 @@ public class ProfileDefinitionV4 {
             FieldDefinition fieldDefinition = FieldDefinition.builder()
                     .wccFieldName(propertyDefinition.getId())
                     .type(MappingType.fromPropertyType(propertyDefinition.getPropertyType()))
-                    .validator("")//TODO: implement validators
+                    .validator("none")//TODO: implement validators
                     .build();
 
             if(propertyDefinition.getId().equals(Constants.Alfresco.AlfrescoFields.ITEM_ID_FQDN)){
