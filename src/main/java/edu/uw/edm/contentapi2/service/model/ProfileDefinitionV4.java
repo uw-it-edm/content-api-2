@@ -23,7 +23,7 @@ public class ProfileDefinitionV4 {
         this.profile = profile;
         acsMetadata.forEach((propertyName, propertyDefinition) -> {
             FieldDefinition fieldDefinition = FieldDefinition.builder()
-                    .wccFieldName(propertyDefinition.getId())
+                    .repoFieldName(propertyDefinition.getId())
                     .type(MappingType.fromPropertyType(propertyDefinition.getPropertyType()))
                     .validator("none")//TODO: implement validators
                     .build();

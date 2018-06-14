@@ -7,7 +7,6 @@ import lombok.Getter;
 @Builder
 public class FieldDefinition {
     private MappingType type;
-    private String wccFieldName;
-    //private String acsFieldName;
+    private String repoFieldName;
     private String validator;
 }
