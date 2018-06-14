@@ -11,6 +11,10 @@ public class Constants {
     }
 
     public static final class Alfresco {
+        public static final class ExtensionNames {
+            public static final String MANDATORY_ASPECTS = "mandatoryAspects";
+        }
+
         public static final class AlfrescoFields {
 
             public static final String TITLE_FQDN = "cm:title";
