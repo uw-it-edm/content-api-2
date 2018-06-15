@@ -2,7 +2,7 @@ buildscript {
 	ext {
 		springBootVersion = '2.0.3.RELEASE'
 		openCMISVersion = '1.1.0'
-		springCloudReleaseTrain = 'Finchley.M9'
+		springCloudReleaseTrain = 'Finchley.BUILD-SNAPSHOT'
 	}
 	repositories {
 		jcenter()
