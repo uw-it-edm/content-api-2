@@ -69,7 +69,7 @@ dependencies {
 
 	compile("org.apache.chemistry.opencmis:chemistry-opencmis-client-impl:$openCMISVersion")
 
-	compile("com.google.guava:guava")
+	compile("com.google.guava:guava:$guavaVersion")
 
 	compile('com.github.ben-manes.caffeine:caffeine')
 
