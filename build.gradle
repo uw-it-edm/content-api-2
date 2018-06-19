@@ -2,7 +2,7 @@ buildscript {
 	ext {
 		springBootVersion = '2.0.3.RELEASE'
 		openCMISVersion = '1.1.0'
-		guavaVersion = '19.0'
+		guavaVersion = '25.1-jre'
 		springCloudReleaseTrain = 'Finchley.M9'
 	}
 	repositories {
@@ -69,7 +69,7 @@ dependencies {
 
 	compile("org.apache.chemistry.opencmis:chemistry-opencmis-client-impl:$openCMISVersion")
 
-	compile("com.google.guava:guava")
+	compile("com.google.guava:guava:$guavaVersion")
 
 	compile('com.github.ben-manes.caffeine:caffeine')
 
