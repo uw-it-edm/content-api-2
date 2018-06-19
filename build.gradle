@@ -2,6 +2,7 @@ buildscript {
 	ext {
 		springBootVersion = '2.0.3.RELEASE'
 		openCMISVersion = '1.1.0'
+		guavaVersion = '19.0'
 		springCloudReleaseTrain = 'Finchley.M9'
 	}
 	repositories {
