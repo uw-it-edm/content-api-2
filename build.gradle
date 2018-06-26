@@ -2,7 +2,8 @@ buildscript {
 	ext {
 		springBootVersion = '2.0.3.RELEASE'
 		openCMISVersion = '1.1.0'
-		springCloudReleaseTrain = 'Finchley.M9'
+		guavaVersion = '25.1-jre'
+		springCloudReleaseTrain = 'Finchley.RELEASE'
 	}
 	repositories {
 		jcenter()
@@ -14,7 +15,7 @@ buildscript {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
 		classpath "edu.uw.concert:gradle-gitflow:0.3.0"
 		classpath "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.5.1"
-		classpath("org.jfrog.buildinfo:build-info-extractor-gradle:4.7.3")
+		classpath("org.jfrog.buildinfo:build-info-extractor-gradle:4.7.4")
 		classpath("nu.studer:gradle-credentials-plugin:1.0.4")
 	}
 
@@ -41,7 +42,6 @@ sourceCompatibility = 1.8
 repositories {
 	jcenter()
 	mavenLocal()
-	maven { url "http://repo.spring.io/snapshot" }
 	maven { url "http://repo.spring.io/milestone" }
 }
 
@@ -69,7 +69,7 @@ dependencies {
 
 	compile("org.apache.chemistry.opencmis:chemistry-opencmis-client-impl:$openCMISVersion")
 
-	compile("com.google.guava:guava")
+	compile("com.google.guava:guava:$guavaVersion")
 
 	compile('com.github.ben-manes.caffeine:caffeine')
 
