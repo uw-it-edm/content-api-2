@@ -1,0 +1,12 @@
+- !!edu.uw.edm.contentapi2.common.model.ProfileMapping
+  profileName: StandardProfile
+  contentType:
+  contentApiToRepoFieldMapping: &defaultMapping
+    TestStandard: testKey
+
+- !!edu.uw.edm.contentapi2.common.model.ProfileMapping
+  profileName: FinancialAid
+  contentType: "D:example:ExampleContentModel"
+  contentApiToRepoFieldMapping:
+    <<: *defaultMapping
+    anExample: anotherExample

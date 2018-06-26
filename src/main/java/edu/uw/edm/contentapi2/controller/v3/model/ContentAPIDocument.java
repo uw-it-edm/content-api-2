@@ -1,12 +1,18 @@
 package edu.uw.edm.contentapi2.controller.v3.model;
 
+import com.google.common.base.Strings;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.beans.Transient;
 import java.util.HashMap;
 import java.util.Map;
 
 import lombok.Data;
 import lombok.ToString;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static edu.uw.edm.contentapi2.repository.constants.Constants.ContentAPI.PROFILE_ID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data
@@ -69,5 +75,12 @@ public class ContentAPIDocument {
 
     public void setMetadata(Map<String, Object> metadata) {
         this.metadata = metadata;
+    }
+
+    @Transient
+    public String getProfileId() {
+        final String profileId = (String) this.getMetadata().get(PROFILE_ID);
+        checkArgument(!Strings.isNullOrEmpty(profileId), "Profile is a required metadata field");
+        return profileId;
     }
 }

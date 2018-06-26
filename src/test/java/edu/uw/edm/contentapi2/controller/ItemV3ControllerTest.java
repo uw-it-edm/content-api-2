@@ -9,6 +9,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import edu.uw.edm.contentapi2.common.FieldMapper;
 import edu.uw.edm.contentapi2.controller.v3.model.ContentAPIDocument;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.DocumentFacade;
@@ -35,6 +36,8 @@ public class ItemV3ControllerTest {
 
     @MockBean
     private DocumentFacade documentFacade;
+    @MockBean
+    private FieldMapper fieldMapper;
 
     @Test
     public void getItemIdTest() throws Exception {

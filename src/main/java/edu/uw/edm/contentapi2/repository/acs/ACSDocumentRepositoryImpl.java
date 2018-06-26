@@ -25,9 +25,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import edu.uw.edm.contentapi2.common.FieldMapper;
 import edu.uw.edm.contentapi2.controller.v3.model.ContentAPIDocument;
 import edu.uw.edm.contentapi2.properties.ACSProperties;
-import edu.uw.edm.contentapi2.properties.ProfileProperties;
 import edu.uw.edm.contentapi2.repository.ExternalDocumentRepository;
 import edu.uw.edm.contentapi2.repository.acs.connection.ACSSessionCreator;
 import edu.uw.edm.contentapi2.repository.constants.Constants.Alfresco.AlfrescoAspects;
@@ -52,14 +52,14 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
     private ACSSessionCreator sessionCreator;
     private ACSProperties acsProperties;
     private ACSProfileRepository profileRepository;
-    private ProfileProperties profileProperties;
+    private FieldMapper fieldMapper;
 
     @Autowired
-    public ACSDocumentRepositoryImpl(ACSSessionCreator sessionCreator, ACSProperties acsProperties, ProfileProperties profileProperties, ACSProfileRepository profileRepository) {
+    public ACSDocumentRepositoryImpl(ACSSessionCreator sessionCreator, ACSProperties acsProperties, ACSProfileRepository profileRepository, FieldMapper fieldMapper) {
         this.sessionCreator = sessionCreator;
         this.acsProperties = acsProperties;
-        this.profileProperties = profileProperties;
         this.profileRepository = profileRepository;
+        this.fieldMapper = fieldMapper;
     }
 
 
@@ -185,8 +185,8 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
     private String getFQDNContentType(ContentAPIDocument document) throws NoSuchProfileException {
         checkNotNull(document, "document is required");
         checkNotNull(document.getMetadata(), "document metadata is required");
-        final String profileId = (String) document.getMetadata().get(PROFILE_ID);
-        final String contentType = profileProperties.getContentTypeForProfile(profileId);
+        final String profileId = document.getProfileId();
+        final String contentType = fieldMapper.getContentTypeForProfile(profileId);
         return contentType;
     }
 
@@ -222,11 +222,13 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
         final Map<String, Object> properties = new HashMap<>();
 
         final String contentType = getFQDNContentType(document);
-        final Map<String, PropertyDefinition<?>> propertyDefinitions = profileRepository.getPropertyDefinition(session,contentType);
+        final Map<String, PropertyDefinition<?>> propertyDefinitions = profileRepository.getPropertyDefinition(session, contentType);
         propertyDefinitions.putAll(session.getTypeDefinition(AlfrescoAspects.TITLED).getPropertyDefinitions());
 
+        final String profileId = document.getProfileId();
+
         propertyDefinitions.forEach((key, propertyDefinition) -> {
-            Object contentAPIMetadataValue = document.getMetadata().get(propertyDefinition.getLocalName());
+            Object contentAPIMetadataValue = document.getMetadata().get(fieldMapper.convertToContentApiFieldFromRepositoryField(profileId, propertyDefinition.getLocalName()));
 
             if (contentAPIMetadataValue != null) {
                 properties.put(key, contentAPIMetadataValue);
@@ -245,8 +247,7 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
     private Folder getSiteRootFolderFromContentApiDocument(ContentAPIDocument document, Session session) throws NoSuchProfileException {
         checkNotNull(document, "document metadata shouldn't be null");
         checkNotNull(document.getMetadata(), "document should contain metadata");
-        String profileId = (String) document.getMetadata().get(PROFILE_ID);
-        checkArgument(!Strings.isNullOrEmpty(profileId), "document should have a profileId field");
+        String profileId = document.getProfileId();
 
         CmisObject documentLibraryFolderForProfile = session.getObjectByPath(getDocumentLibraryPath(profileId));
 
@@ -270,7 +271,7 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
         checkNotNull(contentType, "Content Type Required");
 
         final Session sessionForUser = sessionCreator.getSessionForUser(user);
-        final Map<String, PropertyDefinition<?>> propertyDefinitions = profileRepository.getPropertyDefinition(sessionForUser,contentType);
+        final Map<String, PropertyDefinition<?>> propertyDefinitions = profileRepository.getPropertyDefinition(sessionForUser, contentType);
 
         return propertyDefinitions;
     }
