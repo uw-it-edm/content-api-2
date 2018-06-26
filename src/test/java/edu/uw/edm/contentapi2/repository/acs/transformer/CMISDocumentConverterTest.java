@@ -70,7 +70,7 @@ public class CMISDocumentConverterTest {
         ContentAPIDocument contentAPIDocument = converter.toContentApiDocument(repositoryDocumentMock);
 
         assertThat("docId", contentAPIDocument.getId(), is(equalTo("doc-id")));
-        assertThat("label", contentAPIDocument.getLabel(), is(equalTo("doc contentType")));
+        assertThat("label", contentAPIDocument.getLabel(), is(equalTo("doc name")));
         assertThat("metadata.Property1", contentAPIDocument.getMetadata().get("overridenName"), is(equalTo("value1")));
     }
 
