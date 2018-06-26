@@ -1,9 +1,9 @@
 package edu.uw.edm.contentapi2.common.impl;
 
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.Yaml;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -14,28 +14,31 @@ import javax.annotation.PostConstruct;
 
 import edu.uw.edm.contentapi2.common.FieldMapper;
 import edu.uw.edm.contentapi2.common.model.ProfileMapping;
+import edu.uw.edm.contentapi2.properties.ProfileMappingProperties;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 
 @Service
 public class YamlFieldMapper implements FieldMapper {
-    private final String MAPPING_FILE_PATH = "profile-mapping.yml";
-
+    private ProfileMappingProperties profileMappingProperties;
     private Map<String, ProfileMapping> profileMappings = new HashMap<>();
+
+    YamlFieldMapper(ProfileMappingProperties profileMappingProperties) {
+        this.profileMappingProperties = profileMappingProperties;
+    }
 
     @PostConstruct
     public void init() throws IOException {
-        List<ProfileMapping> profileMappings = loadProfileMappings(MAPPING_FILE_PATH);
+        List<ProfileMapping> profileMappings = loadProfileMappings(profileMappingProperties.getProfileMappingFilePath());
         for (ProfileMapping profileMapping : profileMappings) {
             this.profileMappings.put(profileMapping.getProfileName(), profileMapping);
         }
     }
 
     private List<ProfileMapping> loadProfileMappings(String mappingFilePath) throws IOException {
-        InputStream inputStream = new ClassPathResource(mappingFilePath).getInputStream();
-        Yaml yaml = new Yaml();
-
-        return (List<ProfileMapping>) yaml.load(inputStream);
-
+        try (InputStream inputStream = new FileInputStream(mappingFilePath)) {
+            Yaml yaml = new Yaml();
+            return (List<ProfileMapping>) yaml.load(inputStream);
+        }
     }
 
     @Override

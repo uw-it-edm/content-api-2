@@ -20,4 +20,5 @@ public class ACSProperties {
 
     private boolean autoUndoCheckout = true;
 
+
 }
