@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.uw.edm.contentapi2.common.FieldMapper;
-import edu.uw.edm.contentapi2.common.impl.YamlFieldMapper;
 import edu.uw.edm.contentapi2.controller.v3.model.ContentAPIDocument;
 import edu.uw.edm.contentapi2.properties.ACSProperties;
 import edu.uw.edm.contentapi2.repository.acs.connection.ACSSessionCreator;
@@ -55,8 +54,6 @@ public class ACSDocumentRepositoryImplTest {
     ACSProfileRepository profileRepository;
     @Mock
     FieldMapper fieldMapper;
-    @Mock
-    YamlFieldMapper yamlFieldMapper;
 
     @Before
     public void setUp() {
@@ -66,7 +63,7 @@ public class ACSDocumentRepositoryImplTest {
         when(sessionCreator.getSessionForUser(any(User.class))).thenReturn(mockSession);
 
 
-        documentRepository = new ACSDocumentRepositoryImpl(sessionCreator, new ACSProperties(), yamlFieldMapper, profileRepository, fieldMapper);
+        documentRepository = new ACSDocumentRepositoryImpl(sessionCreator, new ACSProperties(), profileRepository, fieldMapper);
     }
 
     @Test
@@ -95,7 +92,7 @@ public class ACSDocumentRepositoryImplTest {
     @Test
     public void createDocumentTest() throws NoSuchProfileException {
         when(fieldMapper.convertToContentApiFieldFromRepositoryField(anyString(), anyString())).thenAnswer(i -> i.getArguments()[1]);//return second argument
-        when(yamlFieldMapper.getContentTypeForProfile(any())).thenReturn("test:TestProfile");
+        when(fieldMapper.getContentTypeForProfile(any())).thenReturn("test:TestProfile");
 
         final Map<String, PropertyDefinition<?>> propertyDefinitions = new HashMap<>();
         final PropertyDefinition mockPropertyDefinition = mock(PropertyDefinition.class);

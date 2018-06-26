@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.uw.edm.contentapi2.common.FieldMapper;
-import edu.uw.edm.contentapi2.common.impl.YamlFieldMapper;
 import edu.uw.edm.contentapi2.repository.ExternalDocumentRepository;
 import edu.uw.edm.contentapi2.repository.constants.Constants;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
@@ -33,8 +32,6 @@ public class ProfileDefinitionServiceImplTest {
     ProfileDefinitionServiceImpl profileDefinitionService;
     @Mock
     ExternalDocumentRepository documentRepository;
-    @Mock
-    YamlFieldMapper yamlFieldMapper;
     @Mock
     FieldMapper fieldMapper;
     @Mock
@@ -62,7 +59,7 @@ public class ProfileDefinitionServiceImplTest {
         propertyDefinition2s.put("test:testField2", test2MetadataDefinition);
         when(documentRepository.getPropertyDefinition(any(User.class), eq("D:test:TestProfile2"))).thenReturn(propertyDefinition2s);
 
-        this.profileDefinitionService = new ProfileDefinitionServiceImpl(documentRepository, yamlFieldMapper, fieldMapper);
+        this.profileDefinitionService = new ProfileDefinitionServiceImpl(documentRepository, fieldMapper);
     }
 
 
@@ -86,8 +83,9 @@ public class ProfileDefinitionServiceImplTest {
     @Test
     public void getProfileDefinitionAppliesProfileSpecificFieldMapping() throws NoSuchProfileException {
         final String PROFILE_WITH_OVERRIDE = "testProfile";
-        when(yamlFieldMapper.getContentTypeForProfile(eq(PROFILE_WITH_OVERRIDE))).thenReturn("D:test:TestProfile");
+        when(fieldMapper.getContentTypeForProfile(eq(PROFILE_WITH_OVERRIDE))).thenReturn("D:test:TestProfile");
         when(fieldMapper.convertToContentApiFieldFromRepositoryField(eq(PROFILE_WITH_OVERRIDE), eq("testField"))).thenReturn("TestOverride");
+        //when(fieldMapper.convertToContentApiFieldFromRepositoryField(eq(PROFILE_WITH_OVERRIDE), eq("testField2"))).thenReturn("testField2");
 
         final FieldDefinition testField = createTestFieldDefinition("test:testField");
         final FieldDefinition id = createTestFieldDefinition("test:testId");
@@ -116,7 +114,7 @@ public class ProfileDefinitionServiceImplTest {
     @Test
     public void getProfileDefinitionWithoutFieldMapping() throws NoSuchProfileException {
         final String PROFILE_WITHOUT_OVERRIDE = "testProfile2";
-        when(yamlFieldMapper.getContentTypeForProfile(eq(PROFILE_WITHOUT_OVERRIDE))).thenReturn("D:test:TestProfile2");
+        when(fieldMapper.getContentTypeForProfile(eq(PROFILE_WITHOUT_OVERRIDE))).thenReturn("D:test:TestProfile2");
         when(fieldMapper.convertToContentApiFieldFromRepositoryField(anyString(), anyString())).thenAnswer(i -> i.getArguments()[1]);//return second argument
         final FieldDefinition testField = createTestFieldDefinition("test:testField");
         final FieldDefinition testField2 = createTestFieldDefinition("test:testField2");
@@ -145,7 +143,7 @@ public class ProfileDefinitionServiceImplTest {
 
     @Test(expected = NoSuchProfileException.class)
     public void whenProfileIsNotDefinedThrowNoSuchProfileException() throws NoSuchProfileException {
-        when(yamlFieldMapper.getContentTypeForProfile(eq("invalidProfile"))).thenThrow(NoSuchProfileException.class);
+        when(fieldMapper.getContentTypeForProfile(eq("invalidProfile"))).thenThrow(NoSuchProfileException.class);
         this.profileDefinitionService.getProfileDefinition("invalidProfile", user);
     }
 

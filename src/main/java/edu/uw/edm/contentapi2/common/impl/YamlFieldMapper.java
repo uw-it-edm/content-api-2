@@ -18,13 +18,13 @@ import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 
 @Service
 public class YamlFieldMapper implements FieldMapper {
+    private final String MAPPING_FILE_PATH = "profile-mapping.yml";
 
     private Map<String, ProfileMapping> profileMappings = new HashMap<>();
-    private final String mappingFilePath = "profile-mapping.yml";
 
     @PostConstruct
     public void init() throws IOException {
-        List<ProfileMapping> profileMappings = loadProfileMappings(mappingFilePath);
+        List<ProfileMapping> profileMappings = loadProfileMappings(MAPPING_FILE_PATH);
         for (ProfileMapping profileMapping : profileMappings) {
             this.profileMappings.put(profileMapping.getProfileName(), profileMapping);
         }

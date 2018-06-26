@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import edu.uw.edm.contentapi2.common.FieldMapper;
-import edu.uw.edm.contentapi2.common.impl.YamlFieldMapper;
 import edu.uw.edm.contentapi2.controller.v3.model.ContentAPIDocument;
 import edu.uw.edm.contentapi2.properties.ACSProperties;
 import edu.uw.edm.contentapi2.repository.ExternalDocumentRepository;
@@ -53,14 +52,12 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
     private ACSSessionCreator sessionCreator;
     private ACSProperties acsProperties;
     private ACSProfileRepository profileRepository;
-    private YamlFieldMapper yamlFieldMapper;
     private FieldMapper fieldMapper;
 
     @Autowired
-    public ACSDocumentRepositoryImpl(ACSSessionCreator sessionCreator, ACSProperties acsProperties, YamlFieldMapper yamlFieldMapper, ACSProfileRepository profileRepository, FieldMapper fieldMapper) {
+    public ACSDocumentRepositoryImpl(ACSSessionCreator sessionCreator, ACSProperties acsProperties, ACSProfileRepository profileRepository, FieldMapper fieldMapper) {
         this.sessionCreator = sessionCreator;
         this.acsProperties = acsProperties;
-        this.yamlFieldMapper = yamlFieldMapper;
         this.profileRepository = profileRepository;
         this.fieldMapper = fieldMapper;
     }
@@ -189,16 +186,16 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
         checkNotNull(document, "document is required");
         checkNotNull(document.getMetadata(), "document metadata is required");
         final String profileId = document.getProfileId();
-        final String contentType = yamlFieldMapper.getContentTypeForProfile(profileId);
+        final String contentType = fieldMapper.getContentTypeForProfile(profileId);
         return contentType;
     }
 
     private Map<String, Object> getCMISPropertiesForUpdate(ContentAPIDocument document, String filename, Session session) throws NoSuchProfileException {
 
         Map<String, Object> properties = new HashMap<>();
-        //Name is supposed to be unique in a folder ( and should be the file contentType )
-        //TODO we should probably disable contentType uniqueness in ACS and remove the UUID
-        //TODO on metadata update, we shouldn't update the contentType,
+        //Name is supposed to be unique in a folder ( and should be the file name )
+        //TODO we should probably disable name uniqueness in ACS and remove the UUID
+        //TODO on metadata update, we shouldn't update the name,
         properties.put(PropertyIds.NAME, getCMISName(filename, document));
 
         properties.put(AlfrescoFields.TITLE_FQDN, document.getLabel());

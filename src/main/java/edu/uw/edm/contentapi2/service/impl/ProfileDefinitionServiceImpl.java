@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import edu.uw.edm.contentapi2.common.FieldMapper;
-import edu.uw.edm.contentapi2.common.impl.YamlFieldMapper;
 import edu.uw.edm.contentapi2.repository.ExternalDocumentRepository;
 import edu.uw.edm.contentapi2.repository.constants.Constants;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
@@ -26,13 +25,12 @@ import edu.uw.edm.contentapi2.service.model.ProfileDefinitionV4;
 @Service
 public class ProfileDefinitionServiceImpl implements ProfileDefinitionService {
     ExternalDocumentRepository<Document> documentRepository;
-    YamlFieldMapper yamlFieldMapper;
+
     FieldMapper fieldMapper;
 
     @Autowired
-    ProfileDefinitionServiceImpl(ExternalDocumentRepository<Document> documentRepository, YamlFieldMapper yamlFieldMapper, FieldMapper fieldMapper) {
+    ProfileDefinitionServiceImpl(ExternalDocumentRepository<Document> documentRepository, FieldMapper fieldMapper) {
         this.documentRepository = documentRepository;
-        this.yamlFieldMapper = yamlFieldMapper;
         this.fieldMapper = fieldMapper;
     }
 
@@ -40,7 +38,7 @@ public class ProfileDefinitionServiceImpl implements ProfileDefinitionService {
     @Cacheable(value = "profile-definition", key = "{#profileId, #user.username}")
     @Override
     public ProfileDefinitionV4 getProfileDefinition(String profileId, User user) throws NoSuchProfileException {
-        final String contentType = yamlFieldMapper.getContentTypeForProfile(profileId);
+        final String contentType = fieldMapper.getContentTypeForProfile(profileId);
         final Map<String, PropertyDefinition<?>> propertyDefinitions = documentRepository.getPropertyDefinition(user, contentType);
 
         final PropertyDefinition idField = propertyDefinitions.get(Constants.Alfresco.AlfrescoFields.ITEM_ID_FQDN);

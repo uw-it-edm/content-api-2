@@ -47,7 +47,7 @@ public class CMISDocumentConverterTest {
 
         when(repositoryDocumentMock.getDocumentType()).thenReturn(mockDocumentType);
         when(repositoryDocumentMock.getId()).thenReturn("doc-id");
-        when(repositoryDocumentMock.getPropertyValue(Constants.Alfresco.AlfrescoFields.TITLE_FQDN)).thenReturn("doc contentType");
+        when(repositoryDocumentMock.getPropertyValue(Constants.Alfresco.AlfrescoFields.TITLE_FQDN)).thenReturn("doc name");
         when(repositoryDocumentMock.getProperties()).thenReturn(Collections.singletonList(propertyMock));
 
     }
@@ -59,7 +59,7 @@ public class CMISDocumentConverterTest {
         ContentAPIDocument contentAPIDocument = converter.toContentApiDocument(repositoryDocumentMock);
 
         assertThat("docId", contentAPIDocument.getId(), is(equalTo("doc-id")));
-        assertThat("label", contentAPIDocument.getLabel(), is(equalTo("doc contentType")));
+        assertThat("label", contentAPIDocument.getLabel(), is(equalTo("doc name")));
         assertThat("metadata.Property1", contentAPIDocument.getMetadata().get("property1"), is(equalTo("value1")));
     }
 
