@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.HashMap;
 
+import edu.uw.edm.contentapi2.common.FieldMapper;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.ProfileDefinitionService;
 import edu.uw.edm.contentapi2.service.model.ProfileDefinitionV4;
@@ -31,6 +32,8 @@ public class ProfileDefinitionControllerV4Test {
 
     @MockBean
     private ProfileDefinitionService profileDefinitionService;
+    @MockBean
+    FieldMapper fieldMapper;
 
     @Test
     public void getProfileDefinitionV4Test() throws Exception {
