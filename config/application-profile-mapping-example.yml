@@ -1,5 +1,0 @@
-uw:
-  profile:
-    mappings:
-      example: "D:example:ExampleContentModel"
-      AnotherCM: "D:example:AnotherExampleContentModel"

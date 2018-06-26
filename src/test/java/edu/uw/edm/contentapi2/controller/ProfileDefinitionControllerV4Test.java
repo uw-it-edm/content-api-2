@@ -34,7 +34,10 @@ public class ProfileDefinitionControllerV4Test {
 
     @Test
     public void getProfileDefinitionV4Test() throws Exception {
-        ProfileDefinitionV4 profileDefinition = new ProfileDefinitionV4("testProfile", new HashMap<>());
+        ProfileDefinitionV4 profileDefinition = ProfileDefinitionV4.builder()
+                .profile("testProfile")
+                .metadata(new HashMap<>())
+                .build();
         when(profileDefinitionService.getProfileDefinition(any(String.class), any(User.class))).thenReturn(profileDefinition);
 
         this.mockMvc.perform(get("/v4/testProfile/profile").header("auth-header", "test-user"))
