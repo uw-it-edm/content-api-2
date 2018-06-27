@@ -1,4 +1,4 @@
-package edu.uw.edm.contentapi2.repository.acs;
+package edu.uw.edm.contentapi2.repository.acs.cmis;
 
 import org.apache.chemistry.opencmis.client.api.ObjectType;
 import org.apache.chemistry.opencmis.client.api.Session;

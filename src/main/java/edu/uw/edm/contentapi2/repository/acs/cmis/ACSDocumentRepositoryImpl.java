@@ -1,4 +1,4 @@
-package edu.uw.edm.contentapi2.repository.acs;
+package edu.uw.edm.contentapi2.repository.acs.cmis;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
@@ -8,11 +8,17 @@ import org.apache.chemistry.opencmis.client.api.CmisObject;
 import org.apache.chemistry.opencmis.client.api.Document;
 import org.apache.chemistry.opencmis.client.api.Folder;
 import org.apache.chemistry.opencmis.client.api.FolderType;
+import org.apache.chemistry.opencmis.client.api.ItemIterable;
 import org.apache.chemistry.opencmis.client.api.ObjectId;
+import org.apache.chemistry.opencmis.client.api.OperationContext;
+import org.apache.chemistry.opencmis.client.api.QueryResult;
+import org.apache.chemistry.opencmis.client.api.QueryStatement;
 import org.apache.chemistry.opencmis.client.api.Session;
+import org.apache.chemistry.opencmis.client.runtime.OperationContextImpl;
 import org.apache.chemistry.opencmis.commons.PropertyIds;
 import org.apache.chemistry.opencmis.commons.data.ContentStream;
 import org.apache.chemistry.opencmis.commons.definitions.PropertyDefinition;
+import org.apache.chemistry.opencmis.commons.enums.IncludeRelationships;
 import org.apache.chemistry.opencmis.commons.enums.VersioningState;
 import org.apache.chemistry.opencmis.commons.impl.MimeTypes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +29,15 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import edu.uw.edm.contentapi2.common.FieldMapper;
-import edu.uw.edm.contentapi2.controller.v3.model.ContentAPIDocument;
+import edu.uw.edm.contentapi2.controller.content.v3.model.ContentAPIDocument;
+import edu.uw.edm.contentapi2.controller.content.v3.model.SearchModel;
 import edu.uw.edm.contentapi2.properties.ACSProperties;
 import edu.uw.edm.contentapi2.repository.ExternalDocumentRepository;
-import edu.uw.edm.contentapi2.repository.acs.connection.ACSSessionCreator;
+import edu.uw.edm.contentapi2.repository.acs.cmis.connection.ACSSessionCreator;
 import edu.uw.edm.contentapi2.repository.constants.Constants.Alfresco.AlfrescoAspects;
 import edu.uw.edm.contentapi2.repository.constants.Constants.Alfresco.AlfrescoFields;
 import edu.uw.edm.contentapi2.repository.exceptions.CannotUpdateDocumentException;
@@ -247,7 +255,15 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
     private Folder getSiteRootFolderFromContentApiDocument(ContentAPIDocument document, Session session) throws NoSuchProfileException {
         checkNotNull(document, "document metadata shouldn't be null");
         checkNotNull(document.getMetadata(), "document should contain metadata");
-        String profileId = document.getProfileId();
+        String profileId = (String) document.getMetadata().get(PROFILE_ID);
+
+
+        return getSiteRootFolderForProfileId(session, profileId);
+
+    }
+
+    private Folder getSiteRootFolderForProfileId(Session session, String profileId) throws NoSuchProfileException {
+        checkArgument(!Strings.isNullOrEmpty(profileId), "Should have a profileId field");
 
         CmisObject documentLibraryFolderForProfile = session.getObjectByPath(getDocumentLibraryPath(profileId));
 
@@ -257,7 +273,6 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
         } else {
             throw new NoSuchProfileException(profileId);
         }
-
     }
 
     private String getDocumentLibraryPath(String profileId) {
@@ -274,6 +289,51 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
         final Map<String, PropertyDefinition<?>> propertyDefinitions = profileRepository.getPropertyDefinition(sessionForUser, contentType);
 
         return propertyDefinitions;
+    }
+
+    @Override
+    public Set<Document> searchDocuments(SearchModel searchModel, User user) throws NoSuchProfileException {
+
+        final Session sessionForUser = sessionCreator.getSessionForUser(user);
+        //OperationContext oc = sessionForUser.createOperationContext();
+        //oc.setMaxItemsPerPage(searchModel.getPageSize());
+        OperationContext oc = new OperationContextImpl(null, false, true, false,
+                IncludeRelationships.NONE, null, true, null, true, 100);
+
+        //oc.setLoadSecondaryTypeProperties(true);
+        // QueryStatement qs = sessionForUser.createQueryStatement("select * from uwfi:FinancialAid where IN_TREE(?) and uwfi:financialAidYear IS NOT NULL");
+        //QueryStatement qs = sessionForUser.createQueryStatement("select * from cmis:document");
+        HashMap<String, String> kvHashMap = new HashMap<>();
+        //kvHashMap.put("d", "cmis:document");
+        kvHashMap.put("financialAid", "D:uwfi:FinancialAid");
+        kvHashMap.put("uwstudent", "P:uw:student");
+
+        sessionForUser.queryObjects("D:uwfi:FinancialAid", "cmis:objectId ='3d919f5f-43cb-46da-a9bf-b610a4b9c107'", false, oc).iterator().forEachRemaining(cmisObject -> {
+
+                try {
+                    Document documentById = getDocumentById(cmisObject.getId(), sessionForUser);
+                    log.trace(documentById.getId());
+
+                } catch (NotADocumentException e) {
+                    e.printStackTrace();
+                }
+                log.trace(cmisObject.getId());
+        });
+
+        QueryStatement qs = sessionForUser.createQueryStatement(Arrays.asList("*"), kvHashMap, "", Arrays.asList());
+        qs.setId(1, getSiteRootFolderForProfileId(sessionForUser, "FinancialAid"));
+
+        ItemIterable<QueryResult> queryResults = qs.query(false, oc);
+
+        //"select financialAid.*, uwstudent.* from P:uw:student uwstudent,D:uwfi:FinancialAid financialAid"
+
+        queryResults.skipTo(searchModel.getPageSize() * searchModel.getPageStart())
+                .getPage(searchModel.getPageSize()).iterator().forEachRemaining(queryResult -> {
+                    queryResult.getProperties().toString();
+                }
+        );
+
+        return null;
     }
 
 }

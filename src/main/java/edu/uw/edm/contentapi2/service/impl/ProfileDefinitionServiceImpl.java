@@ -35,8 +35,8 @@ public class ProfileDefinitionServiceImpl implements ProfileDefinitionService {
     }
 
 
-    @Cacheable(value = "profile-definition", key = "{#profileId, #user.username}")
     @Override
+    @Cacheable(value = "profile-definition", key = "{#profileId, #user.username}")
     public ProfileDefinitionV4 getProfileDefinition(String profileId, User user) throws NoSuchProfileException {
         final String contentType = fieldMapper.getContentTypeForProfile(profileId);
         final Map<String, PropertyDefinition<?>> propertyDefinitions = documentRepository.getPropertyDefinition(user, contentType);

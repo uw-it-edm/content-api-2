@@ -10,7 +10,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import edu.uw.edm.contentapi2.common.FieldMapper;
-import edu.uw.edm.contentapi2.controller.v3.model.ContentAPIDocument;
+import edu.uw.edm.contentapi2.controller.content.v3.model.ContentAPIDocument;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.DocumentFacade;
 

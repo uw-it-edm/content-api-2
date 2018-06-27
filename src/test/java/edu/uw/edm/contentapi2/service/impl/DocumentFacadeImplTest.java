@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import edu.uw.edm.contentapi2.repository.ExternalDocumentRepository;
+import edu.uw.edm.contentapi2.repository.ExternalSearchDocumentRepository;
 import edu.uw.edm.contentapi2.repository.exceptions.RepositoryException;
 import edu.uw.edm.contentapi2.repository.transformer.ExternalDocumentConverter;
 import edu.uw.edm.contentapi2.security.User;
@@ -31,13 +32,15 @@ public class DocumentFacadeImplTest {
 
     @Mock
     ExternalDocumentConverter converter;
+    @Mock
+    ExternalSearchDocumentRepository searchRepository;
 
 
     DocumentFacadeImpl documentFacade;
 
     @Before
     public void setUp() {
-        documentFacade = new DocumentFacadeImpl(repository, converter);
+        documentFacade = new DocumentFacadeImpl(repository, searchRepository, converter);
     }
 
     @Test

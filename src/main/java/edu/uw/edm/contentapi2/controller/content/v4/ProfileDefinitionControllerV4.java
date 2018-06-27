@@ -1,4 +1,4 @@
-package edu.uw.edm.contentapi2.controller.v4;
+package edu.uw.edm.contentapi2.controller.content.v4;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 
 
 @RestController
-@RequestMapping("/v4/{profileId}/profile")
+@RequestMapping("/content/v4/{profileId}/profile")
 @Slf4j
 public class ProfileDefinitionControllerV4 {
 

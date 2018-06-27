@@ -1,11 +1,11 @@
-package edu.uw.edm.contentapi2.repository.acs.transformer;
+package edu.uw.edm.contentapi2.repository.acs.cmis.transformer;
 
 import org.apache.chemistry.opencmis.client.api.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import edu.uw.edm.contentapi2.common.FieldMapper;
-import edu.uw.edm.contentapi2.controller.v3.model.ContentAPIDocument;
+import edu.uw.edm.contentapi2.controller.content.v3.model.ContentAPIDocument;
 import edu.uw.edm.contentapi2.repository.constants.Constants;
 import edu.uw.edm.contentapi2.repository.transformer.ExternalDocumentConverter;
 

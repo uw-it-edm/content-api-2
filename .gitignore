@@ -30,3 +30,6 @@ nbdist/
 .nb-gradle/
 
 **/profile-mapping.yml
+
+
+application-profile-mapping.yml

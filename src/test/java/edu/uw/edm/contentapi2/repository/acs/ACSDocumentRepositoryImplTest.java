@@ -18,9 +18,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.uw.edm.contentapi2.common.FieldMapper;
-import edu.uw.edm.contentapi2.controller.v3.model.ContentAPIDocument;
+import edu.uw.edm.contentapi2.controller.content.v3.model.ContentAPIDocument;
 import edu.uw.edm.contentapi2.properties.ACSProperties;
-import edu.uw.edm.contentapi2.repository.acs.connection.ACSSessionCreator;
+import edu.uw.edm.contentapi2.repository.acs.cmis.ACSDocumentRepositoryImpl;
+import edu.uw.edm.contentapi2.repository.acs.cmis.ACSProfileRepository;
+import edu.uw.edm.contentapi2.repository.acs.cmis.connection.ACSSessionCreator;
 import edu.uw.edm.contentapi2.repository.constants.Constants;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.repository.exceptions.NotADocumentException;
@@ -39,8 +41,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * @author Maxime Deravet
- * Date: 4/4/18
+ * @author Maxime Deravet Date: 4/4/18
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ACSDocumentRepositoryImplTest {

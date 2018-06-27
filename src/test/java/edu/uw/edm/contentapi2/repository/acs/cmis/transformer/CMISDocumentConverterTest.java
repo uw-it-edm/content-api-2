@@ -1,4 +1,4 @@
-package edu.uw.edm.contentapi2.repository.acs.transformer;
+package edu.uw.edm.contentapi2.repository.acs.cmis.transformer;
 
 import org.apache.chemistry.opencmis.client.api.DocumentType;
 import org.apache.chemistry.opencmis.client.api.Property;
@@ -11,7 +11,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.Collections;
 
 import edu.uw.edm.contentapi2.common.FieldMapper;
-import edu.uw.edm.contentapi2.controller.v3.model.ContentAPIDocument;
+import edu.uw.edm.contentapi2.controller.content.v3.model.ContentAPIDocument;
 import edu.uw.edm.contentapi2.repository.constants.Constants;
 
 import static org.hamcrest.Matchers.equalTo;
