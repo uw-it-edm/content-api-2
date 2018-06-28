@@ -12,8 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.uw.edm.contentapi2.common.FieldMapper;
-import edu.uw.edm.contentapi2.repository.ExternalDocumentRepository;
-import edu.uw.edm.contentapi2.repository.acs.cmis.ACSProfileRepository;
+import edu.uw.edm.contentapi2.repository.ExternalProfileRepository;
 import edu.uw.edm.contentapi2.repository.constants.Constants;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.security.User;
@@ -32,7 +31,7 @@ import static org.mockito.Mockito.when;
 public class ProfileDefinitionServiceImplTest {
     ProfileDefinitionServiceImpl profileDefinitionService;
     @Mock
-    ACSProfileRepository documentRepository;
+    ExternalProfileRepository profileRepository;
     @Mock
     FieldMapper fieldMapper;
     @Mock
@@ -50,7 +49,7 @@ public class ProfileDefinitionServiceImplTest {
         propertyDefinitions.put(Constants.Alfresco.AlfrescoFields.ITEM_ID_FQDN, idDefinition);
         propertyDefinitions.put(Constants.Alfresco.AlfrescoFields.LABEL_FQDN, labelDefinition);
         propertyDefinitions.put("test:testField", testMetadataDefinition);
-        when(documentRepository.getPropertyDefinition(any(User.class), eq("D:test:TestProfile"))).thenReturn(propertyDefinitions);
+        when(profileRepository.getPropertyDefinition(any(User.class), eq("D:test:TestProfile"))).thenReturn(propertyDefinitions);
 
 
         Map<String, PropertyDefinition<?>> propertyDefinition2s = new HashMap<>();
@@ -58,9 +57,9 @@ public class ProfileDefinitionServiceImplTest {
         propertyDefinition2s.put(Constants.Alfresco.AlfrescoFields.LABEL_FQDN, labelDefinition);
         propertyDefinition2s.put("test:testField", testMetadataDefinition);
         propertyDefinition2s.put("test:testField2", test2MetadataDefinition);
-        when(documentRepository.getPropertyDefinition(any(User.class), eq("D:test:TestProfile2"))).thenReturn(propertyDefinition2s);
+        when(profileRepository.getPropertyDefinition(any(User.class), eq("D:test:TestProfile2"))).thenReturn(propertyDefinition2s);
 
-        this.profileDefinitionService = new ProfileDefinitionServiceImpl(documentRepository, fieldMapper);
+        this.profileDefinitionService = new ProfileDefinitionServiceImpl(profileRepository, fieldMapper);
     }
 
 

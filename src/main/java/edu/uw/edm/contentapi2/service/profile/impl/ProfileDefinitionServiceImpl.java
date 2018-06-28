@@ -1,6 +1,5 @@
 package edu.uw.edm.contentapi2.service.profile.impl;
 
-import org.apache.chemistry.opencmis.client.api.Document;
 import org.apache.chemistry.opencmis.commons.definitions.PropertyDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -13,8 +12,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import edu.uw.edm.contentapi2.common.FieldMapper;
-import edu.uw.edm.contentapi2.repository.ExternalDocumentRepository;
-import edu.uw.edm.contentapi2.repository.acs.cmis.ACSProfileRepository;
+import edu.uw.edm.contentapi2.repository.ExternalProfileRepository;
 import edu.uw.edm.contentapi2.repository.constants.Constants;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.security.User;
@@ -29,12 +27,12 @@ import edu.uw.edm.contentapi2.service.profile.ProfileDefinitionService;
 @Service
 public class ProfileDefinitionServiceImpl implements ProfileDefinitionService {
 
-    ACSProfileRepository profileRepository;
+    ExternalProfileRepository profileRepository;
 
     FieldMapper fieldMapper;
 
     @Autowired
-    ProfileDefinitionServiceImpl(ACSProfileRepository profileRepository, FieldMapper fieldMapper) {
+    ProfileDefinitionServiceImpl(ExternalProfileRepository profileRepository, FieldMapper fieldMapper) {
         this.profileRepository = profileRepository;
         this.fieldMapper = fieldMapper;
     }

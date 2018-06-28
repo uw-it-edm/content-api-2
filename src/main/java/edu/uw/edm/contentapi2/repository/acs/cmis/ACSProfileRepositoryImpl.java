@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import edu.uw.edm.contentapi2.repository.ExternalProfileRepository;
 import edu.uw.edm.contentapi2.repository.acs.cmis.connection.ACSSessionCreator;
 import edu.uw.edm.contentapi2.security.User;
 import lombok.extern.slf4j.Slf4j;
@@ -20,15 +21,16 @@ import static edu.uw.edm.contentapi2.repository.constants.Constants.Alfresco.Ext
 
 @Service
 @Slf4j
-public class ACSProfileRepository {
+public class ACSProfileRepositoryImpl implements ExternalProfileRepository {
 
     private ACSSessionCreator sessionCreator;
 
     @Autowired
-    public ACSProfileRepository(ACSSessionCreator sessionCreator) {
+    public ACSProfileRepositoryImpl(ACSSessionCreator sessionCreator) {
         this.sessionCreator = sessionCreator;
     }
 
+    @Override
     @Cacheable(value = "profiles", key = "#contentTypeId")
     public Map<String, PropertyDefinition<?>> getPropertyDefinition(User user, String contentTypeId) {
         checkNotNull(user, "User required.");

@@ -36,6 +36,7 @@ import edu.uw.edm.contentapi2.controller.content.v3.model.ContentAPIDocument;
 import edu.uw.edm.contentapi2.controller.content.v3.model.SearchModel;
 import edu.uw.edm.contentapi2.properties.ACSProperties;
 import edu.uw.edm.contentapi2.repository.ExternalDocumentRepository;
+import edu.uw.edm.contentapi2.repository.ExternalProfileRepository;
 import edu.uw.edm.contentapi2.repository.acs.cmis.connection.ACSSessionCreator;
 import edu.uw.edm.contentapi2.repository.constants.Constants.Alfresco.AlfrescoAspects;
 import edu.uw.edm.contentapi2.repository.constants.Constants.Alfresco.AlfrescoFields;
@@ -59,11 +60,11 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
 
     private ACSSessionCreator sessionCreator;
     private ACSProperties acsProperties;
-    private ACSProfileRepository profileRepository;
     private ProfileFacade profileFacade;
+    private ExternalProfileRepository profileRepository;
 
     @Autowired
-    public ACSDocumentRepositoryImpl(ACSSessionCreator sessionCreator, ACSProperties acsProperties, ACSProfileRepository profileRepository, ProfileFacade profileFacade) {
+    public ACSDocumentRepositoryImpl(ACSSessionCreator sessionCreator, ACSProperties acsProperties, ExternalProfileRepository profileRepository, ProfileFacade profileFacade) {
         this.sessionCreator = sessionCreator;
         this.acsProperties = acsProperties;
         this.profileRepository = profileRepository;
@@ -281,28 +282,13 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
 
 
     @Override
-    public Map<String, PropertyDefinition<?>> getPropertyDefinition(User user, String contentType) {
-        checkNotNull(contentType, "Content Type Required");
-
-        final Map<String, PropertyDefinition<?>> propertyDefinitions = profileRepository.getPropertyDefinition(user, contentType);
-
-        return propertyDefinitions;
-    }
-
-    @Override
     public Set<Document> searchDocuments(SearchModel searchModel, User user) throws NoSuchProfileException {
 
         final Session sessionForUser = sessionCreator.getSessionForUser(user);
-        //OperationContext oc = sessionForUser.createOperationContext();
-        //oc.setMaxItemsPerPage(searchModel.getPageSize());
         OperationContext oc = new OperationContextImpl(null, false, true, false,
                 IncludeRelationships.NONE, null, true, null, true, 100);
 
-        //oc.setLoadSecondaryTypeProperties(true);
-        // QueryStatement qs = sessionForUser.createQueryStatement("select * from uwfi:FinancialAid where IN_TREE(?) and uwfi:financialAidYear IS NOT NULL");
-        //QueryStatement qs = sessionForUser.createQueryStatement("select * from cmis:document");
         HashMap<String, String> kvHashMap = new HashMap<>();
-        //kvHashMap.put("d", "cmis:document");
         kvHashMap.put("financialAid", "D:uwfi:FinancialAid");
         kvHashMap.put("uwstudent", "P:uw:student");
 

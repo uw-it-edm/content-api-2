@@ -18,11 +18,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.uw.edm.contentapi2.common.FieldMapper;
 import edu.uw.edm.contentapi2.controller.content.v3.model.ContentAPIDocument;
 import edu.uw.edm.contentapi2.properties.ACSProperties;
+import edu.uw.edm.contentapi2.repository.ExternalProfileRepository;
 import edu.uw.edm.contentapi2.repository.acs.cmis.ACSDocumentRepositoryImpl;
-import edu.uw.edm.contentapi2.repository.acs.cmis.ACSProfileRepository;
 import edu.uw.edm.contentapi2.repository.acs.cmis.connection.ACSSessionCreator;
 import edu.uw.edm.contentapi2.repository.constants.Constants;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
@@ -54,7 +53,7 @@ public class ACSDocumentRepositoryImplTest {
     ACSDocumentRepositoryImpl documentRepository;
 
     @Mock
-    ACSProfileRepository profileRepository;
+    ExternalProfileRepository profileRepository;
     @Mock
     ProfileFacade profileFacade;
 
@@ -89,7 +88,7 @@ public class ACSDocumentRepositoryImplTest {
         propertyDefinitions.put("test:trackingId", mock(PropertyDefinition.class));
         when(profileRepository.getPropertyDefinition(any(User.class), eq("test-content-type"))).thenReturn(propertyDefinitions);
 
-        Map<String, PropertyDefinition<?>> results = documentRepository.getPropertyDefinition(testUser, "test-content-type");
+        Map<String, PropertyDefinition<?>> results = profileRepository.getPropertyDefinition(testUser, "test-content-type");
         assertEquals(propertyDefinitions.size(), results.size());
         assertEquals(propertyDefinitions.get("test:trackingId"), results.get("test:trackingId"));
     }

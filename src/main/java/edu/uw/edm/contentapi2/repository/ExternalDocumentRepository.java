@@ -22,7 +22,5 @@ public interface ExternalDocumentRepository<T> {
 
     T updateDocument(String itemId, ContentAPIDocument updatedContentAPIDocument, MultipartFile primaryFile, User user) throws RepositoryException;
 
-    Map<String, PropertyDefinition<?>> getPropertyDefinition(User user, String contentType);
-
     Set<T> searchDocuments(SearchModel searchModel, User user) throws RepositoryException;
 }
