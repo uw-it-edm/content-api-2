@@ -29,7 +29,7 @@ before_install: git checkout $(git branch --contains $(git rev-parse HEAD)|tail 
 jobs:
   include:
     - stage: build and test artifacts
-      script: docker build -t content-api-2 .
+      script: docker build --build-arg ARTIFACTORY_CONTEXT="$ARTIFACTORY_CONTEXT" --build-arg ARTIFACTORY_RELEASE_REPO="$ARTIFACTORY_RELEASE_REPO" --build-arg ARTIFACTORY_SNAPSHOT_REPO="$ARTIFACTORY_SNAPSHOT_REPO" --build-arg ARTIFACTORY_RESOLVE_REPO="$ARTIFACTORY_RESOLVE_REPO" --build-arg ARTIFACTORY_PUBLISH_USER="$ARTIFACTORY_PUBLISH_USER" --build-arg ARTIFACTORY_PUBLISH_PASSWORD="$ARTIFACTORY_PUBLISH_PASSWORD" -t content-api-2 .
       env:
         - job=docker build -t content-api-2 .
     - stage: build and test artifacts

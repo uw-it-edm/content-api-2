@@ -48,7 +48,9 @@ public class CMISDocumentConverterTest {
         when(propertyMock.getValue()).thenReturn("value1");
 
         when(repositoryDocumentMock.getId()).thenReturn("doc-id");
-        when(repositoryDocumentMock.getName()).thenReturn("doc name");
+
+        //UnnecessaryStubbingException
+        //when(repositoryDocumentMock.getName()).thenReturn("doc name");
         when(repositoryDocumentMock.getPropertyValue(Constants.Alfresco.AlfrescoFields.TITLE_FQDN)).thenReturn("doc name");
         when(repositoryDocumentMock.getProperties()).thenReturn(Collections.singletonList(propertyMock));
 

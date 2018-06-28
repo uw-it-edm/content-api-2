@@ -1,6 +1,16 @@
 FROM openjdk:8-slim as builder
 WORKDIR .
 
+
+#not ideal but as we are using build stages, the published image won't get these
+# see https://github.com/moby/moby/issues/13490 and https://github.com/moby/buildkit/issues/261
+ARG ARTIFACTORY_CONTEXT
+ARG ARTIFACTORY_RELEASE_REPO
+ARG ARTIFACTORY_SNAPSHOT_REPO
+ARG ARTIFACTORY_RESOLVE_REPO
+ARG ARTIFACTORY_PUBLISH_PASSWORD
+ARG ARTIFACTORY_PUBLISH_USER
+
 ENV APP_HOME=/root/dev/app/
 RUN mkdir -p $APP_HOME
 WORKDIR $APP_HOME

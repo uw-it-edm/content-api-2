@@ -1,0 +1,5 @@
+uw:
+  profile:
+    mappings:
+      financialAid: "D:uwfi:FinancialAid"
+      AnotherCM: "D:example:AnotherExampleContentModel"

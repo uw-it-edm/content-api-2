@@ -1,4 +1,5 @@
 .gradle
+.gradletasknamecache
 /build/
 !gradle/wrapper/gradle-wrapper.jar
 application.pid
@@ -33,3 +34,4 @@ nbdist/
 
 
 application-profile-mapping.yml
+
