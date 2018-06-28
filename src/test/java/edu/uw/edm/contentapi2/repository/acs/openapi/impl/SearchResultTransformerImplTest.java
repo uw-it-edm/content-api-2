@@ -10,7 +10,7 @@ import java.util.Collections;
 
 import edu.uw.edm.contentapi2.repository.acs.openapi.SearchResultTransformer;
 import edu.uw.edm.contentapi2.security.User;
-import edu.uw.edm.contentapi2.service.ProfileDefinitionService;
+import edu.uw.edm.contentapi2.service.ProfileFacade;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -22,7 +22,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class SearchResultTransformerImplTest {
 
     @Mock
-    ProfileDefinitionService profileDefinitionService;
+    ProfileFacade profileFacade;
 
     SearchResultTransformer searchResultTransformer;
 
@@ -31,7 +31,7 @@ public class SearchResultTransformerImplTest {
 
     @Before
     public void setUp() {
-        searchResultTransformer = new SearchResultTransformerImpl(profileDefinitionService);
+        searchResultTransformer = new SearchResultTransformerImpl(profileFacade);
     }
 
 

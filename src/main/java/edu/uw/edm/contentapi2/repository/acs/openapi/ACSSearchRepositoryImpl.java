@@ -16,6 +16,7 @@ import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchQueryModel;
 import edu.uw.edm.contentapi2.controller.search.v1.model.result.SearchResult;
 import edu.uw.edm.contentapi2.controller.search.v1.model.result.SearchResultContainer;
 import edu.uw.edm.contentapi2.repository.ExternalSearchDocumentRepository;
+import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.repository.exceptions.RepositoryException;
 import edu.uw.edm.contentapi2.security.User;
 import lombok.extern.slf4j.Slf4j;
@@ -74,7 +75,7 @@ public class ACSSearchRepositoryImpl implements ExternalSearchDocumentRepository
     }
 
 
-    private QueryBody buildQuery(String profile, SearchQueryModel searchModel, User user) {
+    private QueryBody buildQuery(String profile, SearchQueryModel searchModel, User user) throws NoSuchProfileException {
         QueryBody queryBody = new QueryBody();
 
         queryBody = searchQueryBuilder.addQuery(queryBody, searchModel);
@@ -82,6 +83,8 @@ public class ACSSearchRepositoryImpl implements ExternalSearchDocumentRepository
         queryBody = searchQueryBuilder.addFilters(queryBody, searchModel.getFilters(), profile, user);
 
         queryBody = searchQueryBuilder.addSiteFilter(profile, queryBody);
+
+        queryBody = searchQueryBuilder.addIsDocumentFilter(profile, queryBody);
 
         queryBody = searchQueryBuilder.addPagination(queryBody, searchModel);
 

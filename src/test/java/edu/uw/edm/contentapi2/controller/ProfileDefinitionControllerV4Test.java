@@ -13,7 +13,7 @@ import java.util.HashMap;
 
 import edu.uw.edm.contentapi2.common.FieldMapper;
 import edu.uw.edm.contentapi2.security.User;
-import edu.uw.edm.contentapi2.service.ProfileDefinitionService;
+import edu.uw.edm.contentapi2.service.ProfileFacade;
 import edu.uw.edm.contentapi2.service.model.ProfileDefinitionV4;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -31,7 +31,7 @@ public class ProfileDefinitionControllerV4Test {
     private MockMvc mockMvc;
 
     @MockBean
-    private ProfileDefinitionService profileDefinitionService;
+    private ProfileFacade profileFacade;
     @MockBean
     FieldMapper fieldMapper;
 
@@ -41,9 +41,9 @@ public class ProfileDefinitionControllerV4Test {
                 .profile("testProfile")
                 .metadata(new HashMap<>())
                 .build();
-        when(profileDefinitionService.getProfileDefinition(any(String.class), any(User.class))).thenReturn(profileDefinition);
+        when(profileFacade.getProfileDefinition(any(String.class), any(User.class))).thenReturn(profileDefinition);
 
-        this.mockMvc.perform(get("/v4/testProfile/profile").header("auth-header", "test-user"))
+        this.mockMvc.perform(get("/content/v4/testProfile/profile").header("auth-header", "test-user"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$.profile").value("testProfile"));

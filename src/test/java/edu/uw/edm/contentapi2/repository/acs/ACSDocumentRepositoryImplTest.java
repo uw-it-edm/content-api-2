@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,6 +28,7 @@ import edu.uw.edm.contentapi2.repository.constants.Constants;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.repository.exceptions.NotADocumentException;
 import edu.uw.edm.contentapi2.security.User;
+import edu.uw.edm.contentapi2.service.ProfileFacade;
 
 import static edu.uw.edm.contentapi2.repository.constants.Constants.ContentAPI.PROFILE_ID;
 import static org.hamcrest.Matchers.is;
@@ -54,7 +56,9 @@ public class ACSDocumentRepositoryImplTest {
     @Mock
     ACSProfileRepository profileRepository;
     @Mock
-    FieldMapper fieldMapper;
+    ProfileFacade profileFacade;
+
+    User testUser;
 
     @Before
     public void setUp() {
@@ -63,8 +67,9 @@ public class ACSDocumentRepositoryImplTest {
         mockSession = mock(Session.class);
         when(sessionCreator.getSessionForUser(any(User.class))).thenReturn(mockSession);
 
+        testUser = new User("test-user", "", Collections.emptyList());
 
-        documentRepository = new ACSDocumentRepositoryImpl(sessionCreator, new ACSProperties(), profileRepository, fieldMapper);
+        documentRepository = new ACSDocumentRepositoryImpl(sessionCreator, new ACSProperties(), profileRepository, profileFacade);
     }
 
     @Test
@@ -82,9 +87,9 @@ public class ACSDocumentRepositoryImplTest {
     public void getPropertyDefinition() {
         final Map<String, PropertyDefinition<?>> propertyDefinitions = new HashMap<>();
         propertyDefinitions.put("test:trackingId", mock(PropertyDefinition.class));
-        when(profileRepository.getPropertyDefinition(any(Session.class), eq("test-content-type"))).thenReturn(propertyDefinitions);
+        when(profileRepository.getPropertyDefinition(any(User.class), eq("test-content-type"))).thenReturn(propertyDefinitions);
 
-        Map<String, PropertyDefinition<?>> results = documentRepository.getPropertyDefinition(mock(User.class), "test-content-type");
+        Map<String, PropertyDefinition<?>> results = documentRepository.getPropertyDefinition(testUser, "test-content-type");
         assertEquals(propertyDefinitions.size(), results.size());
         assertEquals(propertyDefinitions.get("test:trackingId"), results.get("test:trackingId"));
     }
@@ -92,14 +97,14 @@ public class ACSDocumentRepositoryImplTest {
 
     @Test
     public void createDocumentTest() throws NoSuchProfileException {
-        when(fieldMapper.convertToContentApiFieldFromRepositoryField(anyString(), anyString())).thenAnswer(i -> i.getArguments()[1]);//return second argument
-        when(fieldMapper.getContentTypeForProfile(any())).thenReturn("test:TestProfile");
+        when(profileFacade.convertToContentApiFieldFromRepositoryField(anyString(), anyString())).thenAnswer(i -> i.getArguments()[1]);//return second argument
+        when(profileFacade.getContentTypeForProfile(any())).thenReturn("test:TestProfile");
 
         final Map<String, PropertyDefinition<?>> propertyDefinitions = new HashMap<>();
         final PropertyDefinition mockPropertyDefinition = mock(PropertyDefinition.class);
         when(mockPropertyDefinition.getLocalName()).thenReturn("testKey");
         propertyDefinitions.put("test:testKey", mockPropertyDefinition);
-        when(profileRepository.getPropertyDefinition(any(Session.class), anyString())).thenReturn(propertyDefinitions);
+        when(profileRepository.getPropertyDefinition(any(User.class), anyString())).thenReturn(propertyDefinitions);
 
 
         final Folder mockDocumentLibraryFolderForProfile = mock(Folder.class);

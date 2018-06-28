@@ -15,15 +15,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.Order;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchFilter;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchOrder;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchQueryModel;
 import edu.uw.edm.contentapi2.repository.acs.openapi.SearchQueryBuilder;
+import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.security.User;
-import edu.uw.edm.contentapi2.service.ProfileDefinitionService;
+import edu.uw.edm.contentapi2.service.ProfileFacade;
 
 /**
  * @author Maxime Deravet Date: 6/25/18
@@ -37,14 +37,15 @@ public class SearchQueryBuilderImpl implements SearchQueryBuilder {
     public static final String SITE_TERM_QUERY = "SITE:";
 
     public static final List<String> DEFAULT_INCLUDED_FIELDS = Arrays.asList("properties", "aspectNames");
+    public static final String TYPE_DOCUMENT_QUERY = "TYPE:\"cm:content\"";
 
 
-    private ProfileDefinitionService profileDefinitionService;
+    private ProfileFacade profileFacade;
 
 
     @Autowired
-    public SearchQueryBuilderImpl(ProfileDefinitionService profileDefinitionService) {
-        this.profileDefinitionService = profileDefinitionService;
+    public SearchQueryBuilderImpl(ProfileFacade profileFacade) {
+        this.profileFacade = profileFacade;
     }
 
     @Override
@@ -59,7 +60,7 @@ public class SearchQueryBuilderImpl implements SearchQueryBuilder {
     }
 
     @Override
-    public QueryBody addSorting(QueryBody queryBody, SearchOrder searchOrder, String profile, User user) {
+    public QueryBody addSorting(QueryBody queryBody, SearchOrder searchOrder, String profile, User user) throws NoSuchProfileException {
         RequestSortDefinition requestSortDefinition = new RequestSortDefinition();
         if (SearchOrder.SCORE_ORDER.equals(searchOrder.getTerm())) {
             requestSortDefinition.setType(RequestSortDefinition.TypeEnum.SCORE);
@@ -86,11 +87,13 @@ public class SearchQueryBuilderImpl implements SearchQueryBuilder {
     }
 
     @Override
-    public QueryBody addFilters(QueryBody queryBody, List<SearchFilter> searchFilters, String profileId, User user) {
-        List<RequestFilterQuery> filters = searchFilters
-                .stream()
-                .map((SearchFilter searchFilter) -> toRequestFilterQuery(searchFilter, profileId, user))
-                .collect(Collectors.toList());
+    public QueryBody addFilters(QueryBody queryBody, List<SearchFilter> searchFilters, String profileId, User user) throws NoSuchProfileException {
+        List<RequestFilterQuery> filters = new ArrayList<>();
+
+        for (SearchFilter searchFilter : searchFilters) {
+            RequestFilterQuery requestFilterQuery = toRequestFilterQuery(searchFilter, profileId, user);
+            filters.add(requestFilterQuery);
+        }
         queryBody.setFilterQueries(filters);
 
         return queryBody;
@@ -114,8 +117,13 @@ public class SearchQueryBuilderImpl implements SearchQueryBuilder {
         return queryBody;
     }
 
+    @Override
+    public QueryBody addIsDocumentFilter(String profile, QueryBody queryBody) {
+        queryBody.getFilterQueries().add(new RequestFilterQuery().query(TYPE_DOCUMENT_QUERY));
+        return queryBody;
+    }
 
-    private RequestFilterQuery toRequestFilterQuery(SearchFilter searchFilter, String profile, User user) {
+    private RequestFilterQuery toRequestFilterQuery(SearchFilter searchFilter, String profile, User user) throws NoSuchProfileException {
         String acsFieldName = getACSFieldName(profile, searchFilter.getField(), user);
 
         //TODO this is ugly
@@ -124,13 +132,8 @@ public class SearchQueryBuilderImpl implements SearchQueryBuilder {
         return new RequestFilterQuery().query(filterQuery);
     }
 
-    private String getACSFieldName(String profileId, String contentFieldName, User user) {
+    private String getACSFieldName(String profileId, String contentFieldName, User user) throws NoSuchProfileException {
         //TODO
-        return contentFieldName;
-    }
-
-    private String getContentFieldName(String profileId, String acsFieldName, User user) {
-        //TODO
-        return acsFieldName;
+        return profileFacade.getRepoFQDNFieldName(contentFieldName, profileId, user);
     }
 }

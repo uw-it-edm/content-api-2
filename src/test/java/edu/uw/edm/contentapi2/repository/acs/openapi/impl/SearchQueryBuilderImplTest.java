@@ -6,21 +6,29 @@ import com.alfresco.client.api.search.body.RequestSortDefinition;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.AdditionalAnswers;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.util.Collections;
 
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.Order;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchFilter;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchQueryModel;
+import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.security.User;
-import edu.uw.edm.contentapi2.service.ProfileDefinitionService;
+import edu.uw.edm.contentapi2.service.ProfileFacade;
 
+import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Maxime Deravet Date: 6/25/18
@@ -29,7 +37,7 @@ import static org.junit.Assert.assertThat;
 public class SearchQueryBuilderImplTest {
 
     @Mock
-    ProfileDefinitionService profileDefinitionService;
+    ProfileFacade profileFacade;
 
     SearchQueryBuilderImpl searchQueryBuilder;
 
@@ -39,10 +47,12 @@ public class SearchQueryBuilderImplTest {
     User user = new User("test-user", "", Collections.emptyList());
 
     @Before
-    public void setUp() {
+    public void setUp() throws NoSuchProfileException {
         queryBody = new QueryBody();
         searchQueryModel = new SearchQueryModel();
-        searchQueryBuilder = new SearchQueryBuilderImpl(profileDefinitionService);
+        searchQueryBuilder = new SearchQueryBuilderImpl(profileFacade);
+
+        when(profileFacade.getRepoFQDNFieldName(anyString(), anyString(), eq(user))).then(AdditionalAnswers.returnsFirstArg());
     }
 
 
@@ -63,7 +73,7 @@ public class SearchQueryBuilderImplTest {
     }
 
     @Test
-    public void defaultSortingTest() {
+    public void defaultSortingTest() throws NoSuchProfileException {
         searchQueryBuilder.addSorting(queryBody, searchQueryModel.getSearchOrder(), "my-profile", user);
 
         assertThat(queryBody.getSort().size(), is(equalTo(1)));
@@ -72,7 +82,7 @@ public class SearchQueryBuilderImplTest {
     }
 
     @Test
-    public void sortByFieldTest() {
+    public void sortByFieldTest() throws NoSuchProfileException {
         searchQueryModel.getSearchOrder().setOrder(Order.asc);
         searchQueryModel.getSearchOrder().setTerm("myTerm");
 
@@ -106,7 +116,7 @@ public class SearchQueryBuilderImplTest {
     }
 
     @Test
-    public void noFilterToAddTest() {
+    public void noFilterToAddTest() throws NoSuchProfileException {
 
         searchQueryBuilder.addFilters(queryBody, searchQueryModel.getFilters(), "my-profile", user);
 
@@ -114,7 +124,7 @@ public class SearchQueryBuilderImplTest {
     }
 
     @Test
-    public void add1FilterTest() {
+    public void add1FilterTest() throws NoSuchProfileException {
 
 
         searchQueryModel.getFilters().add(new SearchFilter("my-field", "my-value", false));
@@ -126,7 +136,7 @@ public class SearchQueryBuilderImplTest {
     }
 
     @Test
-    public void add1NotFilterTest() {
+    public void add1NotFilterTest() throws NoSuchProfileException {
 
 
         searchQueryModel.getFilters().add(new SearchFilter("my-field", "my-value", true));
@@ -138,7 +148,7 @@ public class SearchQueryBuilderImplTest {
     }
 
     @Test
-    public void add2FiltersTest() {
+    public void add2FiltersTest() throws NoSuchProfileException {
 
 
         searchQueryModel.getFilters().add(new SearchFilter("my-field", "my-value", true));
@@ -152,7 +162,7 @@ public class SearchQueryBuilderImplTest {
     }
 
     @Test
-    public void add1FilterAndProfileFilterTest() {
+    public void add1FilterAndProfileFilterTest() throws NoSuchProfileException {
 
 
         searchQueryModel.getFilters().add(new SearchFilter("my-field", "my-value", true));

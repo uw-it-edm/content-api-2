@@ -10,7 +10,7 @@ import edu.uw.edm.contentapi2.controller.search.v1.model.result.SearchResult;
 import edu.uw.edm.contentapi2.repository.acs.openapi.SearchResultTransformer;
 import edu.uw.edm.contentapi2.repository.constants.Constants;
 import edu.uw.edm.contentapi2.security.User;
-import edu.uw.edm.contentapi2.service.ProfileDefinitionService;
+import edu.uw.edm.contentapi2.service.ProfileFacade;
 
 /**
  * @author Maxime Deravet Date: 6/25/18
@@ -19,11 +19,11 @@ import edu.uw.edm.contentapi2.service.ProfileDefinitionService;
 public class SearchResultTransformerImpl implements SearchResultTransformer {
 
 
-    private ProfileDefinitionService profileDefinitionService;
+    private ProfileFacade profileFacade;
 
     @Autowired
-    public SearchResultTransformerImpl(ProfileDefinitionService profileDefinitionService) {
-        this.profileDefinitionService = profileDefinitionService;
+    public SearchResultTransformerImpl(ProfileFacade profileFacade) {
+        this.profileFacade = profileFacade;
     }
 
 
@@ -49,31 +49,29 @@ public class SearchResultTransformerImpl implements SearchResultTransformer {
         document.setId(resultNode.getId());
         document.setLabel(resultNode.getProperties().getOrDefault(Constants.Alfresco.AlfrescoFields.TITLE_FQDN, null).toString());
 
+        //TODO check if we need other fields
 
-        document.getMetadata().put("creationDate", resultNode.getCreatedAt());
-        document.getMetadata().put("createdBy", resultNode.getCreatedByUser().getId());
-        document.getMetadata().put("contentStreamMimeType", resultNode.getContent().getMimeType());
-        document.getMetadata().put("contentStreamLength", resultNode.getContent().getSizeInBytes());
-        document.getMetadata().put("lastModificationDate", resultNode.getModifiedAt());
-        document.getMetadata().put("lastModificationDate", resultNode.getModifiedByUser().getId());
-        document.getMetadata().put("name", resultNode.getName());
+        document.getMetadata().put(getContentFieldName(profileId, "creationDate"), resultNode.getCreatedAt());
+        document.getMetadata().put(getContentFieldName(profileId, "createdBy"), resultNode.getCreatedByUser().getId());
+        document.getMetadata().put(getContentFieldName(profileId, "contentStreamMimeType"), resultNode.getContent().getMimeType());
+        document.getMetadata().put(getContentFieldName(profileId, "contentStreamLength"), resultNode.getContent().getSizeInBytes());
+        document.getMetadata().put(getContentFieldName(profileId, "lastModificationDate"), resultNode.getModifiedAt());
+        document.getMetadata().put(getContentFieldName(profileId, "lastModificationDate"), resultNode.getModifiedByUser().getId());
+        document.getMetadata().put(getContentFieldName(profileId, "name"), resultNode.getName());
 
 
         resultNode.getProperties().forEach((key, value) -> {
-            document.getMetadata().put(getContentFieldName(profileId, key, user), value);
+            document.getMetadata().put(getContentFieldName(profileId, key), value);
         });
 
         return document;
     }
 
-    private String getACSFieldName(String profileId, String contentFieldName, User user) {
-        //TODO
-        return contentFieldName;
-    }
 
-    private String getContentFieldName(String profileId, String acsFieldName, User user) {
-        //TODO
-        return acsFieldName;
+    private String getContentFieldName(String profileId, String acsFieldName) {
+
+        return profileFacade.convertToContentApiFieldFromFQDNRepositoryField(profileId, acsFieldName);
+
     }
 
 

@@ -45,7 +45,7 @@ public class ItemV3ControllerTest {
         value.setId("my-item-id");
         when(documentFacade.getDocumentById(eq("my-item-id"), any(User.class))).thenReturn(value);
 
-        this.mockMvc.perform(get("/v3/item/my-item-id").header("auth-header", "test-user"))
+        this.mockMvc.perform(get("/content/v3/item/my-item-id").header("auth-header", "test-user"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$.id").value("my-item-id"));

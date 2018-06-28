@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import edu.uw.edm.contentapi2.common.FieldMapper;
 import edu.uw.edm.contentapi2.controller.content.v3.model.ContentAPIDocument;
 import edu.uw.edm.contentapi2.controller.content.v3.model.SearchModel;
 import edu.uw.edm.contentapi2.properties.ACSProperties;
@@ -44,6 +43,7 @@ import edu.uw.edm.contentapi2.repository.exceptions.CannotUpdateDocumentExceptio
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.repository.exceptions.NotADocumentException;
 import edu.uw.edm.contentapi2.security.User;
+import edu.uw.edm.contentapi2.service.ProfileFacade;
 import lombok.extern.slf4j.Slf4j;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -60,14 +60,14 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
     private ACSSessionCreator sessionCreator;
     private ACSProperties acsProperties;
     private ACSProfileRepository profileRepository;
-    private FieldMapper fieldMapper;
+    private ProfileFacade profileFacade;
 
     @Autowired
-    public ACSDocumentRepositoryImpl(ACSSessionCreator sessionCreator, ACSProperties acsProperties, ACSProfileRepository profileRepository, FieldMapper fieldMapper) {
+    public ACSDocumentRepositoryImpl(ACSSessionCreator sessionCreator, ACSProperties acsProperties, ACSProfileRepository profileRepository, ProfileFacade profileFacade) {
         this.sessionCreator = sessionCreator;
         this.acsProperties = acsProperties;
         this.profileRepository = profileRepository;
-        this.fieldMapper = fieldMapper;
+        this.profileFacade = profileFacade;
     }
 
 
@@ -94,7 +94,7 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
 
         ContentStream contentStream = getCMISContentStream(primaryFile, session);
 
-        Map<String, Object> properties = getCMISProperties(document, primaryFile.getOriginalFilename(), session);
+        Map<String, Object> properties = getCMISProperties(document, primaryFile.getOriginalFilename(), session, user);
         return siteRootFolder.createDocument(properties, contentStream, VersioningState.MAJOR);
     }
 
@@ -109,10 +109,10 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
         Document documentById = getDocumentById(documentId, session);
 
         if (primaryFile != null && !primaryFile.isEmpty()) {
-            createNewRevisionWithFile(documentById, updatedContentAPIDocument, primaryFile, session);
+            createNewRevisionWithFile(documentById, updatedContentAPIDocument, primaryFile, session, user);
             documentById = documentById.getObjectOfLatestVersion(true);
         } else {
-            Map<String, Object> newProperties = getCMISPropertiesForUpdate(updatedContentAPIDocument, documentById.getName(), session);
+            Map<String, Object> newProperties = getCMISPropertiesForUpdate(updatedContentAPIDocument, documentById.getName(), session, user);
 
             documentById.updateProperties(newProperties, true);
             //TODO, should I update minor revision ?
@@ -131,7 +131,7 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
         }
     }
 
-    private void createNewRevisionWithFile(Document documentToUpdate, ContentAPIDocument updatedContentAPIDocument, MultipartFile primaryFile, Session session) throws CannotUpdateDocumentException {
+    private void createNewRevisionWithFile(Document documentToUpdate, ContentAPIDocument updatedContentAPIDocument, MultipartFile primaryFile, Session session, User user) throws CannotUpdateDocumentException {
         ObjectId checkedOutDocumentId;
         try {
             checkedOutDocumentId = documentToUpdate.checkOut();
@@ -146,7 +146,7 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
         }
         Document newDocumentVersion = (Document) session.getObject(checkedOutDocumentId);
         try {
-            Map<String, Object> cmisProperties = getCMISPropertiesForUpdate(updatedContentAPIDocument, documentToUpdate.getName(), session);
+            Map<String, Object> cmisProperties = getCMISPropertiesForUpdate(updatedContentAPIDocument, documentToUpdate.getName(), session, user);
 
             //TODO should we use major versions ?
             newDocumentVersion.checkIn(true, cmisProperties, getCMISContentStream(primaryFile, session), "");
@@ -177,7 +177,7 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
         return MimeTypes.getMIMEType(Iterables.getLast(Splitter.on('.').split(primaryFile.getOriginalFilename())));
     }
 
-    private Map<String, Object> getCMISProperties(ContentAPIDocument document, String filename, Session session) throws NoSuchProfileException {
+    private Map<String, Object> getCMISProperties(ContentAPIDocument document, String filename, Session session, User user) throws NoSuchProfileException {
         final Map<String, Object> properties = new HashMap<>();
         final String contentType = getFQDNContentType(document);
         properties.put(PropertyIds.OBJECT_TYPE_ID, contentType);
@@ -185,7 +185,7 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
         //This is where aspects need to be listed
         //TODO we'll need to check if we need to manually add the aspects or if ACS rules on the main folder can help
         properties.put(PropertyIds.SECONDARY_OBJECT_TYPE_IDS, Arrays.asList(AlfrescoAspects.TITLED));
-        properties.putAll(getCMISPropertiesForUpdate(document, filename, session));
+        properties.putAll(getCMISPropertiesForUpdate(document, filename, session, user));
 
         return properties;
     }
@@ -194,11 +194,11 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
         checkNotNull(document, "document is required");
         checkNotNull(document.getMetadata(), "document metadata is required");
         final String profileId = document.getProfileId();
-        final String contentType = fieldMapper.getContentTypeForProfile(profileId);
+        final String contentType = profileFacade.getContentTypeForProfile(profileId);
         return contentType;
     }
 
-    private Map<String, Object> getCMISPropertiesForUpdate(ContentAPIDocument document, String filename, Session session) throws NoSuchProfileException {
+    private Map<String, Object> getCMISPropertiesForUpdate(ContentAPIDocument document, String filename, Session session, User user) throws NoSuchProfileException {
 
         Map<String, Object> properties = new HashMap<>();
         //Name is supposed to be unique in a folder ( and should be the file name )
@@ -208,7 +208,7 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
 
         properties.put(AlfrescoFields.TITLE_FQDN, document.getLabel());
 
-        properties.putAll(getFQDNPropertiesForMetadata(document, session));
+        properties.putAll(getFQDNPropertiesForMetadata(document, session, user));
 
         //update shouldn't be allowed to change Profile
         properties.remove(PROFILE_ID);
@@ -226,17 +226,17 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
         return documentName + " " + UUID.randomUUID().toString();
     }
 
-    private Map<String, Object> getFQDNPropertiesForMetadata(ContentAPIDocument document, Session session) throws NoSuchProfileException {
+    private Map<String, Object> getFQDNPropertiesForMetadata(ContentAPIDocument document, Session session, User user) throws NoSuchProfileException {
         final Map<String, Object> properties = new HashMap<>();
 
         final String contentType = getFQDNContentType(document);
-        final Map<String, PropertyDefinition<?>> propertyDefinitions = profileRepository.getPropertyDefinition(session, contentType);
+        final Map<String, PropertyDefinition<?>> propertyDefinitions = profileRepository.getPropertyDefinition(user, contentType);
         propertyDefinitions.putAll(session.getTypeDefinition(AlfrescoAspects.TITLED).getPropertyDefinitions());
 
         final String profileId = document.getProfileId();
 
         propertyDefinitions.forEach((key, propertyDefinition) -> {
-            Object contentAPIMetadataValue = document.getMetadata().get(fieldMapper.convertToContentApiFieldFromRepositoryField(profileId, propertyDefinition.getLocalName()));
+            Object contentAPIMetadataValue = document.getMetadata().get(profileFacade.convertToContentApiFieldFromRepositoryField(profileId, propertyDefinition.getLocalName()));
 
             if (contentAPIMetadataValue != null) {
                 properties.put(key, contentAPIMetadataValue);
@@ -282,11 +282,9 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
 
     @Override
     public Map<String, PropertyDefinition<?>> getPropertyDefinition(User user, String contentType) {
-        checkNotNull(user, "User required.");
         checkNotNull(contentType, "Content Type Required");
 
-        final Session sessionForUser = sessionCreator.getSessionForUser(user);
-        final Map<String, PropertyDefinition<?>> propertyDefinitions = profileRepository.getPropertyDefinition(sessionForUser, contentType);
+        final Map<String, PropertyDefinition<?>> propertyDefinitions = profileRepository.getPropertyDefinition(user, contentType);
 
         return propertyDefinitions;
     }
@@ -310,14 +308,14 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
 
         sessionForUser.queryObjects("D:uwfi:FinancialAid", "cmis:objectId ='3d919f5f-43cb-46da-a9bf-b610a4b9c107'", false, oc).iterator().forEachRemaining(cmisObject -> {
 
-                try {
-                    Document documentById = getDocumentById(cmisObject.getId(), sessionForUser);
-                    log.trace(documentById.getId());
+            try {
+                Document documentById = getDocumentById(cmisObject.getId(), sessionForUser);
+                log.trace(documentById.getId());
 
-                } catch (NotADocumentException e) {
-                    e.printStackTrace();
-                }
-                log.trace(cmisObject.getId());
+            } catch (NotADocumentException e) {
+                e.printStackTrace();
+            }
+            log.trace(cmisObject.getId());
         });
 
         QueryStatement qs = sessionForUser.createQueryStatement(Arrays.asList("*"), kvHashMap, "", Arrays.asList());

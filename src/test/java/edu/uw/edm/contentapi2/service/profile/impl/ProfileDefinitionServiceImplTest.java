@@ -1,4 +1,4 @@
-package edu.uw.edm.contentapi2.service.impl;
+package edu.uw.edm.contentapi2.service.profile.impl;
 
 import org.apache.chemistry.opencmis.commons.definitions.PropertyDefinition;
 import org.apache.chemistry.opencmis.commons.enums.PropertyType;
@@ -13,6 +13,7 @@ import java.util.Map;
 
 import edu.uw.edm.contentapi2.common.FieldMapper;
 import edu.uw.edm.contentapi2.repository.ExternalDocumentRepository;
+import edu.uw.edm.contentapi2.repository.acs.cmis.ACSProfileRepository;
 import edu.uw.edm.contentapi2.repository.constants.Constants;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.security.User;
@@ -31,7 +32,7 @@ import static org.mockito.Mockito.when;
 public class ProfileDefinitionServiceImplTest {
     ProfileDefinitionServiceImpl profileDefinitionService;
     @Mock
-    ExternalDocumentRepository documentRepository;
+    ACSProfileRepository documentRepository;
     @Mock
     FieldMapper fieldMapper;
     @Mock

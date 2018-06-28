@@ -1,4 +1,4 @@
-package edu.uw.edm.contentapi2.service.impl;
+package edu.uw.edm.contentapi2.service.profile.impl;
 
 import org.apache.chemistry.opencmis.client.api.Document;
 import org.apache.chemistry.opencmis.commons.definitions.PropertyDefinition;
@@ -14,32 +14,36 @@ import java.util.stream.Collectors;
 
 import edu.uw.edm.contentapi2.common.FieldMapper;
 import edu.uw.edm.contentapi2.repository.ExternalDocumentRepository;
+import edu.uw.edm.contentapi2.repository.acs.cmis.ACSProfileRepository;
 import edu.uw.edm.contentapi2.repository.constants.Constants;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.security.User;
-import edu.uw.edm.contentapi2.service.ProfileDefinitionService;
 import edu.uw.edm.contentapi2.service.model.FieldDefinition;
 import edu.uw.edm.contentapi2.service.model.MappingType;
 import edu.uw.edm.contentapi2.service.model.ProfileDefinitionV4;
+import edu.uw.edm.contentapi2.service.profile.ProfileDefinitionService;
 
+/**
+ * @author Maxime Deravet Date: 6/28/18
+ */
 @Service
 public class ProfileDefinitionServiceImpl implements ProfileDefinitionService {
-    ExternalDocumentRepository<Document> documentRepository;
+
+    ACSProfileRepository profileRepository;
 
     FieldMapper fieldMapper;
 
     @Autowired
-    ProfileDefinitionServiceImpl(ExternalDocumentRepository<Document> documentRepository, FieldMapper fieldMapper) {
-        this.documentRepository = documentRepository;
+    ProfileDefinitionServiceImpl(ACSProfileRepository profileRepository, FieldMapper fieldMapper) {
+        this.profileRepository = profileRepository;
         this.fieldMapper = fieldMapper;
     }
-
 
     @Override
     @Cacheable(value = "profile-definition", key = "{#profileId, #user.username}")
     public ProfileDefinitionV4 getProfileDefinition(String profileId, User user) throws NoSuchProfileException {
         final String contentType = fieldMapper.getContentTypeForProfile(profileId);
-        final Map<String, PropertyDefinition<?>> propertyDefinitions = documentRepository.getPropertyDefinition(user, contentType);
+        final Map<String, PropertyDefinition<?>> propertyDefinitions = profileRepository.getPropertyDefinition(user, contentType);
 
         final PropertyDefinition idField = propertyDefinitions.get(Constants.Alfresco.AlfrescoFields.ITEM_ID_FQDN);
         final FieldDefinition id = FieldDefinition.builder()
