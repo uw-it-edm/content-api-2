@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -284,40 +285,8 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
     @Override
     public Set<Document> searchDocuments(SearchModel searchModel, User user) throws NoSuchProfileException {
 
-        final Session sessionForUser = sessionCreator.getSessionForUser(user);
-        OperationContext oc = new OperationContextImpl(null, false, true, false,
-                IncludeRelationships.NONE, null, true, null, true, 100);
-
-        HashMap<String, String> kvHashMap = new HashMap<>();
-        kvHashMap.put("financialAid", "D:uwfi:FinancialAid");
-        kvHashMap.put("uwstudent", "P:uw:student");
-
-        sessionForUser.queryObjects("D:uwfi:FinancialAid", "cmis:objectId ='3d919f5f-43cb-46da-a9bf-b610a4b9c107'", false, oc).iterator().forEachRemaining(cmisObject -> {
-
-            try {
-                Document documentById = getDocumentById(cmisObject.getId(), sessionForUser);
-                log.trace(documentById.getId());
-
-            } catch (NotADocumentException e) {
-                e.printStackTrace();
-            }
-            log.trace(cmisObject.getId());
-        });
-
-        QueryStatement qs = sessionForUser.createQueryStatement(Arrays.asList("*"), kvHashMap, "", Arrays.asList());
-        qs.setId(1, getSiteRootFolderForProfileId(sessionForUser, "FinancialAid"));
-
-        ItemIterable<QueryResult> queryResults = qs.query(false, oc);
-
-        //"select financialAid.*, uwstudent.* from P:uw:student uwstudent,D:uwfi:FinancialAid financialAid"
-
-        queryResults.skipTo(searchModel.getPageSize() * searchModel.getPageStart())
-                .getPage(searchModel.getPageSize()).iterator().forEachRemaining(queryResult -> {
-                    queryResult.getProperties().toString();
-                }
-        );
-
-        return null;
+        //TODO will need to be implemented using edu.uw.edm.contentapi2.service.DocumentFacade.searchDocuments(java.lang.String, edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchQueryModel, edu.uw.edm.contentapi2.security.User)
+        return new HashSet<>();
     }
 
 }

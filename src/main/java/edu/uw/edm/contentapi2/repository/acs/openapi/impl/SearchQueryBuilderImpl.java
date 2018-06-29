@@ -133,7 +133,6 @@ public class SearchQueryBuilderImpl implements SearchQueryBuilder {
     }
 
     private String getACSFieldName(String profileId, String contentFieldName, User user) throws NoSuchProfileException {
-        //TODO
         return profileFacade.getRepoFQDNFieldName(contentFieldName, profileId, user);
     }
 }
