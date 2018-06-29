@@ -52,11 +52,17 @@ public class SearchResultTransformerImpl implements SearchResultTransformer {
         //TODO check if we need other fields
 
         document.getMetadata().put(getContentFieldName(profileId, "creationDate"), resultNode.getCreatedAt());
-        document.getMetadata().put(getContentFieldName(profileId, "createdBy"), resultNode.getCreatedByUser().getId());
-        document.getMetadata().put(getContentFieldName(profileId, "contentStreamMimeType"), resultNode.getContent().getMimeType());
-        document.getMetadata().put(getContentFieldName(profileId, "contentStreamLength"), resultNode.getContent().getSizeInBytes());
+        if (resultNode.getCreatedByUser() != null) {
+            document.getMetadata().put(getContentFieldName(profileId, "createdBy"), resultNode.getCreatedByUser().getId());
+        }
+        if (resultNode.getContent() != null) {
+            document.getMetadata().put(getContentFieldName(profileId, "contentStreamMimeType"), resultNode.getContent().getMimeType());
+            document.getMetadata().put(getContentFieldName(profileId, "contentStreamLength"), resultNode.getContent().getSizeInBytes());
+        }
         document.getMetadata().put(getContentFieldName(profileId, "lastModificationDate"), resultNode.getModifiedAt());
-        document.getMetadata().put(getContentFieldName(profileId, "lastModificationDate"), resultNode.getModifiedByUser().getId());
+        if (resultNode.getModifiedByUser() != null) {
+            document.getMetadata().put(getContentFieldName(profileId, "lastModificationDate"), resultNode.getModifiedByUser().getId());
+        }
         document.getMetadata().put(getContentFieldName(profileId, "name"), resultNode.getName());
 
 
