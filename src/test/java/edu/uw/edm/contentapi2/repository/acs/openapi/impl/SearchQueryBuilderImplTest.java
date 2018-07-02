@@ -8,9 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.AdditionalAnswers;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import java.util.Collections;
 
@@ -21,7 +19,6 @@ import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.ProfileFacade;
 
-import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -85,6 +82,19 @@ public class SearchQueryBuilderImplTest {
     public void sortByFieldTest() throws NoSuchProfileException {
         searchQueryModel.getSearchOrder().setOrder(Order.asc);
         searchQueryModel.getSearchOrder().setTerm("myTerm");
+
+        searchQueryBuilder.addSorting(queryBody, searchQueryModel.getSearchOrder(), "my-profile", user);
+
+        assertThat(queryBody.getSort().size(), is(equalTo(1)));
+        assertThat(queryBody.getSort().get(0).getType(), is(equalTo(RequestSortDefinition.TypeEnum.FIELD)));
+        assertThat(queryBody.getSort().get(0).getField(), is(equalTo("myTerm")));
+        assertThat(queryBody.getSort().get(0).getAscending(), is(true));
+    }
+
+    @Test
+    public void sortByOldSearchAPiFieldTest() throws NoSuchProfileException {
+        searchQueryModel.getSearchOrder().setOrder(Order.asc);
+        searchQueryModel.getSearchOrder().setTerm("metadata.myTerm.lowercase");
 
         searchQueryBuilder.addSorting(queryBody, searchQueryModel.getSearchOrder(), "my-profile", user);
 
@@ -166,6 +176,21 @@ public class SearchQueryBuilderImplTest {
 
 
         searchQueryModel.getFilters().add(new SearchFilter("my-field", "my-value", true));
+
+        searchQueryBuilder.addFilters(queryBody, searchQueryModel.getFilters(), "my-profile", user);
+
+        searchQueryBuilder.addSiteFilter("my-profile", queryBody);
+
+        assertThat(queryBody.getFilterQueries().size(), is(2));
+        assertThat(queryBody.getFilterQueries().get(0).getQuery(), is(equalTo("!(=my-field:my-value)")));
+        assertThat(queryBody.getFilterQueries().get(1).getQuery(), is(equalTo("SITE:my-profile")));
+    }
+
+    @Test
+    public void addOldSearchAPIFormatFilterTest() throws NoSuchProfileException {
+
+
+        searchQueryModel.getFilters().add(new SearchFilter("metadata.my-field.raw", "my-value", true));
 
         searchQueryBuilder.addFilters(queryBody, searchQueryModel.getFilters(), "my-profile", user);
 
