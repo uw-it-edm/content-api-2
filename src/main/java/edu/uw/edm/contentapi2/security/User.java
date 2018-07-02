@@ -18,7 +18,7 @@ import lombok.Setter;
 @EqualsAndHashCode(callSuper = true)
 public class User extends org.springframework.security.core.userdetails.User {
 
-    User(String username, String password, Collection<? extends GrantedAuthority> authorities) {
+    public User(String username, String password, Collection<? extends GrantedAuthority> authorities) {
         super(username, password, authorities);
     }
 

@@ -1,6 +1,6 @@
 package edu.uw.edm.contentapi2.repository.transformer;
 
-import edu.uw.edm.contentapi2.controller.v3.model.ContentAPIDocument;
+import edu.uw.edm.contentapi2.controller.content.v3.model.ContentAPIDocument;
 
 /**
  * @author Maxime Deravet
