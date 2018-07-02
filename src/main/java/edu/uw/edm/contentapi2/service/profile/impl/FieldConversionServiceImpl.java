@@ -51,7 +51,7 @@ public class FieldConversionServiceImpl implements FieldConversionService {
     }
 
     private String getRepoNameForIdOrLabel(String contentFieldName, String profileId, User user) throws NoSuchProfileException {
-        checkArgument(ID_AND_LABEL_FIELDS.contains(contentFieldName), "getRepoNameForIdOrLabel() only handle id and label");
+        checkArgument(idOrLabel(contentFieldName), "getRepoNameForIdOrLabel() only handle id and label");
 
         ProfileDefinitionV4 profileDefinition = profileDefinitionService.getProfileDefinition(profileId, user);
         switch (contentFieldName) {

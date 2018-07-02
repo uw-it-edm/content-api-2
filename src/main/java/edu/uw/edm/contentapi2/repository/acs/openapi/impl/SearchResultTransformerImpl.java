@@ -47,7 +47,7 @@ public class SearchResultTransformerImpl implements SearchResultTransformer {
         ContentAPIDocument document = new ContentAPIDocument();
 
         document.setId(resultNode.getId());
-        document.setLabel(resultNode.getProperties().getOrDefault(Constants.Alfresco.AlfrescoFields.TITLE_FQDN, null).toString());
+        document.setLabel((String) resultNode.getProperties().get(Constants.Alfresco.AlfrescoFields.TITLE_FQDN));
 
         //TODO check if we need other fields
 
