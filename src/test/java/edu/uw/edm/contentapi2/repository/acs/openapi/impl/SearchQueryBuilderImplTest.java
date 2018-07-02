@@ -1,6 +1,7 @@
 package edu.uw.edm.contentapi2.repository.acs.openapi.impl;
 
 import com.alfresco.client.api.search.body.QueryBody;
+import com.alfresco.client.api.search.body.RequestFacetFieldsFacets;
 import com.alfresco.client.api.search.body.RequestSortDefinition;
 
 import org.junit.Before;
@@ -13,6 +14,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.Collections;
 
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.Order;
+import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchFacet;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchFilter;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchQueryModel;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
@@ -199,5 +201,58 @@ public class SearchQueryBuilderImplTest {
         assertThat(queryBody.getFilterQueries().size(), is(2));
         assertThat(queryBody.getFilterQueries().get(0).getQuery(), is(equalTo("!(=my-field:my-value)")));
         assertThat(queryBody.getFilterQueries().get(1).getQuery(), is(equalTo("SITE:my-profile")));
+    }
+
+    @Test
+    public void add1FacetTest() throws NoSuchProfileException {
+
+        SearchFacet searchFacet1 = new SearchFacet();
+        searchFacet1.setField("metadata.my-field.raw");
+        searchFacet1.setSize(20);
+        searchFacet1.setSize(2);
+        searchFacet1.setOrder(Order.desc);
+
+        searchQueryModel.getFacets().add(searchFacet1);
+
+
+        searchQueryBuilder.addFacets(queryBody, searchQueryModel.getFacets(), "my-profile", user);
+
+        assertThat(queryBody.getFacetFields().getFacets().size(), is(1));
+        assertThat(queryBody.getFacetFields().getFacets().get(0).getField(), is(equalTo("my-field")));
+        assertThat(queryBody.getFacetFields().getFacets().get(0).getLabel(), is(equalTo("metadata.my-field.raw")));
+        assertThat(queryBody.getFacetFields().getFacets().get(0).getLimit(), is(equalTo(2)));
+        assertThat(queryBody.getFacetFields().getFacets().get(0).getSort(), is(equalTo(RequestFacetFieldsFacets.SortEnum.COUNT)));
+    }
+
+    @Test
+    public void add2FacetTest() throws NoSuchProfileException {
+
+        SearchFacet searchFacet1 = new SearchFacet();
+        searchFacet1.setField("metadata.my-field.raw");
+        searchFacet1.setSize(2);
+        searchFacet1.setOrder(Order.desc);
+
+        SearchFacet searchFacet2 = new SearchFacet();
+        searchFacet2.setField("my-second-field.raw");
+        searchFacet2.setSize(5);
+        searchFacet2.setOrder(Order.asc);
+
+        searchQueryModel.getFacets().add(searchFacet1);
+        searchQueryModel.getFacets().add(searchFacet2);
+
+
+        searchQueryBuilder.addFacets(queryBody, searchQueryModel.getFacets(), "my-profile", user);
+
+        assertThat(queryBody.getFacetFields().getFacets().size(), is(2));
+
+        assertThat(queryBody.getFacetFields().getFacets().get(0).getField(), is(equalTo("my-field")));
+        assertThat(queryBody.getFacetFields().getFacets().get(0).getLabel(), is(equalTo("metadata.my-field.raw")));
+        assertThat(queryBody.getFacetFields().getFacets().get(0).getLimit(), is(equalTo(2)));
+        assertThat(queryBody.getFacetFields().getFacets().get(0).getSort(), is(equalTo(RequestFacetFieldsFacets.SortEnum.COUNT)));
+
+        assertThat(queryBody.getFacetFields().getFacets().get(1).getField(), is(equalTo("my-second-field")));
+        assertThat(queryBody.getFacetFields().getFacets().get(1).getLabel(), is(equalTo("my-second-field.raw")));
+        assertThat(queryBody.getFacetFields().getFacets().get(1).getLimit(), is(equalTo(5)));
+        assertThat(queryBody.getFacetFields().getFacets().get(1).getSort(), is(equalTo(RequestFacetFieldsFacets.SortEnum.COUNT)));
     }
 }
