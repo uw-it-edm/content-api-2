@@ -141,14 +141,14 @@ public class SearchQueryBuilderImpl implements SearchQueryBuilder {
 
     private String getFieldNameForACSQuery(String profile, String fieldName, User user) throws NoSuchProfileException {
 
-        String strippedFieldName = removeMetadata(fieldName);
+        String strippedFieldName = removeMetadataPrefix(fieldName);
 
-        strippedFieldName = removeOldSuffixes(strippedFieldName);
+        strippedFieldName = removeElasticSearchSuffix(strippedFieldName);
 
         return getCSFieldName(profile, strippedFieldName, user);
     }
 
-    private String removeMetadata(String fieldName) {
+    private String removeMetadataPrefix(String fieldName) {
         if (fieldName.startsWith(METADATA_PREFIX)) {
             return fieldName.replace(METADATA_PREFIX, EMPTY_STRING);
         } else {
@@ -156,7 +156,7 @@ public class SearchQueryBuilderImpl implements SearchQueryBuilder {
         }
     }
 
-    private String removeOldSuffixes(String fieldName) {
+    private String removeElasticSearchSuffix(String fieldName) {
         if (fieldName.endsWith(RAW_SUFFIX)) {
             return fieldName.replace(RAW_SUFFIX, EMPTY_STRING);
         } else if (fieldName.endsWith(LOWERCASE_SUFFIX)) {
