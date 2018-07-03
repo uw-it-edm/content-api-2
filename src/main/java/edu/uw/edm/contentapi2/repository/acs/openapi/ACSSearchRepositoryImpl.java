@@ -3,6 +3,7 @@ package edu.uw.edm.contentapi2.repository.acs.openapi;
 import com.alfresco.client.api.search.SearchAPI;
 import com.alfresco.client.api.search.body.QueryBody;
 import com.alfresco.client.api.search.model.ResultNodeRepresentation;
+import com.alfresco.client.api.search.model.ResultSetContextFacetFields;
 import com.alfresco.client.api.search.model.ResultSetRepresentation;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,25 +68,12 @@ public class ACSSearchRepositoryImpl implements ExternalSearchDocumentRepository
             List<FacetResult> facets = searchResult.getContext()
                     .getFacetFields()
                     .stream()
-                    .map(resultSetContextFacetFields -> {
-                        FacetResult facetResult = new FacetResult(resultSetContextFacetFields.getLabel());
-
-                        resultSetContextFacetFields.getBuckets().forEach(resultSetContextBuckets -> {
-                            BucketResult bucketResult = new BucketResult();
-                            bucketResult.setKey(resultSetContextBuckets.getLabel());
-                            bucketResult.setCount(resultSetContextBuckets.getCount().longValue());
-
-                            facetResult.addBucketResult(bucketResult);
-                        });
-
-                        return facetResult;
-                    })
+                    .map(this::createFacetResult)
                     .collect(Collectors.toList());
 
             searchResultContainer.setFacets(facets);
 
             searchResultContainer.setTotalCount(searchResult.getPagination().getTotalItems());
-
 
 
             searchResultContainer.setSearchResults(results);
@@ -96,6 +84,20 @@ public class ACSSearchRepositoryImpl implements ExternalSearchDocumentRepository
 
 
         return searchResultContainer;
+    }
+
+    private FacetResult createFacetResult(ResultSetContextFacetFields resultSetContextFacetFields) {
+        FacetResult facetResult = new FacetResult(resultSetContextFacetFields.getLabel());
+
+        resultSetContextFacetFields.getBuckets().forEach(resultSetContextBuckets -> {
+            BucketResult bucketResult = new BucketResult();
+            bucketResult.setKey(resultSetContextBuckets.getLabel());
+            bucketResult.setCount(resultSetContextBuckets.getCount().longValue());
+
+            facetResult.addBucketResult(bucketResult);
+        });
+
+        return facetResult;
     }
 
 
