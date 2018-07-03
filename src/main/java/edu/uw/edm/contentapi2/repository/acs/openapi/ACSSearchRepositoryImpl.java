@@ -3,6 +3,7 @@ package edu.uw.edm.contentapi2.repository.acs.openapi;
 import com.alfresco.client.api.search.SearchAPI;
 import com.alfresco.client.api.search.body.QueryBody;
 import com.alfresco.client.api.search.model.ResultNodeRepresentation;
+import com.alfresco.client.api.search.model.ResultSetContextFacetFields;
 import com.alfresco.client.api.search.model.ResultSetRepresentation;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchQueryModel;
+import edu.uw.edm.contentapi2.controller.search.v1.model.result.BucketResult;
+import edu.uw.edm.contentapi2.controller.search.v1.model.result.FacetResult;
 import edu.uw.edm.contentapi2.controller.search.v1.model.result.SearchResult;
 import edu.uw.edm.contentapi2.controller.search.v1.model.result.SearchResultContainer;
 import edu.uw.edm.contentapi2.repository.ExternalSearchDocumentRepository;
@@ -62,7 +65,16 @@ public class ACSSearchRepositoryImpl implements ExternalSearchDocumentRepository
                     .map((ResultNodeRepresentation resultNodeRepresentation) -> searchResultTransformer.toSearchResult(resultNodeRepresentation, profile, user))
                     .collect(Collectors.toList());
 
+            List<FacetResult> facets = searchResult.getContext()
+                    .getFacetFields()
+                    .stream()
+                    .map(this::createFacetResult)
+                    .collect(Collectors.toList());
+
+            searchResultContainer.setFacets(facets);
+
             searchResultContainer.setTotalCount(searchResult.getPagination().getTotalItems());
+
 
             searchResultContainer.setSearchResults(results);
         } catch (IOException e) {
@@ -72,6 +84,20 @@ public class ACSSearchRepositoryImpl implements ExternalSearchDocumentRepository
 
 
         return searchResultContainer;
+    }
+
+    private FacetResult createFacetResult(ResultSetContextFacetFields resultSetContextFacetFields) {
+        FacetResult facetResult = new FacetResult(resultSetContextFacetFields.getLabel());
+
+        resultSetContextFacetFields.getBuckets().forEach(resultSetContextBuckets -> {
+            BucketResult bucketResult = new BucketResult();
+            bucketResult.setKey(resultSetContextBuckets.getLabel());
+            bucketResult.setCount(resultSetContextBuckets.getCount().longValue());
+
+            facetResult.addBucketResult(bucketResult);
+        });
+
+        return facetResult;
     }
 
 
@@ -91,6 +117,8 @@ public class ACSSearchRepositoryImpl implements ExternalSearchDocumentRepository
         queryBody = searchQueryBuilder.addSorting(queryBody, searchModel.getSearchOrder(), profile, user);
 
         queryBody = searchQueryBuilder.addDefaultIncludedInfo(queryBody);
+
+        queryBody = searchQueryBuilder.addFacets(queryBody, searchModel.getFacets(), profile, user);
 
 
         return queryBody;

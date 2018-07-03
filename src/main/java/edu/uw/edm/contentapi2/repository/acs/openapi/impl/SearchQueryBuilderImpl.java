@@ -3,6 +3,8 @@ package edu.uw.edm.contentapi2.repository.acs.openapi.impl;
 import com.google.common.base.Strings;
 
 import com.alfresco.client.api.search.body.QueryBody;
+import com.alfresco.client.api.search.body.RequestFacetFields;
+import com.alfresco.client.api.search.body.RequestFacetFieldsFacets;
 import com.alfresco.client.api.search.body.RequestFilterQuery;
 import com.alfresco.client.api.search.body.RequestPagination;
 import com.alfresco.client.api.search.body.RequestQuery;
@@ -17,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.Order;
+import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchFacet;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchFilter;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchOrder;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchQueryModel;
@@ -107,6 +110,39 @@ public class SearchQueryBuilderImpl implements SearchQueryBuilder {
     }
 
     @Override
+    public QueryBody addFacets(QueryBody queryBody, List<SearchFacet> facets, String profile, User user) throws NoSuchProfileException {
+
+        RequestFacetFields requestFacetFields = new RequestFacetFields();
+
+        for (SearchFacet facet : facets) {
+
+            RequestFacetFieldsFacets facetsItem = toRequestFacetField(profile, user, facet);
+
+            requestFacetFields.addFacetsItem(facetsItem);
+        }
+
+
+        queryBody.setFacetFields(requestFacetFields);
+
+        return queryBody;
+    }
+
+    private RequestFacetFieldsFacets toRequestFacetField(String profile, User user, SearchFacet facet) throws NoSuchProfileException {
+        RequestFacetFieldsFacets facetsItem = new RequestFacetFieldsFacets();
+
+
+        facetsItem.setField(getFieldNameForACSQuery(profile, facet.getField(), user));
+        facetsItem.setLabel(facet.getField());
+
+        //TODO cannot select order with ACS.
+        facetsItem.setSort(RequestFacetFieldsFacets.SortEnum.COUNT);
+        facetsItem.mincount(0);
+        facetsItem.setLimit(facet.getSize());
+
+        return facetsItem;
+    }
+
+    @Override
     public QueryBody addSiteFilter(String profile, QueryBody queryBody) {
         if (queryBody.getFilterQueries() == null) {
             queryBody.setFilterQueries(new ArrayList<>());
@@ -129,6 +165,7 @@ public class SearchQueryBuilderImpl implements SearchQueryBuilder {
         queryBody.getFilterQueries().add(new RequestFilterQuery().query(TYPE_DOCUMENT_QUERY));
         return queryBody;
     }
+
 
     private RequestFilterQuery toRequestFilterQuery(SearchFilter searchFilter, String profile, User user) throws NoSuchProfileException {
         String acsFieldName = getFieldNameForACSQuery(profile, searchFilter.getField(), user);
