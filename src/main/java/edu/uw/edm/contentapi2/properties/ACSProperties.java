@@ -14,6 +14,7 @@ import lombok.Data;
 public class ACSProperties {
 
     private String cmisUrl;
+    private String openAPIUrl = "http://localhost:8081/alfresco";
     private String user;
     private String password;
     private String actAsHeader;

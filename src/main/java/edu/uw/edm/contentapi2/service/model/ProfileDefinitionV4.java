@@ -16,5 +16,6 @@ public class ProfileDefinitionV4 {
     private FieldDefinition id;
     private FieldDefinition label;
 
+    @Builder.Default
     private Map<String, FieldDefinition> metadata = new HashMap<>();
 }

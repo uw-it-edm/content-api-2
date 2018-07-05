@@ -3,6 +3,7 @@ buildscript {
 		springBootVersion = '2.0.3.RELEASE'
 		openCMISVersion = '1.1.0'
 		guavaVersion = '25.1-jre'
+		alfrescoJavaClientVersion = '1.0.0-beta2'
 		springCloudReleaseTrain = 'Finchley.RELEASE'
 	}
 	repositories {
@@ -15,7 +16,7 @@ buildscript {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
 		classpath "edu.uw.concert:gradle-gitflow:0.3.0"
 		classpath "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.5.1"
-		classpath("org.jfrog.buildinfo:build-info-extractor-gradle:4.7.4")
+		classpath("org.jfrog.buildinfo:build-info-extractor-gradle:4.7.5")
 		classpath("nu.studer:gradle-credentials-plugin:1.0.4")
 	}
 
@@ -72,6 +73,8 @@ dependencies {
 	compile("com.google.guava:guava:$guavaVersion")
 
 	compile('com.github.ben-manes.caffeine:caffeine')
+
+	compile("org.alfresco.client:alfresco-java-client:$alfrescoJavaClientVersion")
 
 	compileOnly('org.springframework.boot:spring-boot-configuration-processor')
 	compileOnly('org.projectlombok:lombok')

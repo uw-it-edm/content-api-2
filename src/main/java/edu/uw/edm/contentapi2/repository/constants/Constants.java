@@ -8,6 +8,8 @@ public class Constants {
 
     public static final class ContentAPI {
         public static final String PROFILE_ID = "ProfileId";
+        public static final String ID = "id";
+        public static final String LABEL = "label";
     }
 
     public static final class Alfresco {
