@@ -14,9 +14,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import edu.uw.edm.contentapi2.common.FieldMapper;
-import edu.uw.edm.contentapi2.controller.v3.FileV3Controller;
-import edu.uw.edm.contentapi2.controller.v3.model.ContentDispositionType;
-import edu.uw.edm.contentapi2.controller.v3.model.ContentRenditionType;
+import edu.uw.edm.contentapi2.controller.content.v3.FileV3Controller;
+import edu.uw.edm.contentapi2.controller.content.v3.model.ContentDispositionType;
+import edu.uw.edm.contentapi2.controller.content.v3.model.ContentRenditionType;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.FileServingService;
 

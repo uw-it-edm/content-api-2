@@ -17,8 +17,8 @@ import java.util.Arrays;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import edu.uw.edm.contentapi2.controller.v3.model.ContentDispositionType;
-import edu.uw.edm.contentapi2.controller.v3.model.ContentRenditionType;
+import edu.uw.edm.contentapi2.controller.content.v3.model.ContentDispositionType;
+import edu.uw.edm.contentapi2.controller.content.v3.model.ContentRenditionType;
 import edu.uw.edm.contentapi2.repository.ExternalDocumentRepository;
 import edu.uw.edm.contentapi2.repository.exceptions.RepositoryException;
 import edu.uw.edm.contentapi2.security.User;
