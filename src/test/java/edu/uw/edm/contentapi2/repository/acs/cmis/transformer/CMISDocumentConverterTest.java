@@ -2,7 +2,6 @@ package edu.uw.edm.contentapi2.repository.acs.cmis.transformer;
 
 import org.apache.chemistry.opencmis.client.api.DocumentType;
 import org.apache.chemistry.opencmis.client.api.Property;
-import org.apache.chemistry.opencmis.client.runtime.objecttype.DocumentTypeImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -63,6 +62,45 @@ public class CMISDocumentConverterTest {
         assertThat("docId", contentAPIDocument.getId(), is(equalTo("doc-id")));
         assertThat("label", contentAPIDocument.getLabel(), is(equalTo("doc name")));
         assertThat("metadata.Property1", contentAPIDocument.getMetadata().get("property1"), is(equalTo("value1")));
+    }
+
+    @Test
+    public void versionIsRemovedFromIdTest() {
+
+        org.apache.chemistry.opencmis.client.api.Document repositoryDocumentMock = mock(org.apache.chemistry.opencmis.client.api.Document.class);
+        when(repositoryDocumentMock.getProperties()).thenReturn(Collections.emptyList());
+
+        when(repositoryDocumentMock.getId()).thenReturn("doc-id;1.0");
+        when(repositoryDocumentMock.getPropertyValue(Constants.Alfresco.AlfrescoFields.TITLE_FQDN)).thenReturn("doc name");
+
+        DocumentType documentTypeMock = mock(DocumentType.class);
+        when(documentTypeMock.getLocalName()).thenReturn("my:doctype");
+        when(repositoryDocumentMock.getDocumentType()).thenReturn(documentTypeMock);
+
+
+        ContentAPIDocument contentAPIDocument = converter.toContentApiDocument(repositoryDocumentMock);
+
+        assertThat("docId", contentAPIDocument.getId(), is(equalTo("doc-id")));
+    }
+
+
+    @Test
+    public void idDoesntRequireVersionTest() {
+
+        org.apache.chemistry.opencmis.client.api.Document repositoryDocumentMock = mock(org.apache.chemistry.opencmis.client.api.Document.class);
+        when(repositoryDocumentMock.getProperties()).thenReturn(Collections.emptyList());
+
+        when(repositoryDocumentMock.getId()).thenReturn("doc-id");
+        when(repositoryDocumentMock.getPropertyValue(Constants.Alfresco.AlfrescoFields.TITLE_FQDN)).thenReturn("doc name");
+
+        DocumentType documentTypeMock = mock(DocumentType.class);
+        when(documentTypeMock.getLocalName()).thenReturn("my:doctype");
+        when(repositoryDocumentMock.getDocumentType()).thenReturn(documentTypeMock);
+
+        
+        ContentAPIDocument contentAPIDocument = converter.toContentApiDocument(repositoryDocumentMock);
+
+        assertThat("docId", contentAPIDocument.getId(), is(equalTo("doc-id")));
     }
 
 }
