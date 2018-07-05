@@ -26,11 +26,13 @@ public class CMISDocumentConverter implements ExternalDocumentConverter<org.apac
     @Override
     public ContentAPIDocument toContentApiDocument(Document cmisDocument) {
         checkNotNull(cmisDocument, "cmisDocument is required");
+        checkNotNull(cmisDocument.getId(), "cmisDocument id is required");
         checkNotNull(cmisDocument.getDocumentType(), "cmisDocument type is required");
         final String profile = cmisDocument.getDocumentType().getLocalName();
 
         final ContentAPIDocument contentAPIDocument = new ContentAPIDocument();
-        contentAPIDocument.setId(cmisDocument.getId());
+        contentAPIDocument.setId(removeVersionFromId(cmisDocument.getId()));
+
         contentAPIDocument.setLabel(cmisDocument.getPropertyValue(Constants.Alfresco.AlfrescoFields.TITLE_FQDN));
 
         cmisDocument.getProperties().forEach((property -> {
@@ -38,5 +40,13 @@ public class CMISDocumentConverter implements ExternalDocumentConverter<org.apac
         }));
 
         return contentAPIDocument;
+    }
+
+    private String removeVersionFromId(String docId) {
+        if (docId.contains(";")) {
+            return docId.split(";")[0];
+        } else {
+            return docId;
+        }
     }
 }
