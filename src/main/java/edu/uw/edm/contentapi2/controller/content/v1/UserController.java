@@ -25,9 +25,9 @@ import lombok.Setter;
 @Deprecated
 public class UserController {
 
-    @Value("#{'${user.v1.accounts}'.split(',')}")
+    @Value("#{'${user.v1.accounts:}'.split(',')}")
     List<String> hardcodedAccounts;
-    @Value("#{'${user.v1.roles}'.split(',')}")
+    @Value("#{'${user.v1.roles:}'.split(',')}")
     List<String> hardcodedRoles;
 
     @Getter
