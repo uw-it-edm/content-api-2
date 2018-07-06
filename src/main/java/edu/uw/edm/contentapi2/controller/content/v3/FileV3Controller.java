@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping("/v3/file")
+@RequestMapping("/content/v3/file")
 public class FileV3Controller {
     private FileServingService fileServingService;
 
@@ -44,8 +44,9 @@ public class FileV3Controller {
             HttpServletResponse response) throws RepositoryException, IOException {
 
         if (forcePDF != null) {
-            log.warn("Deprecated parameter 'forcePDF' has been passed from client, for itemId: {}", itemId);
-            throw new IllegalArgumentException("Deprecated parameter 'forcePDF' has been passed from client.");
+            log.warn("Deprecated parameter 'forcePDF' has been passed from client, for itemId '{}' and user '{}'", itemId, user.getUsername());
+            //TODO: do we want to throw an exception, add header to response indicating deprecated parameter or just ignore
+            // throw new IllegalArgumentException("Deprecated parameter 'forcePDF' has been passed from client.");
         }
         fileServingService.serveFile(itemId, renditionType, contentDispositionType, useChannel, user, request, response);
     }

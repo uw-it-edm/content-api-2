@@ -24,6 +24,8 @@ import edu.uw.edm.contentapi2.service.FileServingService;
 import edu.uw.edm.contentapi2.service.util.StreamUtils;
 import lombok.extern.slf4j.Slf4j;
 
+import static edu.uw.edm.contentapi2.repository.constants.Constants.Alfresco.AlfrescoFields.TITLE_FQDN;
+
 @Slf4j
 @Service
 public class FileServingServiceImpl implements FileServingService {
@@ -74,8 +76,10 @@ public class FileServingServiceImpl implements FileServingService {
 
     private String getOriginalFileName(Document document) {
         //TODO: Is there a better way to handle this? is title ensured to be a property?
-        return document.getProperties().stream().filter(p -> p.getLocalName().equals("title")).collect(Collectors.toList()).get(0).getValue();
-
+        return document.getProperties().stream()
+                .filter(p -> p.getId().equals(TITLE_FQDN))
+                .collect(Collectors.toList())
+                .get(0).getValue();
     }
 
 
