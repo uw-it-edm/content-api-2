@@ -22,7 +22,6 @@ import edu.uw.edm.contentapi2.service.FileServingService;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -50,10 +49,5 @@ public class FileV3ControllerTest {
         this.mockMvc.perform(get("/content/v3/file/my-item-id").header("auth-header", "test-user"))
                 .andExpect(status().isOk());
         verify(fileServingService, times(1)).serveFile(eq("my-item-id"), eq(ContentRenditionType.Web), eq(ContentDispositionType.inline), eq(false), any(User.class), any(HttpServletRequest.class), any(HttpServletResponse.class));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void whenForcePdfThrowIllegalArgumentException() throws Exception {
-        fileV3Controller.read("my-item-id", ContentRenditionType.Web, true, false, ContentDispositionType.inline, mock(User.class), mock(HttpServletRequest.class), mock(HttpServletResponse.class));
     }
 }

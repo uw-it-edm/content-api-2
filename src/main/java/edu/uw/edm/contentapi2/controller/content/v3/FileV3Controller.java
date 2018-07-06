@@ -45,8 +45,6 @@ public class FileV3Controller {
 
         if (forcePDF != null) {
             log.warn("Deprecated parameter 'forcePDF' has been passed from client, for itemId '{}' and user '{}'", itemId, user.getUsername());
-            //TODO: do we want to throw an exception, add header to response indicating deprecated parameter or just ignore
-            // throw new IllegalArgumentException("Deprecated parameter 'forcePDF' has been passed from client.");
         }
         fileServingService.serveFile(itemId, renditionType, contentDispositionType, useChannel, user, request, response);
     }
