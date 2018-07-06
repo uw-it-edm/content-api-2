@@ -3,7 +3,7 @@ package edu.uw.edm.contentapi2.repository.constants;
 /**
  * @author Maxime Deravet Date: 5/17/18
  */
-public class Constants {
+public class RepositoryConstants {
 
 
     public static final class ContentAPI {

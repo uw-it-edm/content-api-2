@@ -11,7 +11,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.Collections;
 
 import edu.uw.edm.contentapi2.controller.content.v3.model.ContentAPIDocument;
-import edu.uw.edm.contentapi2.repository.constants.Constants;
+import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants;
 import edu.uw.edm.contentapi2.service.ProfileFacade;
 
 import static org.hamcrest.Matchers.equalTo;
@@ -48,7 +48,7 @@ public class CMISDocumentConverterTest {
 
         when(repositoryDocumentMock.getId()).thenReturn("doc-id");
 
-        when(repositoryDocumentMock.getPropertyValue(Constants.Alfresco.AlfrescoFields.TITLE_FQDN)).thenReturn("doc name");
+        when(repositoryDocumentMock.getPropertyValue(RepositoryConstants.Alfresco.AlfrescoFields.TITLE_FQDN)).thenReturn("doc name");
         when(repositoryDocumentMock.getProperties()).thenReturn(Collections.singletonList(propertyMock));
 
         DocumentType documentTypeMock = mock(DocumentType.class);
@@ -62,7 +62,7 @@ public class CMISDocumentConverterTest {
         assertThat("docId", contentAPIDocument.getId(), is(equalTo("doc-id")));
         assertThat("label", contentAPIDocument.getLabel(), is(equalTo("doc name")));
         assertThat("metadata.Property1", contentAPIDocument.getMetadata().get("property1"), is(equalTo("value1")));
-        assertThat("metadata.ProfileId", contentAPIDocument.getMetadata().get(Constants.ContentAPI.PROFILE_ID), is(equalTo("my:doctype")));
+        assertThat("metadata.ProfileId", contentAPIDocument.getMetadata().get(RepositoryConstants.ContentAPI.PROFILE_ID), is(equalTo("my:doctype")));
     }
 
     @Test
@@ -72,7 +72,7 @@ public class CMISDocumentConverterTest {
         when(repositoryDocumentMock.getProperties()).thenReturn(Collections.emptyList());
 
         when(repositoryDocumentMock.getId()).thenReturn("doc-id;1.0");
-        when(repositoryDocumentMock.getPropertyValue(Constants.Alfresco.AlfrescoFields.TITLE_FQDN)).thenReturn("doc name");
+        when(repositoryDocumentMock.getPropertyValue(RepositoryConstants.Alfresco.AlfrescoFields.TITLE_FQDN)).thenReturn("doc name");
 
         DocumentType documentTypeMock = mock(DocumentType.class);
         when(documentTypeMock.getLocalName()).thenReturn("my:doctype");
@@ -92,7 +92,7 @@ public class CMISDocumentConverterTest {
         when(repositoryDocumentMock.getProperties()).thenReturn(Collections.emptyList());
 
         when(repositoryDocumentMock.getId()).thenReturn("doc-id");
-        when(repositoryDocumentMock.getPropertyValue(Constants.Alfresco.AlfrescoFields.TITLE_FQDN)).thenReturn("doc name");
+        when(repositoryDocumentMock.getPropertyValue(RepositoryConstants.Alfresco.AlfrescoFields.TITLE_FQDN)).thenReturn("doc name");
 
         DocumentType documentTypeMock = mock(DocumentType.class);
         when(documentTypeMock.getLocalName()).thenReturn("my:doctype");

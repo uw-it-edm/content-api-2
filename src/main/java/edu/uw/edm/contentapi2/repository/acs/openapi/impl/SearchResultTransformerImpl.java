@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import edu.uw.edm.contentapi2.controller.content.v3.model.ContentAPIDocument;
 import edu.uw.edm.contentapi2.controller.search.v1.model.result.SearchResult;
 import edu.uw.edm.contentapi2.repository.acs.openapi.SearchResultTransformer;
-import edu.uw.edm.contentapi2.repository.constants.Constants;
+import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.ProfileFacade;
 
@@ -47,7 +47,7 @@ public class SearchResultTransformerImpl implements SearchResultTransformer {
         ContentAPIDocument document = new ContentAPIDocument();
 
         document.setId(resultNode.getId());
-        document.setLabel((String) resultNode.getProperties().get(Constants.Alfresco.AlfrescoFields.TITLE_FQDN));
+        document.setLabel((String) resultNode.getProperties().get(RepositoryConstants.Alfresco.AlfrescoFields.TITLE_FQDN));
 
         //TODO check if we need other fields
 

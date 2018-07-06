@@ -8,17 +8,11 @@ import org.apache.chemistry.opencmis.client.api.CmisObject;
 import org.apache.chemistry.opencmis.client.api.Document;
 import org.apache.chemistry.opencmis.client.api.Folder;
 import org.apache.chemistry.opencmis.client.api.FolderType;
-import org.apache.chemistry.opencmis.client.api.ItemIterable;
 import org.apache.chemistry.opencmis.client.api.ObjectId;
-import org.apache.chemistry.opencmis.client.api.OperationContext;
-import org.apache.chemistry.opencmis.client.api.QueryResult;
-import org.apache.chemistry.opencmis.client.api.QueryStatement;
 import org.apache.chemistry.opencmis.client.api.Session;
-import org.apache.chemistry.opencmis.client.runtime.OperationContextImpl;
 import org.apache.chemistry.opencmis.commons.PropertyIds;
 import org.apache.chemistry.opencmis.commons.data.ContentStream;
 import org.apache.chemistry.opencmis.commons.definitions.PropertyDefinition;
-import org.apache.chemistry.opencmis.commons.enums.IncludeRelationships;
 import org.apache.chemistry.opencmis.commons.enums.VersioningState;
 import org.apache.chemistry.opencmis.commons.impl.MimeTypes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,8 +33,8 @@ import edu.uw.edm.contentapi2.properties.ACSProperties;
 import edu.uw.edm.contentapi2.repository.ExternalDocumentRepository;
 import edu.uw.edm.contentapi2.repository.ExternalProfileRepository;
 import edu.uw.edm.contentapi2.repository.acs.cmis.connection.ACSSessionCreator;
-import edu.uw.edm.contentapi2.repository.constants.Constants.Alfresco.AlfrescoAspects;
-import edu.uw.edm.contentapi2.repository.constants.Constants.Alfresco.AlfrescoFields;
+import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.Alfresco.AlfrescoAspects;
+import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.Alfresco.AlfrescoFields;
 import edu.uw.edm.contentapi2.repository.exceptions.CannotUpdateDocumentException;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.repository.exceptions.NotADocumentException;
@@ -50,7 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static edu.uw.edm.contentapi2.repository.constants.Constants.ContentAPI.PROFILE_ID;
+import static edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.ContentAPI.PROFILE_ID;
 
 /**
  * @author Maxime Deravet Date: 4/3/18

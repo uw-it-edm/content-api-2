@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 import edu.uw.edm.contentapi2.common.FieldMapper;
 import edu.uw.edm.contentapi2.repository.ExternalProfileRepository;
-import edu.uw.edm.contentapi2.repository.constants.Constants;
+import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.model.FieldDefinition;
@@ -43,7 +43,7 @@ public class ProfileDefinitionServiceImpl implements ProfileDefinitionService {
         final String contentType = fieldMapper.getContentTypeForProfile(profileId);
         final Map<String, PropertyDefinition<?>> propertyDefinitions = profileRepository.getPropertyDefinition(user, contentType);
 
-        final PropertyDefinition idField = propertyDefinitions.get(Constants.Alfresco.AlfrescoFields.ITEM_ID_FQDN);
+        final PropertyDefinition idField = propertyDefinitions.get(RepositoryConstants.Alfresco.AlfrescoFields.ITEM_ID_FQDN);
         final FieldDefinition id = FieldDefinition.builder()
                 .repoFieldName(idField.getId())
                 .type(MappingType.fromPropertyType(idField.getPropertyType()))
@@ -51,7 +51,7 @@ public class ProfileDefinitionServiceImpl implements ProfileDefinitionService {
                 .build();
 
         //TODO: should label be required on all profiles?
-        final PropertyDefinition labelField = propertyDefinitions.get(Constants.Alfresco.AlfrescoFields.LABEL_FQDN);
+        final PropertyDefinition labelField = propertyDefinitions.get(RepositoryConstants.Alfresco.AlfrescoFields.LABEL_FQDN);
         final FieldDefinition label = (labelField == null) ? null : FieldDefinition.builder()
                 .repoFieldName(labelField.getId())
                 .type(MappingType.fromPropertyType(labelField.getPropertyType()))
@@ -72,7 +72,7 @@ public class ProfileDefinitionServiceImpl implements ProfileDefinitionService {
     }
 
     private Map<String, FieldDefinition> createDocumentMetadataFields(String profileId, Map<String, PropertyDefinition<?>> propertyDefinitions) {
-        final List<String> specialFields = Arrays.asList(Constants.Alfresco.AlfrescoFields.LABEL_FQDN, Constants.Alfresco.AlfrescoFields.ITEM_ID_FQDN);
+        final List<String> specialFields = Arrays.asList(RepositoryConstants.Alfresco.AlfrescoFields.LABEL_FQDN, RepositoryConstants.Alfresco.AlfrescoFields.ITEM_ID_FQDN);
         final List<String> metadataKeys = propertyDefinitions.keySet()
                 .stream()
                 .filter(repoFieldName -> !specialFields.contains(repoFieldName)) // remove specialFields from metadata

@@ -15,7 +15,7 @@ import java.util.Collections;
 
 import edu.uw.edm.contentapi2.controller.search.v1.model.result.SearchResult;
 import edu.uw.edm.contentapi2.repository.acs.openapi.SearchResultTransformer;
-import edu.uw.edm.contentapi2.repository.constants.Constants;
+import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.ProfileFacade;
 
@@ -56,7 +56,7 @@ public class SearchResultTransformerImplTest {
 
         when(profileFacade.convertToContentApiFieldFromFQDNRepositoryField("my-profile", REPO_FIELD_1_NAME)).thenReturn(CONTENT_FIELD_1_NAME);
 
-        properties.put(Constants.Alfresco.AlfrescoFields.TITLE_FQDN, "my-title");
+        properties.put(RepositoryConstants.Alfresco.AlfrescoFields.TITLE_FQDN, "my-title");
         properties.put(REPO_FIELD_1_NAME, FIELD_1_VALUE);
         resultNode.setProperties(properties);
 

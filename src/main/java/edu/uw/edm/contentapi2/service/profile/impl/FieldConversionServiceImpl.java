@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.List;
 
-import edu.uw.edm.contentapi2.repository.constants.Constants;
+import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.model.FieldDefinition;
@@ -25,7 +25,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 @Slf4j
 public class FieldConversionServiceImpl implements FieldConversionService {
 
-    public static final List<String> ID_AND_LABEL_FIELDS = Arrays.asList(Constants.ContentAPI.LABEL, Constants.ContentAPI.ID);
+    public static final List<String> ID_AND_LABEL_FIELDS = Arrays.asList(RepositoryConstants.ContentAPI.LABEL, RepositoryConstants.ContentAPI.ID);
     private ProfileDefinitionService profileDefinitionService;
 
     @Autowired
@@ -55,9 +55,9 @@ public class FieldConversionServiceImpl implements FieldConversionService {
 
         ProfileDefinitionV4 profileDefinition = profileDefinitionService.getProfileDefinition(profileId, user);
         switch (contentFieldName) {
-            case Constants.ContentAPI.ID:
+            case RepositoryConstants.ContentAPI.ID:
                 return profileDefinition.getId().getRepoFieldName();
-            case Constants.ContentAPI.LABEL:
+            case RepositoryConstants.ContentAPI.LABEL:
                 return profileDefinition.getLabel().getRepoFieldName();
             default:
                 throw new AssertionError("getRepoNameForIdOrLabel() only handle id and label");

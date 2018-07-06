@@ -17,7 +17,7 @@ import edu.uw.edm.contentapi2.security.User;
 import lombok.extern.slf4j.Slf4j;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static edu.uw.edm.contentapi2.repository.constants.Constants.Alfresco.ExtensionNames.MANDATORY_ASPECTS;
+import static edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.Alfresco.ExtensionNames.MANDATORY_ASPECTS;
 
 @Service
 @Slf4j

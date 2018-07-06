@@ -12,7 +12,7 @@ import lombok.Data;
 import lombok.ToString;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static edu.uw.edm.contentapi2.repository.constants.Constants.ContentAPI.PROFILE_ID;
+import static edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.ContentAPI.PROFILE_ID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data
