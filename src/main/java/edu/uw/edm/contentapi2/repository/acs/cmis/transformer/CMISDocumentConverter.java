@@ -10,7 +10,7 @@ import edu.uw.edm.contentapi2.repository.transformer.ExternalDocumentConverter;
 import edu.uw.edm.contentapi2.service.ProfileFacade;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static edu.uw.edm.contentapi2.repository.constants.Constants.ContentAPI.PROFILE_ID;
+import static edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.ContentAPI.PROFILE_ID;
 
 /**
  * @author Maxime Deravet Date: 4/3/18
