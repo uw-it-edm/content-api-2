@@ -5,6 +5,7 @@ import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointR
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -24,8 +25,7 @@ import edu.uw.edm.contentapi2.properties.SecurityProperties;
 import edu.uw.edm.contentapi2.security.UserDetailsService;
 
 /**
- * @author Maxime Deravet
- * Date: 3/27/18
+ * @author Maxime Deravet Date: 3/27/18
  */
 @Configuration
 @EnableWebSecurity
@@ -39,13 +39,17 @@ public class AuthenticationConfiguration {
 
     @Bean
     public WebMvcConfigurer corsConfigurer() {
+
+
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
+                String[] allowedHeaders = {securityProperties.getAuthenticationHeaderName(), HttpHeaders.CONTENT_TYPE};
+
                 registry.addMapping("/**")
                         .allowedOrigins("*")
                         .allowedMethods("*")
-                        .allowedHeaders(securityProperties.getAuthenticationHeaderName())
+                        .allowedHeaders(allowedHeaders)
                         .allowCredentials(false).maxAge(3600);
             }
         };
