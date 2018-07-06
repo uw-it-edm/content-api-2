@@ -13,7 +13,7 @@ import java.util.Map;
 
 import edu.uw.edm.contentapi2.common.FieldMapper;
 import edu.uw.edm.contentapi2.repository.ExternalProfileRepository;
-import edu.uw.edm.contentapi2.repository.constants.Constants;
+import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.model.FieldDefinition;
@@ -46,15 +46,15 @@ public class ProfileDefinitionServiceImplTest {
 
 
         Map<String, PropertyDefinition<?>> propertyDefinitions = new HashMap<>();
-        propertyDefinitions.put(Constants.Alfresco.AlfrescoFields.ITEM_ID_FQDN, idDefinition);
-        propertyDefinitions.put(Constants.Alfresco.AlfrescoFields.LABEL_FQDN, labelDefinition);
+        propertyDefinitions.put(RepositoryConstants.Alfresco.AlfrescoFields.ITEM_ID_FQDN, idDefinition);
+        propertyDefinitions.put(RepositoryConstants.Alfresco.AlfrescoFields.LABEL_FQDN, labelDefinition);
         propertyDefinitions.put("test:testField", testMetadataDefinition);
         when(profileRepository.getPropertyDefinition(any(User.class), eq("D:test:TestProfile"))).thenReturn(propertyDefinitions);
 
 
         Map<String, PropertyDefinition<?>> propertyDefinition2s = new HashMap<>();
-        propertyDefinition2s.put(Constants.Alfresco.AlfrescoFields.ITEM_ID_FQDN, idDefinition);
-        propertyDefinition2s.put(Constants.Alfresco.AlfrescoFields.LABEL_FQDN, labelDefinition);
+        propertyDefinition2s.put(RepositoryConstants.Alfresco.AlfrescoFields.ITEM_ID_FQDN, idDefinition);
+        propertyDefinition2s.put(RepositoryConstants.Alfresco.AlfrescoFields.LABEL_FQDN, labelDefinition);
         propertyDefinition2s.put("test:testField", testMetadataDefinition);
         propertyDefinition2s.put("test:testField2", test2MetadataDefinition);
         when(profileRepository.getPropertyDefinition(any(User.class), eq("D:test:TestProfile2"))).thenReturn(propertyDefinition2s);

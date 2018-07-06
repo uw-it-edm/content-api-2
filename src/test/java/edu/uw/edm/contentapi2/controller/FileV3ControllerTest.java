@@ -47,7 +47,7 @@ public class FileV3ControllerTest {
 
     @Test
     public void getFileTest() throws Exception {
-        this.mockMvc.perform(get("/v3/file/my-item-id").header("auth-header", "test-user"))
+        this.mockMvc.perform(get("/content/v3/file/my-item-id").header("auth-header", "test-user"))
                 .andExpect(status().isOk());
         verify(fileServingService, times(1)).serveFile(eq("my-item-id"), eq(ContentRenditionType.Web), eq(ContentDispositionType.inline), eq(false), any(User.class), any(HttpServletRequest.class), any(HttpServletResponse.class));
     }

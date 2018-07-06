@@ -23,13 +23,13 @@ import edu.uw.edm.contentapi2.properties.ACSProperties;
 import edu.uw.edm.contentapi2.repository.ExternalProfileRepository;
 import edu.uw.edm.contentapi2.repository.acs.cmis.ACSDocumentRepositoryImpl;
 import edu.uw.edm.contentapi2.repository.acs.cmis.connection.ACSSessionCreator;
-import edu.uw.edm.contentapi2.repository.constants.Constants;
+import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.repository.exceptions.NotADocumentException;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.ProfileFacade;
 
-import static edu.uw.edm.contentapi2.repository.constants.Constants.ContentAPI.PROFILE_ID;
+import static edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.ContentAPI.PROFILE_ID;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -113,7 +113,7 @@ public class ACSDocumentRepositoryImplTest {
 
         final ObjectType mockTitled = mock(ObjectType.class);
         when(mockTitled.getPropertyDefinitions()).thenReturn(new HashMap<>());
-        when(mockSession.getTypeDefinition(eq(Constants.Alfresco.AlfrescoAspects.TITLED))).thenReturn(mockTitled);
+        when(mockSession.getTypeDefinition(eq(RepositoryConstants.Alfresco.AlfrescoAspects.TITLED))).thenReturn(mockTitled);
         when(mockSession.getObjectByPath(any())).thenReturn(mockDocumentLibraryFolderForProfile);
 
         final MultipartFile mockPrimaryFile = mock(MultipartFile.class);

@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import edu.uw.edm.contentapi2.controller.constants.Constants;
+import edu.uw.edm.contentapi2.controller.constants.ControllerConstants;
 import edu.uw.edm.contentapi2.controller.content.v3.model.ContentDispositionType;
 import edu.uw.edm.contentapi2.controller.content.v3.model.ContentRenditionType;
 import edu.uw.edm.contentapi2.repository.ExternalDocumentRepository;
@@ -24,7 +24,7 @@ import edu.uw.edm.contentapi2.service.FileServingService;
 import edu.uw.edm.contentapi2.service.util.StreamUtils;
 import lombok.extern.slf4j.Slf4j;
 
-import static edu.uw.edm.contentapi2.repository.constants.Constants.Alfresco.AlfrescoFields.TITLE_FQDN;
+import static edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.Alfresco.AlfrescoFields.TITLE_FQDN;
 
 @Slf4j
 @Service
@@ -89,10 +89,10 @@ public class FileServingServiceImpl implements FileServingService {
                 //Do nothing, let the browser handle it
                 break;
             case inline:
-                response.setHeader(Constants.Headers.CONTENT_DISPOSITION, "inline;filename=\"" + filename + "\"");
+                response.setHeader(ControllerConstants.Headers.CONTENT_DISPOSITION, "inline;filename=\"" + filename + "\"");
                 break;
             case attachment:
-                response.setHeader(Constants.Headers.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + "\"");
+                response.setHeader(ControllerConstants.Headers.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + "\"");
                 break;
         }
     }

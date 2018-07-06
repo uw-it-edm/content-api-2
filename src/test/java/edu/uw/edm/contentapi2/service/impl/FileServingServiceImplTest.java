@@ -24,7 +24,7 @@ import edu.uw.edm.contentapi2.repository.exceptions.RepositoryException;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.FileServingService;
 
-import static edu.uw.edm.contentapi2.controller.constants.Constants.Headers.CONTENT_DISPOSITION;
+import static edu.uw.edm.contentapi2.controller.constants.ControllerConstants.Headers.CONTENT_DISPOSITION;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -60,7 +60,7 @@ public class FileServingServiceImplTest {
         when(mockContentStream.getStream()).thenReturn(new ByteArrayInputStream("This is a test stream.".getBytes()));
 
         mockProperty = mock(Property.class);
-        when(mockProperty.getLocalName()).thenReturn("title");
+        when(mockProperty.getId()).thenReturn("cm:title");
         when(mockProperty.getValue()).thenReturn("test.png");
 
         mockDocument = mock(Document.class);
