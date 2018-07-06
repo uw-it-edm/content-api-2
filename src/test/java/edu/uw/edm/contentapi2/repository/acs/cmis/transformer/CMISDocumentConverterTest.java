@@ -62,6 +62,7 @@ public class CMISDocumentConverterTest {
         assertThat("docId", contentAPIDocument.getId(), is(equalTo("doc-id")));
         assertThat("label", contentAPIDocument.getLabel(), is(equalTo("doc name")));
         assertThat("metadata.Property1", contentAPIDocument.getMetadata().get("property1"), is(equalTo("value1")));
+        assertThat("metadata.ProfileId", contentAPIDocument.getMetadata().get(Constants.ContentAPI.PROFILE_ID), is(equalTo("my:doctype")));
     }
 
     @Test
@@ -97,7 +98,7 @@ public class CMISDocumentConverterTest {
         when(documentTypeMock.getLocalName()).thenReturn("my:doctype");
         when(repositoryDocumentMock.getDocumentType()).thenReturn(documentTypeMock);
 
-        
+
         ContentAPIDocument contentAPIDocument = converter.toContentApiDocument(repositoryDocumentMock);
 
         assertThat("docId", contentAPIDocument.getId(), is(equalTo("doc-id")));

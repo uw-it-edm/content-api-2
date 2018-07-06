@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import edu.uw.edm.contentapi2.properties.ACSProperties;
@@ -40,9 +40,7 @@ public class ACSOpenAPIConfig {
 
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
 
-        ArrayList<Protocol> protocols = new ArrayList<>(1);
-        protocols.add(Protocol.HTTP_1_1);
-        builder.protocols(protocols);
+        builder.protocols(Collections.singletonList(Protocol.HTTP_1_1));
         builder.connectTimeout(10, TimeUnit.SECONDS);
 
         Interceptor authenticationInterceptor;
@@ -52,9 +50,7 @@ public class ACSOpenAPIConfig {
 
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
 
-
-        //TODO make log level configurable
-        logging.setLevel(HttpLoggingInterceptor.Level.NONE);
+        logging.setLevel(acsProperties.getHttpClientLoggingLevel());
 
         builder.addInterceptor(logging);
 

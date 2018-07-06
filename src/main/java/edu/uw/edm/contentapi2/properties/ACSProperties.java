@@ -4,6 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import lombok.Data;
+import okhttp3.logging.HttpLoggingInterceptor;
 
 /**
  * @author Maxime Deravet Date: 4/4/18
@@ -18,6 +19,8 @@ public class ACSProperties {
     private String user;
     private String password;
     private String actAsHeader;
+
+    private HttpLoggingInterceptor.Level httpClientLoggingLevel = HttpLoggingInterceptor.Level.NONE;
 
     private boolean autoUndoCheckout = true;
 

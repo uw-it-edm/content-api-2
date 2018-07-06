@@ -136,7 +136,7 @@ public class SearchQueryBuilderImpl implements SearchQueryBuilder {
 
         //TODO cannot select order with ACS.
         facetsItem.setSort(RequestFacetFieldsFacets.SortEnum.COUNT);
-        facetsItem.mincount(0);
+        facetsItem.mincount(1);
         facetsItem.setLimit(facet.getSize());
 
         return facetsItem;
@@ -204,6 +204,6 @@ public class SearchQueryBuilderImpl implements SearchQueryBuilder {
     }
 
     private String getCSFieldName(String profileId, String contentFieldName, User user) throws NoSuchProfileException {
-        return profileFacade.getRepoFQDNFieldName(contentFieldName, profileId, user);
+        return profileFacade.getRepoFQDNFieldName(contentFieldName, profileId, user).replace("cmis:", "cm:");
     }
 }
