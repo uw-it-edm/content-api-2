@@ -10,6 +10,7 @@ import edu.uw.edm.contentapi2.repository.transformer.ExternalDocumentConverter;
 import edu.uw.edm.contentapi2.service.ProfileFacade;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static edu.uw.edm.contentapi2.repository.constants.Constants.ContentAPI.PROFILE_ID;
 
 /**
  * @author Maxime Deravet Date: 4/3/18
@@ -35,9 +36,12 @@ public class CMISDocumentConverter implements ExternalDocumentConverter<org.apac
 
         contentAPIDocument.setLabel(cmisDocument.getPropertyValue(RepositoryConstants.Alfresco.AlfrescoFields.TITLE_FQDN));
 
+
         cmisDocument.getProperties().forEach((property -> {
             contentAPIDocument.getMetadata().put(profileFacade.convertToContentApiFieldFromRepositoryField(profile, property.getLocalName()), property.getValue());
         }));
+
+        contentAPIDocument.getMetadata().put(PROFILE_ID, profile);
 
         return contentAPIDocument;
     }

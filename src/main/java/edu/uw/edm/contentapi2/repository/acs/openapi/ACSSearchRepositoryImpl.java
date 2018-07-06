@@ -58,7 +58,9 @@ public class ACSSearchRepositoryImpl implements ExternalSearchDocumentRepository
 
             }
             ResultSetRepresentation<ResultNodeRepresentation> searchResult = acsSearchAPI.searchCall(queryBody).execute().body();
-
+            if (searchResult == null) {
+                throw new RepositoryException("couldn't execute search");
+            }
             List<SearchResult> results = searchResult
                     .getList()
                     .stream()
