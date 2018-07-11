@@ -2,7 +2,6 @@ package edu.uw.edm.contentapi2.repository.acs;
 
 import org.apache.chemistry.opencmis.client.api.Document;
 import org.apache.chemistry.opencmis.client.api.Folder;
-import org.apache.chemistry.opencmis.client.api.FolderType;
 import org.apache.chemistry.opencmis.client.api.ObjectType;
 import org.apache.chemistry.opencmis.client.api.Session;
 import org.apache.chemistry.opencmis.commons.definitions.PropertyDefinition;
@@ -22,6 +21,7 @@ import edu.uw.edm.contentapi2.controller.content.v3.model.ContentAPIDocument;
 import edu.uw.edm.contentapi2.properties.ACSProperties;
 import edu.uw.edm.contentapi2.repository.ExternalProfileRepository;
 import edu.uw.edm.contentapi2.repository.acs.cmis.ACSDocumentRepositoryImpl;
+import edu.uw.edm.contentapi2.repository.acs.cmis.SiteFinder;
 import edu.uw.edm.contentapi2.repository.acs.cmis.connection.ACSSessionCreator;
 import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
@@ -56,19 +56,25 @@ public class ACSDocumentRepositoryImplTest {
     ExternalProfileRepository profileRepository;
     @Mock
     ProfileFacade profileFacade;
+    @Mock
+    SiteFinder siteFinder;
 
-    User testUser;
+    @Mock
+    Folder mockDocumentLibraryFolderForProfile;
+
+    User testUser = new User("test-user", "", Collections.emptyList());
 
     @Before
-    public void setUp() {
+    public void setUp() throws NoSuchProfileException {
         ACSSessionCreator sessionCreator = mock(ACSSessionCreator.class);
 
         mockSession = mock(Session.class);
         when(sessionCreator.getSessionForUser(any(User.class))).thenReturn(mockSession);
 
-        testUser = new User("test-user", "", Collections.emptyList());
 
-        documentRepository = new ACSDocumentRepositoryImpl(sessionCreator, new ACSProperties(), profileRepository, profileFacade);
+        when(siteFinder.getSiteRootFolderFromContentApiDocument(any(ContentAPIDocument.class), eq(testUser))).thenReturn(mockDocumentLibraryFolderForProfile);
+
+        documentRepository = new ACSDocumentRepositoryImpl(sessionCreator, new ACSProperties(), profileRepository, profileFacade, siteFinder);
     }
 
     @Test
@@ -106,15 +112,9 @@ public class ACSDocumentRepositoryImplTest {
         when(profileRepository.getPropertyDefinition(any(User.class), anyString())).thenReturn(propertyDefinitions);
 
 
-        final Folder mockDocumentLibraryFolderForProfile = mock(Folder.class);
-        when(mockDocumentLibraryFolderForProfile.getType()).thenReturn(mock(FolderType.class));
-        when(mockDocumentLibraryFolderForProfile.getName()).thenReturn("mockLibraryFolder");
-
-
         final ObjectType mockTitled = mock(ObjectType.class);
         when(mockTitled.getPropertyDefinitions()).thenReturn(new HashMap<>());
         when(mockSession.getTypeDefinition(eq(RepositoryConstants.Alfresco.AlfrescoAspects.TITLED))).thenReturn(mockTitled);
-        when(mockSession.getObjectByPath(any())).thenReturn(mockDocumentLibraryFolderForProfile);
 
         final MultipartFile mockPrimaryFile = mock(MultipartFile.class);
         when(mockPrimaryFile.isEmpty()).thenReturn(true);
@@ -128,7 +128,7 @@ public class ACSDocumentRepositoryImplTest {
         docMetadata.put("testKey", "testValue");
         document.setMetadata(docMetadata);
 
-        documentRepository.createDocument(document, mockPrimaryFile, mock(User.class));
+        documentRepository.createDocument(document, mockPrimaryFile, testUser);
 
         verify(mockDocumentLibraryFolderForProfile, times(1)).createDocument(any(), any(), any());
         //test that the user provided metadata is passed to the repository

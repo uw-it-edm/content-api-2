@@ -1,7 +1,5 @@
 package edu.uw.edm.contentapi2.service;
 
-import org.springframework.cache.annotation.Cacheable;
-
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.model.ProfileDefinitionV4;
