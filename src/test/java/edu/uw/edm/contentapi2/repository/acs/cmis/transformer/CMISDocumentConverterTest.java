@@ -12,11 +12,14 @@ import java.util.Collections;
 
 import edu.uw.edm.contentapi2.controller.content.v3.model.ContentAPIDocument;
 import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants;
+import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
+import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.ProfileFacade;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -40,7 +43,7 @@ public class CMISDocumentConverterTest {
     }
 
     @Test
-    public void toContentApiDocument() {
+    public void toContentApiDocument() throws NoSuchProfileException {
         org.apache.chemistry.opencmis.client.api.Document repositoryDocumentMock = mock(org.apache.chemistry.opencmis.client.api.Document.class);
         Property propertyMock = mock(Property.class);
         when(propertyMock.getLocalName()).thenReturn("property1");
@@ -56,8 +59,8 @@ public class CMISDocumentConverterTest {
         when(repositoryDocumentMock.getDocumentType()).thenReturn(documentTypeMock);
 
         when(profileFacade.convertToContentApiFieldFromRepositoryField(anyString(), eq("property1"))).thenReturn("property1");
-
-        ContentAPIDocument contentAPIDocument = converter.toContentApiDocument(repositoryDocumentMock);
+        when(profileFacade.convertToContentApiDataType(anyString(), any(User.class), eq("property1"), eq("value1"))).thenReturn("value1");
+        ContentAPIDocument contentAPIDocument = converter.toContentApiDocument(repositoryDocumentMock, mock(User.class));
 
         assertThat("docId", contentAPIDocument.getId(), is(equalTo("doc-id")));
         assertThat("label", contentAPIDocument.getLabel(), is(equalTo("doc name")));
@@ -66,8 +69,7 @@ public class CMISDocumentConverterTest {
     }
 
     @Test
-    public void versionIsRemovedFromIdTest() {
-
+    public void versionIsRemovedFromIdTest() throws NoSuchProfileException {
         org.apache.chemistry.opencmis.client.api.Document repositoryDocumentMock = mock(org.apache.chemistry.opencmis.client.api.Document.class);
         when(repositoryDocumentMock.getProperties()).thenReturn(Collections.emptyList());
 
@@ -78,15 +80,14 @@ public class CMISDocumentConverterTest {
         when(documentTypeMock.getLocalName()).thenReturn("my:doctype");
         when(repositoryDocumentMock.getDocumentType()).thenReturn(documentTypeMock);
 
-
-        ContentAPIDocument contentAPIDocument = converter.toContentApiDocument(repositoryDocumentMock);
+        ContentAPIDocument contentAPIDocument = converter.toContentApiDocument(repositoryDocumentMock, mock(User.class));
 
         assertThat("docId", contentAPIDocument.getId(), is(equalTo("doc-id")));
     }
 
 
     @Test
-    public void idDoesntRequireVersionTest() {
+    public void idDoesntRequireVersionTest() throws NoSuchProfileException {
 
         org.apache.chemistry.opencmis.client.api.Document repositoryDocumentMock = mock(org.apache.chemistry.opencmis.client.api.Document.class);
         when(repositoryDocumentMock.getProperties()).thenReturn(Collections.emptyList());
@@ -99,7 +100,7 @@ public class CMISDocumentConverterTest {
         when(repositoryDocumentMock.getDocumentType()).thenReturn(documentTypeMock);
 
 
-        ContentAPIDocument contentAPIDocument = converter.toContentApiDocument(repositoryDocumentMock);
+        ContentAPIDocument contentAPIDocument = converter.toContentApiDocument(repositoryDocumentMock, mock(User.class));
 
         assertThat("docId", contentAPIDocument.getId(), is(equalTo("doc-id")));
     }

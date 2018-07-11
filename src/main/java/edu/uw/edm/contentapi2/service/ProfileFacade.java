@@ -1,7 +1,5 @@
 package edu.uw.edm.contentapi2.service;
 
-import org.springframework.cache.annotation.Cacheable;
-
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.model.ProfileDefinitionV4;
@@ -18,4 +16,5 @@ public interface ProfileFacade {
 
     String convertToContentApiFieldFromFQDNRepositoryField(String profile, String repoFieldLocalName);
 
+    Object convertToContentApiDataType(String profileId, User user, String repoFieldLocalName, Object value)  throws NoSuchProfileException;
 }
