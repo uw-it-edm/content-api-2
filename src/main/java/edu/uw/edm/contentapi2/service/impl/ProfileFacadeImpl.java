@@ -67,7 +67,7 @@ public class ProfileFacadeImpl implements ProfileFacade {
         final ProfileDefinitionV4 profileDefinition = getProfileDefinition(profileId, user);
         final String contentApiFieldName = convertToContentApiFieldFromFQDNRepositoryField(profileId, fqdnRepoFieldName);
 
-        final FieldDefinition fieldDefinition = getFieldDefinition(profileDefinition, fqdnRepoFieldName, contentApiFieldName); //TODO: How should this be handled?
+        final FieldDefinition fieldDefinition = getFieldDefinition(profileDefinition, fqdnRepoFieldName, contentApiFieldName);
         checkNotNull(fieldDefinition,"Unable to determine FieldDefinition for '%s' in profile '%s'", contentApiFieldName,profileId);
         switch (fieldDefinition.getType()) {
             case date:
@@ -91,7 +91,7 @@ public class ProfileFacadeImpl implements ProfileFacade {
         final String contentApiFieldName = this.convertToContentApiFieldFromFQDNRepositoryField(profileId, fqdnRepoFieldName);
         final ProfileDefinitionV4 profileDefinition = getProfileDefinition(profileId, user);
 
-        final FieldDefinition fieldDefinition = getFieldDefinition(profileDefinition, fqdnRepoFieldName, contentApiFieldName); //TODO: How should this be handled?
+        final FieldDefinition fieldDefinition = getFieldDefinition(profileDefinition, fqdnRepoFieldName, contentApiFieldName);
         checkNotNull(fieldDefinition,"Unable to determine FieldDefinition for '%s' in profile '%s'", contentApiFieldName,profileId);
 
         switch (fieldDefinition.getType()) {
