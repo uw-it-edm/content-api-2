@@ -46,22 +46,21 @@ public class SiteFinderImpl implements SiteFinder {
         checkNotNull(document.getMetadata(), "document should contain metadata");
 
 
-        return getSiteRootFolderForProfileId(document.getProfileId(),user);
+        return getSiteRootFolderForProfileId(document.getProfileId(), user);
 
     }
 
     @Override
     @Cacheable(value = "site-finder", key = "{#profileId, #user.username}")
     public Folder getSiteRootFolderForProfileId(String profileId, User user) throws NoSuchProfileException {
+        checkArgument(!Strings.isNullOrEmpty(profileId), "Should have a profileId field");
 
         Session session = sessionCreator.getSessionForUser(user);
-
-        checkArgument(!Strings.isNullOrEmpty(profileId), "Should have a profileId field");
 
         CmisObject documentLibraryFolderForProfile = session.getObjectByPath(getDocumentLibraryPath(profileId));
 
         if (documentLibraryFolderForProfile.getType() instanceof FolderType) {
-            log.debug("using folder " + documentLibraryFolderForProfile.getName() + " at path " + ((Folder) documentLibraryFolderForProfile).getPath());
+            log.debug("using folder {} at path {}", documentLibraryFolderForProfile.getName(), ((Folder) documentLibraryFolderForProfile).getPath());
             return (Folder) documentLibraryFolderForProfile;
         } else {
             throw new NoSuchProfileException(profileId);
