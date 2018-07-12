@@ -7,7 +7,6 @@ import com.google.common.collect.Iterables;
 import org.apache.chemistry.opencmis.client.api.CmisObject;
 import org.apache.chemistry.opencmis.client.api.Document;
 import org.apache.chemistry.opencmis.client.api.Folder;
-import org.apache.chemistry.opencmis.client.api.FolderType;
 import org.apache.chemistry.opencmis.client.api.ObjectId;
 import org.apache.chemistry.opencmis.client.api.Session;
 import org.apache.chemistry.opencmis.commons.PropertyIds;
@@ -57,13 +56,15 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
     private ACSProperties acsProperties;
     private ProfileFacade profileFacade;
     private ExternalProfileRepository profileRepository;
+    private SiteFinder siteFinder;
 
     @Autowired
-    public ACSDocumentRepositoryImpl(ACSSessionCreator sessionCreator, ACSProperties acsProperties, ExternalProfileRepository profileRepository, ProfileFacade profileFacade) {
+    public ACSDocumentRepositoryImpl(ACSSessionCreator sessionCreator, ACSProperties acsProperties, ExternalProfileRepository profileRepository, ProfileFacade profileFacade, SiteFinder siteFinder) {
         this.sessionCreator = sessionCreator;
         this.acsProperties = acsProperties;
         this.profileRepository = profileRepository;
         this.profileFacade = profileFacade;
+        this.siteFinder = siteFinder;
     }
 
 
@@ -86,7 +87,7 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
 
         Session session = sessionCreator.getSessionForUser(user);
 
-        Folder siteRootFolder = getSiteRootFolderFromContentApiDocument(document, session);
+        Folder siteRootFolder = siteFinder.getSiteRootFolderFromContentApiDocument(document, user);
 
         ContentStream contentStream = getCMISContentStream(primaryFile, session);
 
@@ -218,6 +219,7 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
         } else {
             documentName = filename;
         }
+        //TODO, UUID is awful here
         return documentName + " " + UUID.randomUUID().toString();
     }
 
@@ -246,37 +248,6 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
         //TODO should we check if we missed a property ?
 
         return properties;
-    }
-
-
-    /**
-     * We get the root folder from the ContentAPI#PROFILE_ID metadata field
-     */
-    private Folder getSiteRootFolderFromContentApiDocument(ContentAPIDocument document, Session session) throws NoSuchProfileException {
-        checkNotNull(document, "document metadata shouldn't be null");
-        checkNotNull(document.getMetadata(), "document should contain metadata");
-        String profileId = (String) document.getMetadata().get(PROFILE_ID);
-
-
-        return getSiteRootFolderForProfileId(session, profileId);
-
-    }
-
-    private Folder getSiteRootFolderForProfileId(Session session, String profileId) throws NoSuchProfileException {
-        checkArgument(!Strings.isNullOrEmpty(profileId), "Should have a profileId field");
-
-        CmisObject documentLibraryFolderForProfile = session.getObjectByPath(getDocumentLibraryPath(profileId));
-
-        if (documentLibraryFolderForProfile.getType() instanceof FolderType) {
-            log.debug("using folder " + documentLibraryFolderForProfile.getName() + " at path " + ((Folder) documentLibraryFolderForProfile).getPath());
-            return (Folder) documentLibraryFolderForProfile;
-        } else {
-            throw new NoSuchProfileException(profileId);
-        }
-    }
-
-    private String getDocumentLibraryPath(String profileId) {
-        return String.format("/Sites/%s/documentLibrary", profileId);
     }
 
 
