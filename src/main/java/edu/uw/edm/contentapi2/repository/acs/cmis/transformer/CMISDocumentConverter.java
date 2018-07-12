@@ -41,7 +41,7 @@ public class CMISDocumentConverter implements ExternalDocumentConverter<org.apac
 
         for (Property property : cmisDocument.getProperties()) {
             final String fieldName = profileFacade.convertToContentApiFieldFromRepositoryField(profile, property.getLocalName());
-            final Object fieldValue = profileFacade.convertToContentApiDataType(profile, user, property.getLocalName(), property.getValue());
+            final Object fieldValue = profileFacade.convertToContentApiDataType(profile, user, property.getQueryName(), property.getValue());
             contentAPIDocument.getMetadata().put(fieldName, fieldValue);
         }
 

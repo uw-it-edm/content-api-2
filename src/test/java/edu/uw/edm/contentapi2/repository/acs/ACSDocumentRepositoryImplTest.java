@@ -96,12 +96,14 @@ public class ACSDocumentRepositoryImplTest {
 
     @Test
     public void createDocumentTest() throws NoSuchProfileException {
+        when(profileFacade.convertToRepoDataType(anyString(), any(User.class), eq("test:testKey"), any())).thenAnswer(i -> i.getArguments()[3]);//return fourth argument
         when(profileFacade.convertToContentApiFieldFromRepositoryField(anyString(), anyString())).thenAnswer(i -> i.getArguments()[1]);//return second argument
         when(profileFacade.getContentTypeForProfile(any())).thenReturn("test:TestProfile");
 
         final Map<String, PropertyDefinition<?>> propertyDefinitions = new HashMap<>();
         final PropertyDefinition mockPropertyDefinition = mock(PropertyDefinition.class);
         when(mockPropertyDefinition.getLocalName()).thenReturn("testKey");
+
         propertyDefinitions.put("test:testKey", mockPropertyDefinition);
         when(profileRepository.getPropertyDefinition(any(User.class), anyString())).thenReturn(propertyDefinitions);
 
@@ -137,6 +139,5 @@ public class ACSDocumentRepositoryImplTest {
         final Map<String, Object> createDocumentPropertiesParameter = captor.getValue();
         assertThat(createDocumentPropertiesParameter.size(), is(5));
         assertEquals(true, createDocumentPropertiesParameter.containsKey("test:testKey"));
-
     }
 }

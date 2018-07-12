@@ -47,6 +47,7 @@ public class CMISDocumentConverterTest {
         org.apache.chemistry.opencmis.client.api.Document repositoryDocumentMock = mock(org.apache.chemistry.opencmis.client.api.Document.class);
         Property propertyMock = mock(Property.class);
         when(propertyMock.getLocalName()).thenReturn("property1");
+        when(propertyMock.getQueryName()).thenReturn("my:property1");
         when(propertyMock.getValue()).thenReturn("value1");
 
         when(repositoryDocumentMock.getId()).thenReturn("doc-id");
@@ -59,7 +60,7 @@ public class CMISDocumentConverterTest {
         when(repositoryDocumentMock.getDocumentType()).thenReturn(documentTypeMock);
 
         when(profileFacade.convertToContentApiFieldFromRepositoryField(anyString(), eq("property1"))).thenReturn("property1");
-        when(profileFacade.convertToContentApiDataType(anyString(), any(User.class), eq("property1"), eq("value1"))).thenReturn("value1");
+        when(profileFacade.convertToContentApiDataType(anyString(), any(User.class), eq("my:property1"), eq("value1"))).thenReturn("value1");
         ContentAPIDocument contentAPIDocument = converter.toContentApiDocument(repositoryDocumentMock, mock(User.class));
 
         assertThat("docId", contentAPIDocument.getId(), is(equalTo("doc-id")));

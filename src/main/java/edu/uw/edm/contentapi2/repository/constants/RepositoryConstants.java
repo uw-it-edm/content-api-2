@@ -21,7 +21,6 @@ public class RepositoryConstants {
 
             public static final String TITLE_FQDN = "cm:title";
             public static final String ITEM_ID_FQDN = "cmis:objectId";
-            public static final String LABEL_FQDN = "cmis:name";
 
         }
 

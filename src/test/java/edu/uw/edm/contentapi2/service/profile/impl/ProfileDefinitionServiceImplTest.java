@@ -47,14 +47,14 @@ public class ProfileDefinitionServiceImplTest {
 
         Map<String, PropertyDefinition<?>> propertyDefinitions = new HashMap<>();
         propertyDefinitions.put(RepositoryConstants.Alfresco.AlfrescoFields.ITEM_ID_FQDN, idDefinition);
-        propertyDefinitions.put(RepositoryConstants.Alfresco.AlfrescoFields.LABEL_FQDN, labelDefinition);
+        propertyDefinitions.put(RepositoryConstants.Alfresco.AlfrescoFields.TITLE_FQDN, labelDefinition);
         propertyDefinitions.put("test:testField", testMetadataDefinition);
         when(profileRepository.getPropertyDefinition(any(User.class), eq("D:test:TestProfile"))).thenReturn(propertyDefinitions);
 
 
         Map<String, PropertyDefinition<?>> propertyDefinition2s = new HashMap<>();
         propertyDefinition2s.put(RepositoryConstants.Alfresco.AlfrescoFields.ITEM_ID_FQDN, idDefinition);
-        propertyDefinition2s.put(RepositoryConstants.Alfresco.AlfrescoFields.LABEL_FQDN, labelDefinition);
+        propertyDefinition2s.put(RepositoryConstants.Alfresco.AlfrescoFields.TITLE_FQDN, labelDefinition);
         propertyDefinition2s.put("test:testField", testMetadataDefinition);
         propertyDefinition2s.put("test:testField2", test2MetadataDefinition);
         when(profileRepository.getPropertyDefinition(any(User.class), eq("D:test:TestProfile2"))).thenReturn(propertyDefinition2s);

@@ -29,6 +29,28 @@ public class ACSProfileRepositoryImpl implements ExternalProfileRepository {
     public ACSProfileRepositoryImpl(ACSSessionCreator sessionCreator) {
         this.sessionCreator = sessionCreator;
     }
+    @Override
+    @Cacheable(value = "profile-mandatory-aspects", key = "#contentTypeId")
+    public List<String> getMandatoryAspects(User user, String contentTypeId){
+        checkNotNull(user, "User required.");
+        checkNotNull(contentTypeId, "Content Type Required");
+
+        log.trace("not hitting  mandatoryAspects cache for content-type '{}' ", contentTypeId);
+
+        final Session session = sessionCreator.getSessionForUser(user);
+        final ObjectType typeDefinition = session.getTypeDefinition(contentTypeId, false);
+        return extractMandatoryAspects(typeDefinition);
+
+    }
+
+    private List<String> extractMandatoryAspects(ObjectType typeDefinition){
+        final List<String> mandatoryAspectIds = typeDefinition.getExtensions().stream()
+                .filter(extension -> extension.getName().equals(MANDATORY_ASPECTS))
+                .flatMap(extension -> extension.getChildren().stream())
+                .map(cmisExtensionElement -> cmisExtensionElement.getValue())
+                .collect(Collectors.toList());
+        return mandatoryAspectIds;
+    }
 
     @Override
     @Cacheable(value = "profiles", key = "#contentTypeId")
@@ -36,18 +58,14 @@ public class ACSProfileRepositoryImpl implements ExternalProfileRepository {
         checkNotNull(user, "User required.");
         checkNotNull(contentTypeId, "Content Type Required");
 
-        log.trace("not hitting cache for content-type '{}' ", contentTypeId);
+        log.trace("not hitting propertyDefinition cache for content-type '{}' ", contentTypeId);
 
 
         final Session session = sessionCreator.getSessionForUser(user);
         final ObjectType typeDefinition = session.getTypeDefinition(contentTypeId, false);
         final Map<String, PropertyDefinition<?>> propertyDefinitions = typeDefinition.getPropertyDefinitions(); //add content-type properties
 
-        final List<String> mandatoryAspectIds = typeDefinition.getExtensions().stream()
-                .filter(extension -> extension.getName().equals(MANDATORY_ASPECTS))
-                .flatMap(extension -> extension.getChildren().stream())
-                .map(cmisExtensionElement -> cmisExtensionElement.getValue())
-                .collect(Collectors.toList());
+        final List<String> mandatoryAspectIds = extractMandatoryAspects(typeDefinition);
 
         for (String aspectId : mandatoryAspectIds) {
             final Map<String, PropertyDefinition<?>> aspectProperties = session.getTypeDefinition(aspectId, false)
