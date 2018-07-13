@@ -20,6 +20,7 @@ import static edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.Co
  */
 @Service
 public class CMISDocumentConverter implements ExternalDocumentConverter<org.apache.chemistry.opencmis.client.api.Document> {
+    private static final String ALFRESCO_SYSTEM_PREFIX = "sys:";
     private ProfileFacade profileFacade;
 
     @Autowired
@@ -40,9 +41,11 @@ public class CMISDocumentConverter implements ExternalDocumentConverter<org.apac
         contentAPIDocument.setLabel(cmisDocument.getPropertyValue(RepositoryConstants.Alfresco.AlfrescoFields.TITLE_FQDN));
 
         for (Property property : cmisDocument.getProperties()) {
-            final String fieldName = profileFacade.convertToContentApiFieldFromRepositoryField(profile, property.getLocalName());
-            final Object fieldValue = profileFacade.convertToContentApiDataType(profile, user, property.getQueryName(), property.getValue());
-            contentAPIDocument.getMetadata().put(fieldName, fieldValue);
+            if (!property.getId().startsWith(ALFRESCO_SYSTEM_PREFIX)) { // do not share system properties
+                final String fieldName = profileFacade.convertToContentApiFieldFromRepositoryField(profile, property.getLocalName());
+                final Object fieldValue = profileFacade.convertToContentApiDataType(profile, user, property.getId(), property.getValue());
+                contentAPIDocument.getMetadata().put(fieldName, fieldValue);
+            }
         }
 
         contentAPIDocument.getMetadata().put(PROFILE_ID, profile);

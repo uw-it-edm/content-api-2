@@ -236,11 +236,10 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
             final String fqdnRepoFieldName = propertyDefinitionEntry.getKey();
             final String fieldLocalName = propertyDefinitionEntry.getValue().getLocalName();
             final String contentApiFieldName = profileFacade.convertToContentApiFieldFromRepositoryField(profileId, fieldLocalName);
-            final Object contentApiMetaDataValue = document.getMetadata().get(contentApiFieldName);
 
-            final Object repoMetadataValue = profileFacade.convertToRepoDataType(profileId, user, fqdnRepoFieldName, contentApiMetaDataValue);
-
-            if (repoMetadataValue != null) {
+            if(document.getMetadata().containsKey(contentApiFieldName)){ // Only add metadata passed in the document
+                final Object contentApiMetaDataValue = document.getMetadata().get(contentApiFieldName);
+                final Object repoMetadataValue = profileFacade.convertToRepoDataType(profileId, user, fqdnRepoFieldName, contentApiMetaDataValue);
                 properties.put(fqdnRepoFieldName, repoMetadataValue);
             }
         }
