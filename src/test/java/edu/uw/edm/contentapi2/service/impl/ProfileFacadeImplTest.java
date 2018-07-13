@@ -7,9 +7,11 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.text.ParseException;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 import edu.uw.edm.contentapi2.common.FieldMapper;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
@@ -59,11 +61,20 @@ public class ProfileFacadeImplTest {
     }
 
     @Test
-    public void convertDate() throws NoSuchProfileException, ParseException {
+    public void convertLosAngelesDateToTimeStamp() throws NoSuchProfileException, ParseException {
         final GregorianCalendar value = new GregorianCalendar(2018,06,11);
+        value.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
         final Object result = profileFacade.convertToContentApiDataType("testProfile", mock(User.class), "testDate", value);
         assertEquals(Long.class,result.getClass());
         assertEquals(1531292400000L, result);
+    }
+    @Test
+    public void convertBrusselsDateToTimeStamp() throws NoSuchProfileException, ParseException {
+        final GregorianCalendar value = new GregorianCalendar(2018,06,11);
+        value.setTimeZone(TimeZone.getTimeZone("Europe/Brussels"));
+        final Object result = profileFacade.convertToContentApiDataType("testProfile", mock(User.class), "testDate", value);
+        assertEquals(Long.class,result.getClass());
+        assertEquals(1531260000000L, result);
     }
 
     @Test
@@ -71,6 +82,15 @@ public class ProfileFacadeImplTest {
         final Object result = profileFacade.convertToContentApiDataType("testProfile", mock(User.class), "testInteger", 100);
         assertEquals(Integer.class,result.getClass());
         assertEquals(100, result);
+    }
+
+    @Test
+    public void convertTimeStampToDate() throws NoSuchProfileException, ParseException {
+        final GregorianCalendar expectedValue = new GregorianCalendar(2018,06,11);
+        expectedValue.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles")); //expected to convert to LA timezone
+        final Object result = profileFacade.convertToRepoDataType("testProfile", mock(User.class), "testDate", 1531292400000L);
+        assertEquals(Date.class,result.getClass());
+        assertEquals(expectedValue.getTime(), result);
     }
 
     @Test

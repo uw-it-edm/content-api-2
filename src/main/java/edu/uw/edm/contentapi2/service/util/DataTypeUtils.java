@@ -3,6 +3,8 @@ package edu.uw.edm.contentapi2.service.util;
 import java.math.BigInteger;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 public class DataTypeUtils {
 
@@ -26,7 +28,10 @@ public class DataTypeUtils {
         if (value == null) {
             // NOOP
         } else if (value instanceof Long) {
-            date = new Date((Long) value);
+            final GregorianCalendar gc = new GregorianCalendar();
+            gc.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
+            gc.setTimeInMillis((Long) value);
+            date = gc.getTime();
         } else {
             throw new IllegalArgumentException("Unhandled Data Type: " + value.getClass());
         }
@@ -55,6 +60,7 @@ public class DataTypeUtils {
             // NOOP
         } else if (value instanceof Calendar) {
             final Calendar cal = (Calendar) value;
+            cal.getTimeZone().getDisplayName();
             timestamp = cal.getTimeInMillis();
         } else {
             throw new IllegalArgumentException("Unhandled Data Type: " + value.getClass());
