@@ -61,7 +61,7 @@ public class SearchResultTransformerImpl implements SearchResultTransformer {
         }
         document.getMetadata().put(getContentFieldName(profileId, "lastModificationDate"), resultNode.getModifiedAt());
         if (resultNode.getModifiedByUser() != null) {
-            document.getMetadata().put(getContentFieldName(profileId, "lastModificationDate"), resultNode.getModifiedByUser().getId());
+            document.getMetadata().put(getContentFieldName(profileId, "lastModifier"), resultNode.getModifiedByUser().getId());
         }
         document.getMetadata().put(getContentFieldName(profileId, "name"), resultNode.getName());
 
