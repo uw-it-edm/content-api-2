@@ -11,9 +11,11 @@ import lombok.Data;
 @Data
 public class SecurityProperties {
 
+    public static String DEFAULT_AUTHENTICATION_HEADER = "auth-header";
 
     private String keystoreLocation;
     private String keystorePassword;
-    private String authenticationHeaderName;
+    private String authenticationHeaderName = DEFAULT_AUTHENTICATION_HEADER;
+
 
 }
