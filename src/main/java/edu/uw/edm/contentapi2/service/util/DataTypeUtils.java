@@ -60,7 +60,6 @@ public class DataTypeUtils {
             // NOOP
         } else if (value instanceof Calendar) {
             final Calendar cal = (Calendar) value;
-            cal.getTimeZone().getDisplayName();
             timestamp = cal.getTimeInMillis();
         } else {
             throw new IllegalArgumentException("Unhandled Data Type: " + value.getClass());
