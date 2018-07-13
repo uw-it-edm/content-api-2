@@ -19,9 +19,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -179,9 +179,8 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
         final String contentType = getFQDNContentType(document);
         properties.put(PropertyIds.OBJECT_TYPE_ID, contentType);
 
-        //This is where aspects need to be listed
-        //TODO we'll need to check if we need to manually add the aspects or if ACS rules on the main folder can help
-        properties.put(PropertyIds.SECONDARY_OBJECT_TYPE_IDS, Arrays.asList(AlfrescoAspects.TITLED));
+        final List<String> mandatoryAspectIds = profileRepository.getMandatoryAspects(user, contentType);
+        properties.put(PropertyIds.SECONDARY_OBJECT_TYPE_IDS, mandatoryAspectIds);
         properties.putAll(getCMISPropertiesForUpdate(document, filename, session, user));
 
         return properties;
@@ -233,14 +232,17 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
 
         final String profileId = document.getProfileId();
 
-        propertyDefinitions.forEach((key, propertyDefinition) -> {
-            String contentApiFieldName = profileFacade.convertToContentApiFieldFromRepositoryField(profileId, propertyDefinition.getLocalName());
-            Object contentAPIMetadataValue = document.getMetadata().get(contentApiFieldName);
+        for (Map.Entry<String, PropertyDefinition<?>> propertyDefinitionEntry : propertyDefinitions.entrySet()) {
+            final String fqdnRepoFieldName = propertyDefinitionEntry.getKey();
+            final String fieldLocalName = propertyDefinitionEntry.getValue().getLocalName();
+            final String contentApiFieldName = profileFacade.convertToContentApiFieldFromRepositoryField(profileId, fieldLocalName);
 
-            if (contentAPIMetadataValue != null) {
-                properties.put(key, contentAPIMetadataValue);
+            if(document.getMetadata().containsKey(contentApiFieldName)){ // Only add metadata passed in the document
+                final Object contentApiMetaDataValue = document.getMetadata().get(contentApiFieldName);
+                final Object repoMetadataValue = profileFacade.convertToRepoDataType(profileId, user, fqdnRepoFieldName, contentApiMetaDataValue);
+                properties.put(fqdnRepoFieldName, repoMetadataValue);
             }
-        });
+        }
 
         //TODO should we check if we missed a property ?
 

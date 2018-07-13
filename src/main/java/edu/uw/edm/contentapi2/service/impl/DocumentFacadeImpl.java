@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import edu.uw.edm.contentapi2.controller.content.v3.model.ContentAPIDocument;
 import edu.uw.edm.contentapi2.controller.content.v3.model.DocumentSearchResults;
@@ -47,7 +47,7 @@ public class DocumentFacadeImpl implements DocumentFacade {
         checkNotNull(user, "User is required");
         checkArgument(!Strings.isNullOrEmpty(documentId), "DocumentId is required");
 
-        return converter.toContentApiDocument(contentRepository.getDocumentById(documentId, user));
+        return converter.toContentApiDocument(contentRepository.getDocumentById(documentId, user), user);
     }
 
     @Override
@@ -56,7 +56,7 @@ public class DocumentFacadeImpl implements DocumentFacade {
         checkNotNull(user, "User is required");
         checkNotNull(contentAPIDocument, "Document Metadata is required");
 
-        return converter.toContentApiDocument(contentRepository.createDocument(contentAPIDocument, primaryFile, user));
+        return converter.toContentApiDocument(contentRepository.createDocument(contentAPIDocument, primaryFile, user), user);
     }
 
     @Override
@@ -66,7 +66,7 @@ public class DocumentFacadeImpl implements DocumentFacade {
         checkArgument(itemId.equals(updatedContentAPIDocument.getId()), "DocumentId doesn't match metadata");
         checkNotNull(updatedContentAPIDocument, "Document Metadata is required");
 
-        return converter.toContentApiDocument(contentRepository.updateDocument(itemId, updatedContentAPIDocument, primaryFile, user));
+        return converter.toContentApiDocument(contentRepository.updateDocument(itemId, updatedContentAPIDocument, primaryFile, user), user);
     }
 
     @Override
@@ -74,12 +74,13 @@ public class DocumentFacadeImpl implements DocumentFacade {
         checkNotNull(user, "User is required");
         checkNotNull(searchModel, "SearchModel is required");
 
-        //TODO searchDocuments should return total size
-        Set<ContentAPIDocument> documents = contentRepository.searchDocuments(searchModel, user)
-                .stream()
-                .map(converter::toContentApiDocument)
-                .collect(Collectors.toSet());
+        final Set<ContentAPIDocument> documents = new HashSet<>();
 
+        //TODO searchDocuments should return total size
+        final Set<Document> cmisDocuments = contentRepository.searchDocuments(searchModel, user);
+        for (Document cmisDocument : cmisDocuments) {
+            documents.add(converter.toContentApiDocument(cmisDocument, user));
+        }
 
         return DocumentSearchResults
                 .builder()

@@ -14,6 +14,9 @@ public interface ProfileFacade {
 
     String convertToContentApiFieldFromRepositoryField(String profile, String repoFieldLocalName);
 
-    String convertToContentApiFieldFromFQDNRepositoryField(String profile, String repoFieldLocalName);
+    String convertToContentApiFieldFromFQDNRepositoryField(String profile, String fqdnRepoFieldName);
 
+    Object convertToContentApiDataType(String profileId, User user, String repoFieldLocalName, Object value)  throws NoSuchProfileException;
+
+    Object convertToRepoDataType(String profileId, User user, String fqdnRepoFieldName, Object value) throws NoSuchProfileException;
 }

@@ -53,6 +53,6 @@ public class DocumentFacadeImplTest {
         documentFacade.getDocumentById("doc-id", mockUser);
 
         verify(repository, times(1)).getDocumentById(eq("doc-id"), eq(mockUser));
-        verify(converter, times(1)).toContentApiDocument(any());
+        verify(converter, times(1)).toContentApiDocument(any(), any());
     }
 }

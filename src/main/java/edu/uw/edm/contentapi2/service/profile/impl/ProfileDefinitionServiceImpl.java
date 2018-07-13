@@ -51,7 +51,7 @@ public class ProfileDefinitionServiceImpl implements ProfileDefinitionService {
                 .build();
 
         //TODO: should label be required on all profiles?
-        final PropertyDefinition labelField = propertyDefinitions.get(RepositoryConstants.Alfresco.AlfrescoFields.LABEL_FQDN);
+        final PropertyDefinition labelField = propertyDefinitions.get(RepositoryConstants.Alfresco.AlfrescoFields.TITLE_FQDN);
         final FieldDefinition label = (labelField == null) ? null : FieldDefinition.builder()
                 .repoFieldName(labelField.getId())
                 .type(MappingType.fromPropertyType(labelField.getPropertyType()))
@@ -72,7 +72,7 @@ public class ProfileDefinitionServiceImpl implements ProfileDefinitionService {
     }
 
     private Map<String, FieldDefinition> createDocumentMetadataFields(String profileId, Map<String, PropertyDefinition<?>> propertyDefinitions) {
-        final List<String> specialFields = Arrays.asList(RepositoryConstants.Alfresco.AlfrescoFields.LABEL_FQDN, RepositoryConstants.Alfresco.AlfrescoFields.ITEM_ID_FQDN);
+        final List<String> specialFields = Arrays.asList(RepositoryConstants.Alfresco.AlfrescoFields.TITLE_FQDN, RepositoryConstants.Alfresco.AlfrescoFields.ITEM_ID_FQDN);
         final List<String> metadataKeys = propertyDefinitions.keySet()
                 .stream()
                 .filter(repoFieldName -> !specialFields.contains(repoFieldName)) // remove specialFields from metadata
@@ -92,4 +92,7 @@ public class ProfileDefinitionServiceImpl implements ProfileDefinitionService {
         });
         return metadata;
     }
+
+
+
 }

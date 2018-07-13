@@ -1,12 +1,15 @@
 package edu.uw.edm.contentapi2.repository.acs.cmis.transformer;
 
 import org.apache.chemistry.opencmis.client.api.Document;
+import org.apache.chemistry.opencmis.client.api.Property;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import edu.uw.edm.contentapi2.controller.content.v3.model.ContentAPIDocument;
 import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants;
+import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.repository.transformer.ExternalDocumentConverter;
+import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.ProfileFacade;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -17,6 +20,7 @@ import static edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.Co
  */
 @Service
 public class CMISDocumentConverter implements ExternalDocumentConverter<org.apache.chemistry.opencmis.client.api.Document> {
+    private static final String ALFRESCO_SYSTEM_PREFIX = "sys:";
     private ProfileFacade profileFacade;
 
     @Autowired
@@ -25,7 +29,7 @@ public class CMISDocumentConverter implements ExternalDocumentConverter<org.apac
     }
 
     @Override
-    public ContentAPIDocument toContentApiDocument(Document cmisDocument) {
+    public ContentAPIDocument toContentApiDocument(Document cmisDocument, User user) throws NoSuchProfileException {
         checkNotNull(cmisDocument, "cmisDocument is required");
         checkNotNull(cmisDocument.getId(), "cmisDocument id is required");
         checkNotNull(cmisDocument.getDocumentType(), "cmisDocument type is required");
@@ -36,10 +40,13 @@ public class CMISDocumentConverter implements ExternalDocumentConverter<org.apac
 
         contentAPIDocument.setLabel(cmisDocument.getPropertyValue(RepositoryConstants.Alfresco.AlfrescoFields.TITLE_FQDN));
 
-
-        cmisDocument.getProperties().forEach((property -> {
-            contentAPIDocument.getMetadata().put(profileFacade.convertToContentApiFieldFromRepositoryField(profile, property.getLocalName()), property.getValue());
-        }));
+        for (Property property : cmisDocument.getProperties()) {
+            if (!property.getId().startsWith(ALFRESCO_SYSTEM_PREFIX)) { // do not share system properties
+                final String fieldName = profileFacade.convertToContentApiFieldFromRepositoryField(profile, property.getLocalName());
+                final Object fieldValue = profileFacade.convertToContentApiDataType(profile, user, property.getId(), property.getValue());
+                contentAPIDocument.getMetadata().put(fieldName, fieldValue);
+            }
+        }
 
         contentAPIDocument.getMetadata().put(PROFILE_ID, profile);
 
