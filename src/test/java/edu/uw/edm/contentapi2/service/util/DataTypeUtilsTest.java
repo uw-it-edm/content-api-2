@@ -78,7 +78,7 @@ public class DataTypeUtilsTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void whenConvertToIntegerInvalidStampThrowIllegalArumentException() {
-        DataTypeUtils.convertToInteger("invalid");
+        DataTypeUtils.convertToInteger(new Date());
     }
 
     @Test(expected = ArithmeticException.class)
