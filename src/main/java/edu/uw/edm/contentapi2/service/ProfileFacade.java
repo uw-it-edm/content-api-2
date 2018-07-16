@@ -2,6 +2,7 @@ package edu.uw.edm.contentapi2.service;
 
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.security.User;
+import edu.uw.edm.contentapi2.service.exceptions.UndefinedFieldException;
 import edu.uw.edm.contentapi2.service.model.ProfileDefinitionV4;
 
 public interface ProfileFacade {
@@ -16,7 +17,7 @@ public interface ProfileFacade {
 
     String convertToContentApiFieldFromFQDNRepositoryField(String profile, String fqdnRepoFieldName);
 
-    Object convertToContentApiDataType(String profileId, User user, String repoFieldLocalName, Object value)  throws NoSuchProfileException;
+    Object convertToContentApiDataType(String profileId, User user, String repoFieldLocalName, Object value) throws NoSuchProfileException, UndefinedFieldException;
 
     Object convertToRepoDataType(String profileId, User user, String fqdnRepoFieldName, Object value) throws NoSuchProfileException;
 }

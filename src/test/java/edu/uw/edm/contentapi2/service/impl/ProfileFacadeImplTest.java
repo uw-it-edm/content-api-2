@@ -17,6 +17,7 @@ import edu.uw.edm.contentapi2.common.FieldMapper;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.ProfileFacade;
+import edu.uw.edm.contentapi2.service.exceptions.UndefinedFieldException;
 import edu.uw.edm.contentapi2.service.model.FieldDefinition;
 import edu.uw.edm.contentapi2.service.model.MappingType;
 import edu.uw.edm.contentapi2.service.model.ProfileDefinitionV4;
@@ -61,7 +62,7 @@ public class ProfileFacadeImplTest {
     }
 
     @Test
-    public void convertLosAngelesDateToTimeStamp() throws NoSuchProfileException, ParseException {
+    public void convertLosAngelesDateToTimeStamp() throws NoSuchProfileException, ParseException, UndefinedFieldException {
         final GregorianCalendar value = new GregorianCalendar(2018,06,11);
         value.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
         final Object result = profileFacade.convertToContentApiDataType("testProfile", mock(User.class), "testDate", value);
@@ -69,7 +70,7 @@ public class ProfileFacadeImplTest {
         assertEquals(1531292400000L, result);
     }
     @Test
-    public void convertBrusselsDateToTimeStamp() throws NoSuchProfileException, ParseException {
+    public void convertBrusselsDateToTimeStamp() throws NoSuchProfileException, ParseException, UndefinedFieldException {
         final GregorianCalendar value = new GregorianCalendar(2018,06,11);
         value.setTimeZone(TimeZone.getTimeZone("Europe/Brussels"));
         final Object result = profileFacade.convertToContentApiDataType("testProfile", mock(User.class), "testDate", value);
@@ -78,7 +79,7 @@ public class ProfileFacadeImplTest {
     }
 
     @Test
-    public void convertInteger() throws NoSuchProfileException {
+    public void convertInteger() throws NoSuchProfileException, UndefinedFieldException {
         final Object result = profileFacade.convertToContentApiDataType("testProfile", mock(User.class), "testInteger", 100);
         assertEquals(Integer.class,result.getClass());
         assertEquals(100, result);
@@ -94,22 +95,29 @@ public class ProfileFacadeImplTest {
     }
 
     @Test
-    public void convertBool() throws NoSuchProfileException {
+    public void convertBool() throws NoSuchProfileException, UndefinedFieldException {
         final Object result = profileFacade.convertToContentApiDataType("testProfile", mock(User.class), "testBool", true);
         assertEquals(Boolean.class,result.getClass());
         assertEquals(true, result);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void convertingInvalidDateThrowsIllegalArgumentException() throws NoSuchProfileException {
+    public void convertingInvalidDateThrowsIllegalArgumentException() throws NoSuchProfileException, UndefinedFieldException {
         profileFacade.convertToContentApiDataType("testProfile", mock(User.class), "testDate", "invalid");
     }
+
     @Test(expected = IllegalArgumentException.class)
-    public void convertingInvalidIntegerThrowsIllegalArgumentException() throws NoSuchProfileException {
+    public void convertingInvalidIntegerThrowsIllegalArgumentException() throws NoSuchProfileException, UndefinedFieldException {
         profileFacade.convertToContentApiDataType("testProfile", mock(User.class), "testInteger", "invalid");
     }
+
     @Test(expected = IllegalArgumentException.class)
-    public void convertingInvalidBoolThrowsIllegalArgumentException() throws NoSuchProfileException {
+    public void convertingInvalidBoolThrowsIllegalArgumentException() throws NoSuchProfileException, UndefinedFieldException {
         profileFacade.convertToContentApiDataType("testProfile", mock(User.class), "testBool", 1);
+    }
+
+    @Test(expected = UndefinedFieldException.class)
+    public void convertingFieldNotInProfileDefinitionThrowsUndefinedFieldException() throws NoSuchProfileException, UndefinedFieldException {
+        profileFacade.convertToContentApiDataType("testProfile", mock(User.class), "testUnknown", "invalid");
     }
 }

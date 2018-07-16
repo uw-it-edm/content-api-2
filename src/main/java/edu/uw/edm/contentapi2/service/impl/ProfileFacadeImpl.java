@@ -11,11 +11,15 @@ import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.ProfileFacade;
+import edu.uw.edm.contentapi2.service.exceptions.UndefinedFieldException;
 import edu.uw.edm.contentapi2.service.model.FieldDefinition;
 import edu.uw.edm.contentapi2.service.model.ProfileDefinitionV4;
 import edu.uw.edm.contentapi2.service.profile.FieldConversionService;
 import edu.uw.edm.contentapi2.service.profile.ProfileDefinitionService;
 import edu.uw.edm.contentapi2.service.util.DataTypeUtils;
+import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.Tag;
+import io.micrometer.core.instrument.Tags;
 import lombok.extern.slf4j.Slf4j;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -63,12 +67,15 @@ public class ProfileFacadeImpl implements ProfileFacade {
     }
 
     @Override
-    public Object convertToContentApiDataType(String profileId, User user, String fqdnRepoFieldName, Object value) throws NoSuchProfileException {
+    public Object convertToContentApiDataType(String profileId, User user, String fqdnRepoFieldName, Object value) throws NoSuchProfileException, UndefinedFieldException {
         final ProfileDefinitionV4 profileDefinition = getProfileDefinition(profileId, user);
         final String contentApiFieldName = convertToContentApiFieldFromFQDNRepositoryField(profileId, fqdnRepoFieldName);
 
         final FieldDefinition fieldDefinition = getFieldDefinition(profileDefinition, fqdnRepoFieldName, contentApiFieldName);
-        checkNotNull(fieldDefinition,"Unable to determine FieldDefinition for '%s' in profile '%s'", contentApiFieldName,profileId);
+        if(fieldDefinition == null){
+            Metrics.counter("edm.repo.field.undefined", Tags.of(Tag.of("profile", profileId), Tag.of("field", fqdnRepoFieldName)) ).increment();
+            throw new UndefinedFieldException("Unable to determine FieldDefinition for '"+fqdnRepoFieldName+"' in profile '"+profileId+"'");
+        }
         switch (fieldDefinition.getType()) {
             case date:
                 value = DataTypeUtils.convertToTimeStamp(value);
