@@ -73,8 +73,8 @@ public class ProfileFacadeImpl implements ProfileFacade {
 
         final FieldDefinition fieldDefinition = getFieldDefinition(profileDefinition, fqdnRepoFieldName, contentApiFieldName);
         if(fieldDefinition == null){
-            Metrics.counter("edm.repo.field.undefined", Tags.of(Tag.of("profile", profileId), Tag.of("field", contentApiFieldName)) ).increment();
-            throw new UndefinedFieldException("Unable to determine FieldDefinition for '"+contentApiFieldName+"' in profile '"+profileId+"'");
+            Metrics.counter("edm.repo.field.undefined", Tags.of(Tag.of("profile", profileId), Tag.of("field", fqdnRepoFieldName)) ).increment();
+            throw new UndefinedFieldException("Unable to determine FieldDefinition for '"+fqdnRepoFieldName+"' in profile '"+profileId+"'");
         }
         switch (fieldDefinition.getType()) {
             case date:
