@@ -17,7 +17,7 @@ import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.ProfileFacade;
-import edu.uw.edm.contentapi2.service.exceptions.UnknownFieldDefinitionException;
+import edu.uw.edm.contentapi2.service.exceptions.UndefinedFieldException;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -49,7 +49,7 @@ public class CMISDocumentConverterTest {
     }
 
     @Test
-    public void toContentApiDocument() throws NoSuchProfileException, UnknownFieldDefinitionException {
+    public void toContentApiDocument() throws NoSuchProfileException, UndefinedFieldException {
         org.apache.chemistry.opencmis.client.api.Document repositoryDocumentMock = mock(org.apache.chemistry.opencmis.client.api.Document.class);
         final Property propertyMock = mock(Property.class);
         when(propertyMock.getLocalName()).thenReturn("property1");
@@ -113,7 +113,7 @@ public class CMISDocumentConverterTest {
     }
 
     @Test
-    public void sysPrefixPropertiesAreRemovedFromDocumentTest() throws NoSuchProfileException, UnknownFieldDefinitionException {
+    public void sysPrefixPropertiesAreRemovedFromDocumentTest() throws NoSuchProfileException, UndefinedFieldException {
         org.apache.chemistry.opencmis.client.api.Document repositoryDocumentMock = mock(org.apache.chemistry.opencmis.client.api.Document.class);
         when(repositoryDocumentMock.getProperties()).thenReturn(Collections.emptyList());
 

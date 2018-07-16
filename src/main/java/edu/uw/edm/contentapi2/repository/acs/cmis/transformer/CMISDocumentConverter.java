@@ -11,7 +11,7 @@ import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.repository.transformer.ExternalDocumentConverter;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.ProfileFacade;
-import edu.uw.edm.contentapi2.service.exceptions.UnknownFieldDefinitionException;
+import edu.uw.edm.contentapi2.service.exceptions.UndefinedFieldException;
 import lombok.extern.slf4j.Slf4j;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -49,9 +49,8 @@ public class CMISDocumentConverter implements ExternalDocumentConverter<org.apac
                 try {
                     final Object fieldValue = profileFacade.convertToContentApiDataType(profile, user, property.getId(), property.getValue());
                     contentAPIDocument.getMetadata().put(fieldName, fieldValue);
-                } catch (UnknownFieldDefinitionException unknownFieldDefinitionException) {
-                    //TODO: increment a counter or gauge to identify aspects that should be mandatory
-                    log.debug(unknownFieldDefinitionException.getMessage());
+                } catch (UndefinedFieldException undefinedFieldException) {
+                    log.trace(undefinedFieldException.getMessage());
                 }
 
             }
