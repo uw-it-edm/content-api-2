@@ -25,13 +25,9 @@ import edu.uw.edm.contentapi2.security.UserDetailsService;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 
-@WebMvcTest(
-        includeFilters = {
-                @ComponentScan.Filter(classes = EnableWebSecurity.class),
-                @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityProperties.class),
-                @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = UserDetailsService.class)
-        })
+@WebMvcTest()
 @AutoConfigureRestDocs(
+        uriHost = "server.dns",
         uriScheme = "https",
         uriPort = 443)
 @Import(ResultHandlerConfiguration.class)
@@ -44,5 +40,12 @@ public @interface ContentAPIRestDocTest {
 
     @OverridesAttribute(constraint = AutoConfigureRestDocs.class, name = "outputDir")
     String outputDir() default GENERATED_SNIPPETS_BASE_PATH;
+
+    @OverridesAttribute(constraint = WebMvcTest.class, name = "includeFilters")
+    ComponentScan.Filter[] includeFilters() default {
+            @ComponentScan.Filter(classes = EnableWebSecurity.class),
+            @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityProperties.class),
+            @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = UserDetailsService.class)
+    };
 
 }

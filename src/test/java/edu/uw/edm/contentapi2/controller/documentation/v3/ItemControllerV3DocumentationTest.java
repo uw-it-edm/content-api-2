@@ -1,14 +1,19 @@
 package edu.uw.edm.contentapi2.controller.documentation.v3;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.mockmvc.RestDocumentationResultHandler;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 
@@ -51,6 +56,8 @@ public class ItemControllerV3DocumentationTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
     public RestDocumentationResultHandler documentationResultHandler;
@@ -92,6 +99,83 @@ public class ItemControllerV3DocumentationTest {
                 ));
 
     }
+
+
+    @Test
+    public void updateItem() throws Exception {
+        MockMultipartFile attachment = new MockMultipartFile("attachment", "myfile.cad", "application/pdf", "yourcadfile".getBytes());
+        //MockMultipartFile alternate = new MockMultipartFile("alternate", "myfile.pdf", "application/pdf", "yourpdffile".getBytes());
+
+        ContentAPIDocument testDocument = getTestDocument();
+
+        String content = objectMapper.writeValueAsString(testDocument);
+        MockMultipartFile document = new MockMultipartFile("document", "json", "application/json", content.getBytes());
+
+        doReturn(testDocument)
+                .when(documentFacade)
+                .updateDocument(
+                        eq("123"),
+                        any(ContentAPIDocument.class),
+                        any(MultipartFile.class),
+                        any(User.class));
+
+        this.mockMvc.perform(
+                MockMvcRequestBuilders
+                        .multipart(CONTEXT_PATH + "/content/v3/item/{itemId}", testDocument.getId())
+                        .file(document)
+                        .file(attachment)
+                        //.file(alternate)
+                        .header(SecurityProperties.DEFAULT_AUTHENTICATION_HEADER, "my-auth-header")
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .accept(MediaType.APPLICATION_JSON)
+
+        )
+                .andExpect(status().isOk())
+                .andDo(documentationResultHandler.document(
+                        relaxedResponseFields(
+                                fieldWithPath("id").description("The id of the updated document"),
+                                fieldWithPath("label").description("The label of the document"),
+                                fieldWithPath("metadata").description("An object containing all the metadata available for your document")
+                        )));
+
+    }
+
+    @Test
+    public void createItem() throws Exception {
+        MockMultipartFile attachment = new MockMultipartFile("attachment", "myfile.cad", "application/cad", "yourcadfile".getBytes());
+        MockMultipartFile alternate = new MockMultipartFile("alternate", "myfile.pdf", "application/pdf", "yourpdffile".getBytes());
+
+        ContentAPIDocument testDocumentResponse = getTestDocument();
+        ContentAPIDocument testDocumentRequest = getTestDocument();
+        testDocumentRequest.setId(null);
+
+        MockMultipartFile document = new MockMultipartFile("document", "json", "application/json", objectMapper.writeValueAsString(testDocumentRequest).getBytes());
+
+        doReturn(testDocumentResponse)
+                .when(documentFacade)
+                .createDocument(
+                        any(ContentAPIDocument.class),
+                        any(MultipartFile.class),
+                        any(User.class));
+
+        this.mockMvc.perform(
+                MockMvcRequestBuilders
+                        .multipart(CONTEXT_PATH + "/content/v3/item")
+                        .file(document)
+                        .file(attachment)
+                        .header(SecurityProperties.DEFAULT_AUTHENTICATION_HEADER, "my-auth-header")
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(documentationResultHandler.document(
+                        relaxedResponseFields(
+                                fieldWithPath("id").description("The id of the created document"),
+                                fieldWithPath("label").description("The label of the document"),
+                                fieldWithPath("metadata").description("An object containing all the metadata available for your document")
+                        )));
+
+    }
+
 
     private ContentAPIDocument getTestDocument() {
         return getTestDocument("123");
