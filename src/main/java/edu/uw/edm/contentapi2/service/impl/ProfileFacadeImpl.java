@@ -11,6 +11,7 @@ import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.ProfileFacade;
+import edu.uw.edm.contentapi2.service.exceptions.UnknownFieldDefinitionException;
 import edu.uw.edm.contentapi2.service.model.FieldDefinition;
 import edu.uw.edm.contentapi2.service.model.ProfileDefinitionV4;
 import edu.uw.edm.contentapi2.service.profile.FieldConversionService;
@@ -63,12 +64,14 @@ public class ProfileFacadeImpl implements ProfileFacade {
     }
 
     @Override
-    public Object convertToContentApiDataType(String profileId, User user, String fqdnRepoFieldName, Object value) throws NoSuchProfileException {
+    public Object convertToContentApiDataType(String profileId, User user, String fqdnRepoFieldName, Object value) throws NoSuchProfileException, UnknownFieldDefinitionException {
         final ProfileDefinitionV4 profileDefinition = getProfileDefinition(profileId, user);
         final String contentApiFieldName = convertToContentApiFieldFromFQDNRepositoryField(profileId, fqdnRepoFieldName);
 
         final FieldDefinition fieldDefinition = getFieldDefinition(profileDefinition, fqdnRepoFieldName, contentApiFieldName);
-        checkNotNull(fieldDefinition,"Unable to determine FieldDefinition for '%s' in profile '%s'", contentApiFieldName,profileId);
+        if(fieldDefinition == null){
+            throw new UnknownFieldDefinitionException("Unable to determine FieldDefinition for '"+contentApiFieldName+"' in profile '"+profileId+"'");
+        }
         switch (fieldDefinition.getType()) {
             case date:
                 value = DataTypeUtils.convertToTimeStamp(value);

@@ -11,6 +11,8 @@ import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.repository.transformer.ExternalDocumentConverter;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.ProfileFacade;
+import edu.uw.edm.contentapi2.service.exceptions.UnknownFieldDefinitionException;
+import lombok.extern.slf4j.Slf4j;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.ContentAPI.PROFILE_ID;
@@ -18,6 +20,7 @@ import static edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.Co
 /**
  * @author Maxime Deravet Date: 4/3/18
  */
+@Slf4j
 @Service
 public class CMISDocumentConverter implements ExternalDocumentConverter<org.apache.chemistry.opencmis.client.api.Document> {
     private static final String ALFRESCO_SYSTEM_PREFIX = "sys:";
@@ -43,8 +46,14 @@ public class CMISDocumentConverter implements ExternalDocumentConverter<org.apac
         for (Property property : cmisDocument.getProperties()) {
             if (!property.getId().startsWith(ALFRESCO_SYSTEM_PREFIX)) { // do not share system properties
                 final String fieldName = profileFacade.convertToContentApiFieldFromRepositoryField(profile, property.getLocalName());
-                final Object fieldValue = profileFacade.convertToContentApiDataType(profile, user, property.getId(), property.getValue());
-                contentAPIDocument.getMetadata().put(fieldName, fieldValue);
+                try {
+                    final Object fieldValue = profileFacade.convertToContentApiDataType(profile, user, property.getId(), property.getValue());
+                    contentAPIDocument.getMetadata().put(fieldName, fieldValue);
+                } catch (UnknownFieldDefinitionException unknownFieldDefinitionException) {
+                    //TODO: increment a counter or gauge to identify aspects that should be mandatory
+                    log.debug(unknownFieldDefinitionException.getMessage());
+                }
+
             }
         }
 
