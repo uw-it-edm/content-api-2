@@ -96,7 +96,7 @@ public class ProfileFacadeImpl implements ProfileFacade {
 
         switch (fieldDefinition.getType()) {
             case date:
-                value = DataTypeUtils.convertToDate(value);
+                value = DataTypeUtils.convertToLosAngelesDate(value);
                 break;
             case bool:
                 value = DataTypeUtils.convertToBoolean(value);

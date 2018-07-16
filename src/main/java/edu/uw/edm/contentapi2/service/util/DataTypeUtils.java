@@ -23,7 +23,7 @@ public class DataTypeUtils {
         return bool;
     }
 
-    public static Object convertToDate(Object value) {
+    public static Object convertToLosAngelesDate(Object value) {
         Date date = null;
         if (value == null) {
             // NOOP
