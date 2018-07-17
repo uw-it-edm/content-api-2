@@ -30,4 +30,6 @@ use of HTTP status codes.
 
 == link:v3/index.html[Content-api V3 Documentation]
 
+== link:v4/index.html[Content-api V4 Documentation]
+
 

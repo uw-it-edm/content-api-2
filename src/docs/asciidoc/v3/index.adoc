@@ -1,4 +1,4 @@
-= Content API
+= Content API V3
 :doctype: book
 :icons: font
 :source-highlighter: highlightjs
@@ -223,24 +223,3 @@ include::{snippets}/v3/read-file/curl-request.adoc[]
 
 include::{snippets}/v3/read-file/http-response.adoc[]
 
-
-[[merge-to-pdf]]
-=== Merge search result to PDF
-
-A `POST` request to retrieve a pdf that contains all the documents from a search
-
-
-==== Request structure
-
-include::searchModelDoc.adoc[]
-include::{snippets}/v3/merge-search-to-pdf/request-parameters.adoc[]
-include::{snippets}/v3/merge-search-to-pdf/request-fields.adoc[]
-include::{snippets}/v3/merge-search-to-pdf/http-request.adoc[]
-
-==== Example request
-
-include::{snippets}/v3/merge-search-to-pdf/curl-request.adoc[]
-
-==== Example response
-
-include::{snippets}/v3/merge-search-to-pdf/http-response.adoc[]
