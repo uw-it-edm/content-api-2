@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.HashMap;
 
 import edu.uw.edm.contentapi2.common.FieldMapper;
+import edu.uw.edm.contentapi2.properties.SecurityProperties;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.ProfileFacade;
 import edu.uw.edm.contentapi2.service.model.ProfileDefinitionV4;
@@ -43,7 +44,7 @@ public class ProfileDefinitionControllerV4Test {
                 .build();
         when(profileFacade.getProfileDefinition(any(String.class), any(User.class))).thenReturn(profileDefinition);
 
-        this.mockMvc.perform(get("/content/v4/testProfile/profile").header("auth-header", "test-user"))
+        this.mockMvc.perform(get("/content/v4/testProfile/profile").header(SecurityProperties.DEFAULT_AUTHENTICATION_HEADER, "test-user"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$.profile").value("testProfile"));

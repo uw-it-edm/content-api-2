@@ -18,6 +18,7 @@ buildscript {
 		classpath "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.5.1"
 		classpath("org.jfrog.buildinfo:build-info-extractor-gradle:4.7.5")
 		classpath("nu.studer:gradle-credentials-plugin:1.0.4")
+		classpath("org.asciidoctor:asciidoctor-gradle-plugin:1.5.6")
 	}
 
 }
@@ -37,6 +38,9 @@ apply plugin: 'nu.studer.credentials'
 apply plugin: "com.jfrog.artifactory"
 apply plugin: 'maven-publish'
 
+apply plugin: 'org.asciidoctor.convert'
+
+
 group = 'edu.uw.edm'
 sourceCompatibility = 1.8
 
@@ -48,11 +52,31 @@ repositories {
 
 bootJar {
 	baseName = 'content-api-2'
+
+	dependsOn asciidoctor
+	from ("${asciidoctor.outputDir}/html5") {
+		into 'static/docs'
+	}
 }
+
 task wrapper(type: Wrapper) {
     gradleVersion = '4.5.1'
 }
 
+
+ext {
+	snippetsDir = file('build/generated-snippets')
+}
+
+test {
+	outputs.dir snippetsDir
+}
+
+asciidoctor {
+	attributes 'snippets': snippetsDir
+	inputs.dir snippetsDir
+	dependsOn test
+}
 
 dependencyManagement {
 	imports {

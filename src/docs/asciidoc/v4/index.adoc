@@ -1,0 +1,62 @@
+= Content API V4
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+
+link:../index.html[back to index]
+
+[[overview]]
+= Overview
+
+[[overview-http-status-codes]]
+== HTTP status codes
+
+Content API tries to adhere as closely as possible to standard HTTP and REST conventions in its
+use of HTTP status codes.
+
+|===
+| Status code | Usage
+
+| `200 OK`
+| The request completed successfully
+
+| `400 Bad Request`
+| The request was malformed.
+
+| `404 Not Found`
+| The requested resource did not exist
+|===
+
+
+
+[[profile]]
+== Profile V4
+[[get-profile-definition]]
+=== Get Profile
+
+A `GET` request to retrieve the definition of a profile
+
+==== Path Param
+
+include::{snippets}/v4/get-profile-definition/path-parameters.adoc[]
+
+==== Request structure
+
+include::{snippets}/v4/get-profile-definition/http-request.adoc[]
+
+==== Request header
+
+include::{snippets}/v4/get-profile-definition/request-headers.adoc[]
+
+==== Example request
+
+include::{snippets}/v4/get-profile-definition/curl-request.adoc[]
+
+==== Example response
+
+include::{snippets}/v4/get-profile-definition/response-fields.adoc[]
+
+include::{snippets}/v4/get-profile-definition/http-response.adoc[]

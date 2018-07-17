@@ -17,6 +17,7 @@ import edu.uw.edm.contentapi2.common.FieldMapper;
 import edu.uw.edm.contentapi2.controller.content.v3.FileV3Controller;
 import edu.uw.edm.contentapi2.controller.content.v3.model.ContentDispositionType;
 import edu.uw.edm.contentapi2.controller.content.v3.model.ContentRenditionType;
+import edu.uw.edm.contentapi2.properties.SecurityProperties;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.FileServingService;
 
@@ -46,7 +47,7 @@ public class FileV3ControllerTest {
 
     @Test
     public void getFileTest() throws Exception {
-        this.mockMvc.perform(get("/content/v3/file/my-item-id").header("auth-header", "test-user"))
+        this.mockMvc.perform(get("/content/v3/file/my-item-id").header(SecurityProperties.DEFAULT_AUTHENTICATION_HEADER, "test-user"))
                 .andExpect(status().isOk());
         verify(fileServingService, times(1)).serveFile(eq("my-item-id"), eq(ContentRenditionType.Web), eq(ContentDispositionType.inline), eq(false), any(User.class), any(HttpServletRequest.class), any(HttpServletResponse.class));
     }
