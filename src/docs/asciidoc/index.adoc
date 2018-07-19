@@ -12,7 +12,7 @@
 [[overview-http-status-codes]]
 == HTTP status codes
 
-RESTful notes tries to adhere as closely as possible to standard HTTP and REST conventions in its
+Content API tries to adhere as closely as possible to standard HTTP and REST conventions in its
 use of HTTP status codes.
 
 |===
@@ -27,6 +27,12 @@ use of HTTP status codes.
 | `404 Not Found`
 | The requested resource did not exist
 |===
+
+[[overview-host]]
+== Host
+
+The examples in this documentation uses `server.dns` as a placeholder value.
+Please replace it with the actual host value where Content API is being called.
 
 == link:v3/index.html[Content-api V3 Documentation]
 
