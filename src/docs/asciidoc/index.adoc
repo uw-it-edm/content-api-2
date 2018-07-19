@@ -34,6 +34,11 @@ use of HTTP status codes.
 The examples in this documentation uses `server.dns` as a placeholder value.
 Please replace it with the actual host value where Content API is being called.
 
+[[overview-request-header]]
+== Request Header
+
+Please contact the EDM team to request for authentication-header values.
+
 == link:v3/index.html[Content-api V3 Documentation]
 
 == link:v4/index.html[Content-api V4 Documentation]
