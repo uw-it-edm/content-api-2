@@ -55,7 +55,7 @@ public class DataTypeUtils {
     }
 
     public static Object convertToTimeStamp(Object value) {
-        long timestamp = 0;
+        Long timestamp = null;
         if (value == null) {
             // NOOP
         } else if (value instanceof Calendar) {
