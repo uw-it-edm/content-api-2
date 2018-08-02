@@ -2,7 +2,7 @@ buildscript {
 	ext {
 		springBootVersion = '2.0.4.RELEASE'
 		openCMISVersion = '1.1.0'
-		guavaVersion = '25.1-jre'
+		guavaVersion = '26.0-jre'
 		alfrescoJavaClientVersion = '1.0.0-beta2'
 		springCloudReleaseTrain = 'Finchley.RELEASE'
 	}
