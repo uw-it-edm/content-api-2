@@ -80,11 +80,11 @@ public class ACSDocumentRepositoryImplTest {
     @Test
     public void cmisGetByIdShouldBeCalledTest() throws NotADocumentException {
 
-        when(mockSession.getObject("my-id")).thenReturn(mock(Document.class));
+        when(mockSession.getObject(eq("my-id"), any())).thenReturn(mock(Document.class));
 
         documentRepository.getDocumentById("my-id", mock(User.class));
 
-        verify(mockSession, times(1)).getObject("my-id");
+        verify(mockSession, times(1)).getObject(eq("my-id"), any());
 
     }
 

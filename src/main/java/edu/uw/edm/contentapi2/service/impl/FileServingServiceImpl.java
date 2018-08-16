@@ -3,12 +3,14 @@ package edu.uw.edm.contentapi2.service.impl;
 import com.google.common.base.Preconditions;
 
 import org.apache.chemistry.opencmis.client.api.Document;
+import org.apache.chemistry.opencmis.client.api.Rendition;
 import org.apache.chemistry.opencmis.commons.data.ContentStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,6 +20,7 @@ import edu.uw.edm.contentapi2.controller.constants.ControllerConstants;
 import edu.uw.edm.contentapi2.controller.content.v3.model.ContentDispositionType;
 import edu.uw.edm.contentapi2.controller.content.v3.model.ContentRenditionType;
 import edu.uw.edm.contentapi2.repository.ExternalDocumentRepository;
+import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants;
 import edu.uw.edm.contentapi2.repository.exceptions.RepositoryException;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.FileServingService;
@@ -25,10 +28,12 @@ import edu.uw.edm.contentapi2.service.util.StreamUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import static edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.Alfresco.AlfrescoFields.TITLE_FQDN;
+import static edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.CMIS.Renditions.THUMBNAIL_KIND;
 
 @Slf4j
 @Service
 public class FileServingServiceImpl implements FileServingService {
+
     private ExternalDocumentRepository<Document> externalDocumentRepository;
 
     @Autowired
@@ -47,13 +52,12 @@ public class FileServingServiceImpl implements FileServingService {
 
         //TODO: handle http range requests
 
-        final Document document = externalDocumentRepository.getDocumentById(itemId, user);
 
-        final ContentStream contentStream = document.getContentStream();
+        final Document document = getDocumentWithRendition(itemId, renditionType, user);
+        final ContentStream contentStream = getContentStreamWithRendition(document, renditionType);
 
         log.debug("Serving {}  with mime type {} and content length {}.", itemId, contentStream.getMimeType(), contentStream.getLength());
         response.setContentType(contentStream.getMimeType());
-
 
         final String fileName = generateServedFileName(document);
         addContentDispositionHeaderToResponse(contentDispositionType, response, fileName);
@@ -63,6 +67,50 @@ public class FileServingServiceImpl implements FileServingService {
         } else {
             StreamUtils.streamCopy(contentStream.getStream(), response.getOutputStream());
         }
+    }
+
+    private Document getDocumentWithRendition(String itemId, ContentRenditionType renditionType, User user) throws RepositoryException {
+        String renditionFilter = RepositoryConstants.CMIS.Renditions.Filters.NONE;
+        if (ContentRenditionType.Web.equals(renditionType)) {
+            renditionFilter = RepositoryConstants.CMIS.Renditions.Filters.WEB;
+        }
+        return externalDocumentRepository.getDocumentById(itemId, user, renditionFilter);
+    }
+
+    private ContentStream getContentStreamWithRendition(Document document, ContentRenditionType renditionType) {
+        ContentStream contentStream = null;
+        if (ContentRenditionType.Primary.equals(renditionType)) {
+            contentStream = document.getContentStream();
+        } else if (ContentRenditionType.Web.equals(renditionType)) {
+            contentStream = getWebRenditionContentStream(document);
+        } else {
+            log.error("Unexpected rendition type: '{}', unable to return contentStream", renditionType);
+        }
+        return contentStream;
+    }
+
+    private ContentStream getWebRenditionContentStream(Document document) {
+        boolean unableToIdentifyWebRendition = true;
+        ContentStream webRenditionContentStream = null;
+        if (document.getRenditions() != null) {
+            List<Rendition> renditions = document.getRenditions().stream()
+                    .filter(rendition -> !rendition.getKind().equals(THUMBNAIL_KIND))
+                    .collect(Collectors.toList());
+
+            if (renditions.size() > 1) {
+                log.warn("There are {} 'Web' renditions available for document '{}', returning the first one", document.getId(), renditions.size());
+            }
+            if (!renditions.isEmpty()) {
+                unableToIdentifyWebRendition = false;
+                final String renditionStreamId = document.getRenditions().get(0).getStreamId();
+                webRenditionContentStream = document.getContentStream(renditionStreamId);
+            }
+        }
+
+        if (unableToIdentifyWebRendition) {
+            //TODO: if no web rendition found, then create a pdf with the link to download the native file
+        }
+        return webRenditionContentStream;
     }
 
 

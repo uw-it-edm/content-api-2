@@ -120,11 +120,11 @@ public class FileControllerV3DocumentationTest {
                 .when(mockDocument).getContentStream();
 
         doReturn(mockDocument)
-                .when(externalDocumentRepository).getDocumentById(eq("123"), any(User.class));
+                .when(externalDocumentRepository).getDocumentById(eq("123"), any(User.class), any());
 
 
         this.mockMvc.perform(get(CONTEXT_PATH + "/content/v3/file/{itemId}", "123", response)
-                .param("rendition", "Web")
+                .param("rendition", "Primary")
                 .header(SecurityProperties.DEFAULT_AUTHENTICATION_HEADER, "my-auth-header")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

@@ -3,6 +3,7 @@ package edu.uw.edm.contentapi2.service.impl;
 import org.apache.catalina.ssi.ByteArrayServletOutputStream;
 import org.apache.chemistry.opencmis.client.api.Document;
 import org.apache.chemistry.opencmis.client.api.Property;
+import org.apache.chemistry.opencmis.client.api.Rendition;
 import org.apache.chemistry.opencmis.commons.data.ContentStream;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,7 +13,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -59,16 +62,30 @@ public class FileServingServiceImplTest {
         when(mockContentStream.getLength()).thenReturn(-1L);
         when(mockContentStream.getStream()).thenReturn(new ByteArrayInputStream("This is a test stream.".getBytes()));
 
+        final ContentStream mockContentStream2 = mock(ContentStream.class);
+        when(mockContentStream2.getMimeType()).thenReturn("test-mime-type2");
+        when(mockContentStream2.getLength()).thenReturn(-1L);
+        when(mockContentStream2.getStream()).thenReturn(new ByteArrayInputStream("This is a test stream2.".getBytes()));
+
+        final Rendition mockRendition = mock(Rendition.class);
+        when(mockRendition.getStreamId()).thenReturn("test-stream-id-2");
+        when(mockRendition.getKind()).thenReturn("pdf");
+
+        final List<Rendition> mockRenditions = new ArrayList<>();
+        mockRenditions.add(mockRendition);
+
         mockProperty = mock(Property.class);
         when(mockProperty.getId()).thenReturn("cm:title");
         when(mockProperty.getValue()).thenReturn("test.png");
 
         mockDocument = mock(Document.class);
         when(mockDocument.getContentStream()).thenReturn(mockContentStream);
+        when(mockDocument.getContentStream("test-stream-id-2")).thenReturn(mockContentStream2);
         when(mockDocument.getProperties()).thenReturn(Arrays.asList(mockProperty));
         when(mockDocument.getId()).thenReturn("my-test-id");
+        when(mockDocument.getRenditions()).thenReturn(mockRenditions);
 
-        when(externalDocumentRepository.getDocumentById(eq("my-item-id"), any(User.class))).thenReturn(mockDocument);
+        when(externalDocumentRepository.getDocumentById(eq("my-item-id"), any(User.class), any())).thenReturn(mockDocument);
 
         outputStream = new ByteArrayServletOutputStream();
         when(mockHttpServletResponse.getOutputStream()).thenReturn(outputStream);
@@ -77,9 +94,9 @@ public class FileServingServiceImplTest {
 
     @Test
     public void serveFileTest() throws IOException, RepositoryException {
-        fileServingService.serveFile("my-item-id", ContentRenditionType.Web, ContentDispositionType.inline, false, mock(User.class), mock(HttpServletRequest.class),mockHttpServletResponse);
+        fileServingService.serveFile("my-item-id", ContentRenditionType.Primary, ContentDispositionType.inline, false, mock(User.class), mock(HttpServletRequest.class),mockHttpServletResponse);
 
-        verify(externalDocumentRepository, times(1)).getDocumentById(eq("my-item-id"), any(User.class));
+        verify(externalDocumentRepository, times(1)).getDocumentById(eq("my-item-id"), any(User.class), any());
         verify(mockHttpServletResponse,times(1)).setHeader(CONTENT_DISPOSITION,"inline;filename=\"my-test-id.png\"");
         assertEquals("This is a test stream.", new String(outputStream.toByteArray()));
 
@@ -89,11 +106,21 @@ public class FileServingServiceImplTest {
     public void whenFileNameDoesNotHaveExtensionReturnDocId() throws IOException, RepositoryException {
         when(mockProperty.getValue()).thenReturn("test");
 
-        fileServingService.serveFile("my-item-id", ContentRenditionType.Web, ContentDispositionType.inline, false, mock(User.class), mock(HttpServletRequest.class),mockHttpServletResponse);
+        fileServingService.serveFile("my-item-id", ContentRenditionType.Primary, ContentDispositionType.inline, false, mock(User.class), mock(HttpServletRequest.class),mockHttpServletResponse);
 
-        verify(externalDocumentRepository, times(1)).getDocumentById(eq("my-item-id"), any(User.class));
+        verify(externalDocumentRepository, times(1)).getDocumentById(eq("my-item-id"), any(User.class), any());
         verify(mockHttpServletResponse,times(1)).setHeader(CONTENT_DISPOSITION,"inline;filename=\"my-test-id\"");
         assertEquals("This is a test stream.", new String(outputStream.toByteArray()));
+
+    }
+
+    @Test
+    public void serveWebRendition() throws IOException, RepositoryException {
+        fileServingService.serveFile("my-item-id", ContentRenditionType.Web, ContentDispositionType.inline, false, mock(User.class), mock(HttpServletRequest.class),mockHttpServletResponse);
+
+        verify(externalDocumentRepository, times(1)).getDocumentById(eq("my-item-id"), any(User.class), any());
+        verify(mockHttpServletResponse,times(1)).setHeader(CONTENT_DISPOSITION,"inline;filename=\"my-test-id.png\"");
+        assertEquals("This is a test stream2.", new String(outputStream.toByteArray()));
 
     }
 }
