@@ -85,7 +85,6 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
     }
 
 
-
     @Override
     public Document createDocument(ContentAPIDocument document, MultipartFile primaryFile, User user) throws NoSuchProfileException {
         checkNotNull(user, "User is required");
@@ -109,7 +108,7 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
 
         Session session = sessionCreator.getSessionForUser(user);
 
-        Document documentById = getDocumentById(documentId, session, null);
+        Document documentById = getDocumentById(documentId, session);
 
         if (primaryFile != null && !primaryFile.isEmpty()) {
             createNewRevisionWithFile(documentById, updatedContentAPIDocument, primaryFile, session, user);
@@ -124,9 +123,14 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
         return documentById;
     }
 
+    private Document getDocumentById(String documentId, Session sessionForUser) throws NotADocumentException {
+        return getDocumentById(documentId, sessionForUser, null);
+
+    }
+
     private Document getDocumentById(String documentId, Session sessionForUser, String renditionFilter) throws NotADocumentException {
         final OperationContext oc = sessionForUser.getDefaultContext();
-        if(!Strings.isNullOrEmpty(renditionFilter)) {
+        if (!Strings.isNullOrEmpty(renditionFilter)) {
             oc.setRenditionFilterString(renditionFilter);
         }
 
@@ -248,7 +252,7 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
             final String fieldLocalName = propertyDefinitionEntry.getValue().getLocalName();
             final String contentApiFieldName = profileFacade.convertToContentApiFieldFromRepositoryField(profileId, fieldLocalName);
 
-            if(document.getMetadata().containsKey(contentApiFieldName)){ // Only add metadata passed in the document
+            if (document.getMetadata().containsKey(contentApiFieldName)) { // Only add metadata passed in the document
                 final Object contentApiMetaDataValue = document.getMetadata().get(contentApiFieldName);
                 final Object repoMetadataValue = profileFacade.convertToRepoDataType(profileId, user, fqdnRepoFieldName, contentApiMetaDataValue);
                 properties.put(fqdnRepoFieldName, repoMetadataValue);

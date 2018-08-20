@@ -82,7 +82,7 @@ public class FileServingServiceImplTest {
         when(mockDocument.getContentStream()).thenReturn(mockContentStream);
         when(mockDocument.getContentStream("test-stream-id-2")).thenReturn(mockContentStream2);
         when(mockDocument.getProperties()).thenReturn(Arrays.asList(mockProperty));
-        when(mockDocument.getId()).thenReturn("my-test-id");
+
         when(mockDocument.getRenditions()).thenReturn(mockRenditions);
 
         when(externalDocumentRepository.getDocumentById(eq("my-item-id"), any(User.class), any())).thenReturn(mockDocument);
@@ -97,7 +97,7 @@ public class FileServingServiceImplTest {
         fileServingService.serveFile("my-item-id", ContentRenditionType.Primary, ContentDispositionType.inline, false, mock(User.class), mock(HttpServletRequest.class),mockHttpServletResponse);
 
         verify(externalDocumentRepository, times(1)).getDocumentById(eq("my-item-id"), any(User.class), any());
-        verify(mockHttpServletResponse,times(1)).setHeader(CONTENT_DISPOSITION,"inline;filename=\"my-test-id.png\"");
+        verify(mockHttpServletResponse,times(1)).setHeader(CONTENT_DISPOSITION,"inline;filename=\"my-item-id.png\"");
         assertEquals("This is a test stream.", new String(outputStream.toByteArray()));
 
     }
@@ -109,7 +109,7 @@ public class FileServingServiceImplTest {
         fileServingService.serveFile("my-item-id", ContentRenditionType.Primary, ContentDispositionType.inline, false, mock(User.class), mock(HttpServletRequest.class),mockHttpServletResponse);
 
         verify(externalDocumentRepository, times(1)).getDocumentById(eq("my-item-id"), any(User.class), any());
-        verify(mockHttpServletResponse,times(1)).setHeader(CONTENT_DISPOSITION,"inline;filename=\"my-test-id\"");
+        verify(mockHttpServletResponse,times(1)).setHeader(CONTENT_DISPOSITION,"inline;filename=\"my-item-id\"");
         assertEquals("This is a test stream.", new String(outputStream.toByteArray()));
 
     }
@@ -119,7 +119,7 @@ public class FileServingServiceImplTest {
         fileServingService.serveFile("my-item-id", ContentRenditionType.Web, ContentDispositionType.inline, false, mock(User.class), mock(HttpServletRequest.class),mockHttpServletResponse);
 
         verify(externalDocumentRepository, times(1)).getDocumentById(eq("my-item-id"), any(User.class), any());
-        verify(mockHttpServletResponse,times(1)).setHeader(CONTENT_DISPOSITION,"inline;filename=\"my-test-id.png\"");
+        verify(mockHttpServletResponse,times(1)).setHeader(CONTENT_DISPOSITION,"inline;filename=\"my-item-id.png\"");
         assertEquals("This is a test stream2.", new String(outputStream.toByteArray()));
 
     }
