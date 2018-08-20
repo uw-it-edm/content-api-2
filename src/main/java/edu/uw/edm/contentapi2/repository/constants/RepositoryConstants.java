@@ -31,5 +31,15 @@ public class RepositoryConstants {
 
     public static final class CMIS {
         public static final String BASE_DOCUMENT_TYPE = "cmis:document";
+
+        public static final class Renditions {
+            public static final String THUMBNAIL_KIND = "cmis:thumbnail";
+            public static final class Filters {
+                public static final String WEB = "application/pdf,image/*";
+                public static final String NONE = "cmis:none";
+            }
+
+
+        }
     }
 }

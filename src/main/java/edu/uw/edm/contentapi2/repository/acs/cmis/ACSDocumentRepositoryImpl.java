@@ -8,6 +8,7 @@ import org.apache.chemistry.opencmis.client.api.CmisObject;
 import org.apache.chemistry.opencmis.client.api.Document;
 import org.apache.chemistry.opencmis.client.api.Folder;
 import org.apache.chemistry.opencmis.client.api.ObjectId;
+import org.apache.chemistry.opencmis.client.api.OperationContext;
 import org.apache.chemistry.opencmis.client.api.Session;
 import org.apache.chemistry.opencmis.commons.PropertyIds;
 import org.apache.chemistry.opencmis.commons.data.ContentStream;
@@ -67,18 +68,22 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
         this.siteFinder = siteFinder;
     }
 
-
     @Override
     public Document getDocumentById(String documentId, User user) throws NotADocumentException {
+        return getDocumentById(documentId, user, null);
+    }
+
+    @Override
+    public Document getDocumentById(String documentId, User user, String renditionFilter) throws NotADocumentException {
         checkNotNull(user, "User is required");
         checkArgument(!Strings.isNullOrEmpty(documentId), "DocumentId is required");
 
-
-        log.debug("getting document {} for user {}", documentId, user.getUsername());
+        log.debug("getting document '{}' for user '{}' with renditionFilter '{}'", documentId, user.getUsername(), renditionFilter);
         Session sessionForUser = sessionCreator.getSessionForUser(user);
 
-        return getDocumentById(documentId, sessionForUser);
+        return getDocumentById(documentId, sessionForUser, renditionFilter);
     }
+
 
     @Override
     public Document createDocument(ContentAPIDocument document, MultipartFile primaryFile, User user) throws NoSuchProfileException {
@@ -119,7 +124,17 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
     }
 
     private Document getDocumentById(String documentId, Session sessionForUser) throws NotADocumentException {
-        CmisObject cmisObject = sessionForUser.getObject(documentId);
+        return getDocumentById(documentId, sessionForUser, null);
+
+    }
+
+    private Document getDocumentById(String documentId, Session sessionForUser, String renditionFilter) throws NotADocumentException {
+        final OperationContext oc = sessionForUser.getDefaultContext();
+        if (!Strings.isNullOrEmpty(renditionFilter)) {
+            oc.setRenditionFilterString(renditionFilter);
+        }
+
+        final CmisObject cmisObject = sessionForUser.getObject(documentId, oc);
 
         if (cmisObject instanceof Document) {
             return (Document) cmisObject;
@@ -237,7 +252,7 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
             final String fieldLocalName = propertyDefinitionEntry.getValue().getLocalName();
             final String contentApiFieldName = profileFacade.convertToContentApiFieldFromRepositoryField(profileId, fieldLocalName);
 
-            if(document.getMetadata().containsKey(contentApiFieldName)){ // Only add metadata passed in the document
+            if (document.getMetadata().containsKey(contentApiFieldName)) { // Only add metadata passed in the document
                 final Object contentApiMetaDataValue = document.getMetadata().get(contentApiFieldName);
                 final Object repoMetadataValue = profileFacade.convertToRepoDataType(profileId, user, fqdnRepoFieldName, contentApiMetaDataValue);
                 properties.put(fqdnRepoFieldName, repoMetadataValue);
