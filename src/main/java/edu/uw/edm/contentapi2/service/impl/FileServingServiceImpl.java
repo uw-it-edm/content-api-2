@@ -5,7 +5,9 @@ import com.google.common.base.Preconditions;
 import org.apache.chemistry.opencmis.client.api.Document;
 import org.apache.chemistry.opencmis.client.api.Rendition;
 import org.apache.chemistry.opencmis.commons.data.ContentStream;
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -24,6 +26,8 @@ import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants;
 import edu.uw.edm.contentapi2.repository.exceptions.RepositoryException;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.FileServingService;
+import edu.uw.edm.contentapi2.service.util.HttpRequestUtils;
+import edu.uw.edm.contentapi2.service.util.PdfUtils;
 import edu.uw.edm.contentapi2.service.util.StreamUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -56,16 +60,24 @@ public class FileServingServiceImpl implements FileServingService {
         final Document document = getDocumentWithRendition(itemId, renditionType, user);
         final ContentStream contentStream = getContentStreamWithRendition(document, renditionType);
 
-        log.debug("Serving {}  with mime type {} and content length {}.", itemId, contentStream.getMimeType(), contentStream.getLength());
-        response.setContentType(contentStream.getMimeType());
 
-        final String fileName = generateServedFileName(document);
+        final String originalFileName = getOriginalFileName(document);
+        final String fileName = generateServedFileName(originalFileName, itemId);
         addContentDispositionHeaderToResponse(contentDispositionType, response, fileName);
 
-        if (useChannel) {
-            StreamUtils.channelCopy(contentStream.getStream(), response.getOutputStream());
+        if (contentStream == null) {
+            log.debug("Serving LinkToNativePdf for {}  ", itemId);
+            serveLinkToNativePdf(request, response, itemId, originalFileName);
+
         } else {
-            StreamUtils.streamCopy(contentStream.getStream(), response.getOutputStream());
+            log.debug("Serving {}  with mime type {} and content length {}.", itemId, contentStream.getMimeType(), contentStream.getLength());
+            response.setContentType(contentStream.getMimeType());
+
+            if (useChannel) {
+                StreamUtils.channelCopy(contentStream.getStream(), response.getOutputStream());
+            } else {
+                StreamUtils.streamCopy(contentStream.getStream(), response.getOutputStream());
+            }
         }
     }
 
@@ -90,7 +102,6 @@ public class FileServingServiceImpl implements FileServingService {
     }
 
     private ContentStream getWebRenditionContentStream(Document document) {
-        boolean unableToIdentifyWebRendition = true;
         ContentStream webRenditionContentStream = null;
         if (document.getRenditions() != null) {
             List<Rendition> renditions = document.getRenditions().stream()
@@ -101,24 +112,19 @@ public class FileServingServiceImpl implements FileServingService {
                 log.warn("There are {} 'Web' renditions available for document '{}', returning the first one", document.getId(), renditions.size());
             }
             if (!renditions.isEmpty()) {
-                unableToIdentifyWebRendition = false;
                 final String renditionStreamId = document.getRenditions().get(0).getStreamId();
                 webRenditionContentStream = document.getContentStream(renditionStreamId);
             }
         }
 
-        if (unableToIdentifyWebRendition) {
-            //TODO: if no web rendition found, then create a pdf with the link to download the native file
-        }
         return webRenditionContentStream;
     }
 
 
-    private String generateServedFileName(Document document) {
-        final String originalFileName = getOriginalFileName(document);
+    private String generateServedFileName(String originalFileName, String itemId) {
         final int indexOfFileExtension = originalFileName.lastIndexOf(".");
         final String fileExtension = (indexOfFileExtension != -1) ? originalFileName.substring(indexOfFileExtension) : "";
-        final String fileName = (indexOfFileExtension != -1) ? document.getId() + fileExtension : document.getId();
+        final String fileName = (indexOfFileExtension != -1) ? itemId + fileExtension : itemId;
         return fileName;
     }
 
@@ -128,6 +134,16 @@ public class FileServingServiceImpl implements FileServingService {
                 .filter(p -> p.getId().equals(TITLE_FQDN))
                 .collect(Collectors.toList())
                 .get(0).getValue();
+    }
+
+    private void serveLinkToNativePdf(HttpServletRequest request, HttpServletResponse response, String itemId, String originalFileName) {
+        response.setContentType(MediaType.APPLICATION_PDF_VALUE);
+        final String downloadUrl = HttpRequestUtils.getOriginalFileDownloadURL(itemId,request);
+        try (PDDocument document = PdfUtils.createUnableToConvertToPdf(itemId, downloadUrl, originalFileName)) {
+            document.save(response.getOutputStream());
+        } catch (IOException e) {
+            log.error("Unable to create LinkToNativePdf file for itemId: '{}'.", itemId, e);
+        }
     }
 
 
