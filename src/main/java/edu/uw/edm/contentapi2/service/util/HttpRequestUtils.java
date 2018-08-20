@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class HttpRequestUtils {
-    private static final String DOWNLOAD_URL_TEMPLATE = "%s/content/sso/v3/file/%s?rendition=Primary";
+    private static final String DOWNLOAD_URL_TEMPLATE = "%s%s/v3/file/%s?rendition=Primary";
     public static final String X_FORWARDED_URI_HEADER = "X-Forwarded-URI";
     static final String X_FORWARDED_HOST_HEADER = "X-FORWARDED-HOST";
 
@@ -21,12 +21,18 @@ public class HttpRequestUtils {
         Preconditions.checkNotNull(request, "Request is required");
 
         final String domain = getSchemeAndDomain(request);
-        final String format = String.format(DOWNLOAD_URL_TEMPLATE, domain, itemId);
+        final String basePath = getBasePath(request);
+        final String format = String.format(DOWNLOAD_URL_TEMPLATE, domain, basePath, itemId);
         log.debug("download url for '{}'  is : {}", itemId, format);
 
         return format;
     }
 
+    private static String getBasePath( HttpServletRequest request){
+        /*  /content or /content/sso */
+        final String basePath = request.getRequestURI().split("/v")[0];
+        return basePath;
+    }
     private static String getSchemeAndDomain(HttpServletRequest request) {
         return request.getScheme() + "://" + getServerName(request) + ((request.getServerPort() == 80 || request.getServerPort() == 443) ? "" : (":" + request.getServerPort()));
     }
