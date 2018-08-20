@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class HttpRequestUtils {
     private static final String DOWNLOAD_URL_TEMPLATE = "%s%s/v3/file/%s?rendition=Primary";
-    public static final String X_FORWARDED_URI_HEADER = "X-Forwarded-URI";
     static final String X_FORWARDED_HOST_HEADER = "X-FORWARDED-HOST";
 
     public static String getOriginalFileDownloadURL(String itemId, HttpServletRequest request) {
