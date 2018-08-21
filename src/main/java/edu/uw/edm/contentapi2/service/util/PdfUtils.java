@@ -31,7 +31,7 @@ public class PdfUtils {
 
         try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
 
-            if (StringUtils.isEmpty(originalFileName)) {
+            if (!StringUtils.isEmpty(originalFileName)) {
                 addText(contentStream, originalFileName + " could not be converted to .pdf:", STARTING_X, STARTING_Y + 80, DEFAULT_FONT_SIZE + 2);
             } else {
                 addText(contentStream, "The file you requested could not be converted to .pdf:", STARTING_X, STARTING_Y + 80, DEFAULT_FONT_SIZE + 2);
