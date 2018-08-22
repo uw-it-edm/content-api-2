@@ -14,7 +14,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -74,15 +73,9 @@ public class FileServingServiceImplTest {
         final List<Rendition> mockRenditions = new ArrayList<>();
         mockRenditions.add(mockRendition);
 
-        mockProperty = mock(Property.class);
-        when(mockProperty.getId()).thenReturn("cm:title");
-        when(mockProperty.getValue()).thenReturn("test.png");
-
         mockDocument = mock(Document.class);
         when(mockDocument.getContentStream()).thenReturn(mockContentStream);
         when(mockDocument.getContentStream("test-stream-id-2")).thenReturn(mockContentStream2);
-        when(mockDocument.getProperties()).thenReturn(Arrays.asList(mockProperty));
-
         when(mockDocument.getRenditions()).thenReturn(mockRenditions);
 
         when(externalDocumentRepository.getDocumentById(eq("my-item-id"), any(User.class), any())).thenReturn(mockDocument);
@@ -94,6 +87,7 @@ public class FileServingServiceImplTest {
 
     @Test
     public void serveFileTest() throws IOException, RepositoryException {
+        when(mockDocument.getContentStreamFileName()).thenReturn("test.png");
         fileServingService.serveFile("my-item-id", ContentRenditionType.Primary, ContentDispositionType.inline, false, mock(User.class), mock(HttpServletRequest.class),mockHttpServletResponse);
 
         verify(externalDocumentRepository, times(1)).getDocumentById(eq("my-item-id"), any(User.class), any());
@@ -104,7 +98,7 @@ public class FileServingServiceImplTest {
 
     @Test
     public void whenFileNameDoesNotHaveExtensionReturnDocId() throws IOException, RepositoryException {
-        when(mockProperty.getValue()).thenReturn("test");
+        when(mockDocument.getContentStreamFileName()).thenReturn("test");
 
         fileServingService.serveFile("my-item-id", ContentRenditionType.Primary, ContentDispositionType.inline, false, mock(User.class), mock(HttpServletRequest.class),mockHttpServletResponse);
 
@@ -116,6 +110,8 @@ public class FileServingServiceImplTest {
 
     @Test
     public void serveWebRendition() throws IOException, RepositoryException {
+        when(mockDocument.getContentStreamFileName()).thenReturn("test.png");
+
         fileServingService.serveFile("my-item-id", ContentRenditionType.Web, ContentDispositionType.inline, false, mock(User.class), mock(HttpServletRequest.class),mockHttpServletResponse);
 
         verify(externalDocumentRepository, times(1)).getDocumentById(eq("my-item-id"), any(User.class), any());
