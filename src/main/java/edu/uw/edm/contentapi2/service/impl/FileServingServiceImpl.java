@@ -31,7 +31,6 @@ import edu.uw.edm.contentapi2.service.util.PdfUtils;
 import edu.uw.edm.contentapi2.service.util.StreamUtils;
 import lombok.extern.slf4j.Slf4j;
 
-import static edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.Alfresco.AlfrescoFields.TITLE_FQDN;
 import static edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.CMIS.Renditions.THUMBNAIL_KIND;
 
 @Slf4j
@@ -61,7 +60,7 @@ public class FileServingServiceImpl implements FileServingService {
         final ContentStream contentStream = getContentStreamWithRendition(document, renditionType);
 
 
-        final String originalFileName = getOriginalFileName(document);
+        final String originalFileName = document.getContentStreamFileName();
         final String fileName = generateServedFileName(originalFileName, itemId);
         addContentDispositionHeaderToResponse(contentDispositionType, response, fileName);
 
@@ -126,14 +125,6 @@ public class FileServingServiceImpl implements FileServingService {
         final String fileExtension = (indexOfFileExtension != -1) ? originalFileName.substring(indexOfFileExtension) : "";
         final String fileName = (indexOfFileExtension != -1) ? itemId + fileExtension : itemId;
         return fileName;
-    }
-
-    private String getOriginalFileName(Document document) {
-        //TODO: Is there a better way to handle this? is title ensured to be a property?
-        return document.getProperties().stream()
-                .filter(p -> p.getId().equals(TITLE_FQDN))
-                .collect(Collectors.toList())
-                .get(0).getValue();
     }
 
     private void serveLinkToNativePdf(HttpServletRequest request, HttpServletResponse response, String itemId, String originalFileName) {
