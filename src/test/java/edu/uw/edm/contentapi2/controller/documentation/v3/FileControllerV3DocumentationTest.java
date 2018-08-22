@@ -101,16 +101,9 @@ public class FileControllerV3DocumentationTest {
         ByteArrayServletOutputStream outputStream = new ByteArrayServletOutputStream();
 
         Document mockDocument = mock(Document.class);
+        doReturn("my-file.txt").when(mockDocument).getContentStreamFileName();
+
         ContentStream mockContentStream = mock(ContentStream.class);
-
-        Property title = mock(Property.class);
-        doReturn(TITLE_FQDN).when(title).getId();
-        doReturn("my-file.txt").when(title).getValue();
-
-
-        doReturn(Arrays.asList(title)).when(mockDocument).getProperties();
-
-
         doReturn(new ByteArrayInputStream("Hello, Goodbye".getBytes()))
                 .when(mockContentStream).getStream();
 
