@@ -60,6 +60,10 @@ public class DocumentFacadeImpl implements DocumentFacade {
     }
 
     @Override
+    public ContentAPIDocument updateDocument(String itemId, ContentAPIDocument updatedContentAPIDocument, User user) throws RepositoryException {
+        return this.updateDocument(itemId, updatedContentAPIDocument, null, user);
+    }
+    @Override
     public ContentAPIDocument updateDocument(String itemId, ContentAPIDocument updatedContentAPIDocument, MultipartFile primaryFile, User user) throws RepositoryException {
         checkNotNull(user, "User is required");
         checkNotNull(itemId, "ItemId is required");

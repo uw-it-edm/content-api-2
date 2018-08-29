@@ -15,8 +15,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashMap;
-
 import edu.uw.edm.contentapi2.controller.content.v3.ItemV3Controller;
 import edu.uw.edm.contentapi2.controller.content.v3.model.ContentAPIDocument;
 import edu.uw.edm.contentapi2.controller.documentation.config.ContentAPIRestDocTest;
@@ -24,6 +22,7 @@ import edu.uw.edm.contentapi2.properties.SecurityProperties;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.DocumentFacade;
 
+import static edu.uw.edm.contentapi2.TestUtilities.getTestDocument;
 import static edu.uw.edm.contentapi2.controller.documentation.config.ContentAPIRestDocTest.GENERATED_SNIPPETS_BASE_PATH;
 import static edu.uw.edm.contentapi2.controller.documentation.v3.ItemControllerV3DocumentationTest.V3_SNIPPETS_PATH;
 import static org.mockito.ArgumentMatchers.any;
@@ -175,30 +174,4 @@ public class ItemControllerV3DocumentationTest {
                         )));
 
     }
-
-
-    private ContentAPIDocument getTestDocument() {
-        return getTestDocument("123");
-    }
-
-
-    private ContentAPIDocument getTestDocument(String documentId) {
-        ContentAPIDocument document123 = new ContentAPIDocument();
-
-
-        document123.setId(documentId);
-        document123.setLabel("document" + documentId + " title");
-
-        HashMap<String, Object> metadata = new HashMap<>();
-        metadata.put("ProfileId", "The Profile of the document");
-        metadata.put("Account", "The Account of the document");
-        metadata.put("OriginalFileName", "SamplePDF3217335768660836293.pdf");
-        metadata.put("WebExtension", "pdf");
-        metadata.put("Other", "any other metadata available in your documents");
-
-        document123.setMetadata(metadata);
-        return document123;
-    }
-
-
 }

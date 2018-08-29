@@ -3,7 +3,6 @@ package edu.uw.edm.contentapi2.controller.content.v3;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -13,8 +12,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 
 import edu.uw.edm.contentapi2.controller.content.v3.model.ContentAPIDocument;
-import edu.uw.edm.contentapi2.controller.content.v3.model.DocumentSearchResults;
-import edu.uw.edm.contentapi2.controller.content.v3.model.SearchModel;
 import edu.uw.edm.contentapi2.repository.exceptions.RepositoryException;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.DocumentFacade;
@@ -71,6 +68,8 @@ public class ItemV3Controller {
 
         return documentFacade.updateDocument(itemId, updatedContentAPIDocument, primaryFile, user);
     }
+
+
 
 }
 
