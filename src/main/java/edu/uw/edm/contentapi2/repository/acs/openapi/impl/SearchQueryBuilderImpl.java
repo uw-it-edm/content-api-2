@@ -50,7 +50,7 @@ public class SearchQueryBuilderImpl implements SearchQueryBuilder {
     public static final String MATCH_ALL_QUERY = "name:*";
     public static final String EMPTY_STRING = "";
 
-    private static final Pattern rangeSearchPattern = Pattern.compile("\\[.*[tT][oO].*\\]");
+    private static final Pattern rangeSearchPattern = Pattern.compile("[\\[<].*[tT][oO].*[\\]>]");
 
 
     private ProfileFacade profileFacade;
