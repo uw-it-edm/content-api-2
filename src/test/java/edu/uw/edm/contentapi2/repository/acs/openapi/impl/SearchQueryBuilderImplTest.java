@@ -148,6 +148,19 @@ public class SearchQueryBuilderImplTest {
     }
 
     @Test
+    public void add1RangeFilterTest() throws NoSuchProfileException {
+
+
+        searchQueryModel.getFilters().add(new SearchFilter("my-field", "[NOW-1DAY TO NOW+1DAY]", false));
+
+        searchQueryBuilder.addFilters(queryBody, searchQueryModel.getFilters(), "my-profile", user);
+
+        assertThat(queryBody.getFilterQueries().size(), is(1));
+        assertThat(queryBody.getFilterQueries().get(0).getQuery(), is(equalTo("(my-field:[NOW-1DAY TO NOW+1DAY])")));
+    }
+
+
+    @Test
     public void add1NotFilterTest() throws NoSuchProfileException {
 
 

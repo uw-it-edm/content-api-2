@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.Order;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchFacet;
@@ -48,6 +49,8 @@ public class SearchQueryBuilderImpl implements SearchQueryBuilder {
 
     public static final String MATCH_ALL_QUERY = "name:*";
     public static final String EMPTY_STRING = "";
+
+    private static final Pattern rangeSearchPattern = Pattern.compile("\\[.*[tT][oO].*\\]");
 
 
     private ProfileFacade profileFacade;
@@ -167,14 +170,20 @@ public class SearchQueryBuilderImpl implements SearchQueryBuilder {
     }
 
 
+    private boolean isRangeQuery(String term) {
+        return rangeSearchPattern.matcher(term).matches();
+    }
+
     private RequestFilterQuery toRequestFilterQuery(SearchFilter searchFilter, String profile, User user) throws NoSuchProfileException {
         String acsFieldName = getFieldNameForACSQuery(profile, searchFilter.getField(), user);
 
-        //TODO this is ugly
-        String filterQuery = (searchFilter.isNot() ? NOT_TOKEN : EMPTY_STRING) + "(" + TERM_EQUALS_TOKEN + acsFieldName + SEARCH_IN_TERM_TOKEN + searchFilter.getTerm() + ")";
+        String searchFilterTerm = searchFilter.getTerm();
+
+        String filterQuery = (searchFilter.isNot() ? NOT_TOKEN : EMPTY_STRING) + "(" + (isRangeQuery(searchFilterTerm) ? "" : TERM_EQUALS_TOKEN) + acsFieldName + SEARCH_IN_TERM_TOKEN + searchFilterTerm + ")";
 
         return new RequestFilterQuery().query(filterQuery);
     }
+
 
     private String getFieldNameForACSQuery(String profile, String fieldName, User user) throws NoSuchProfileException {
 
