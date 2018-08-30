@@ -12,6 +12,8 @@ import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.ProfileFacade;
 
+import static edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.ContentAPI.PROFILE_ID;
+
 /**
  * @author Maxime Deravet Date: 6/25/18
  */
@@ -64,7 +66,7 @@ public class SearchResultTransformerImpl implements SearchResultTransformer {
             document.getMetadata().put(getContentFieldName(profileId, "lastModifier"), resultNode.getModifiedByUser().getId());
         }
         document.getMetadata().put(getContentFieldName(profileId, "name"), resultNode.getName());
-
+        document.getMetadata().put(PROFILE_ID,profileId);
 
         resultNode.getProperties().forEach((key, value) -> {
             document.getMetadata().put(getContentFieldName(profileId, key), value);

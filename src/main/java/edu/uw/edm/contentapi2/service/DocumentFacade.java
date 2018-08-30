@@ -19,6 +19,8 @@ public interface DocumentFacade {
 
     ContentAPIDocument createDocument(ContentAPIDocument contentAPIDocument, MultipartFile primaryFile, User user) throws RepositoryException;
 
+    ContentAPIDocument updateDocument(String itemId, ContentAPIDocument updatedContentAPIDocument, User user) throws RepositoryException;
+
     ContentAPIDocument updateDocument(String itemId, ContentAPIDocument updatedContentAPIDocument, MultipartFile primaryFile, User user) throws RepositoryException;
 
     DocumentSearchResults searchDocuments(SearchModel searchModel, User user) throws RepositoryException;
