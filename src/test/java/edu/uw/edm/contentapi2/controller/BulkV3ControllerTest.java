@@ -74,7 +74,7 @@ public class BulkV3ControllerTest {
     }
 
     @Test
-    public void UpdateItemsWithOneSuccess() throws Exception {
+    public void updateItemsWithOneSuccess() throws Exception {
         final ContentAPIDocument successfulDoc = new ContentAPIDocument();
         successfulDoc.setId("success-id-1");
         final List<ContentAPIDocument> documents = new ArrayList<>();
@@ -90,7 +90,7 @@ public class BulkV3ControllerTest {
     }
 
     @Test
-    public void UpdateItemsWithMultipleSuccess() throws Exception {
+    public void updateItemsWithMultipleSuccess() throws Exception {
         final ContentAPIDocument successfulDoc1 = new ContentAPIDocument();
         successfulDoc1.setId("success-id-1");
         final ContentAPIDocument successfulDoc2 = new ContentAPIDocument();
@@ -112,7 +112,7 @@ public class BulkV3ControllerTest {
 
 
     @Test
-    public void UpdateItemsWithFailedUpdatePartialSuccess() throws Exception {
+    public void updateItemsWithFailedUpdatePartialSuccess() throws Exception {
         final ContentAPIDocument failedDoc1 = new ContentAPIDocument();
         failedDoc1.setId("failed-id-1");
         final ContentAPIDocument successfulDoc2 = new ContentAPIDocument();
@@ -137,7 +137,7 @@ public class BulkV3ControllerTest {
     }
 
     @Test
-    public void UpdateItemsWithFailedUpdateNoSuccess() throws Exception {
+    public void updateItemsWithFailedUpdateNoSuccess() throws Exception {
         final ContentAPIDocument failedDoc1 = new ContentAPIDocument();
         failedDoc1.setId("failed-id-1");
         final List<ContentAPIDocument> documents = new ArrayList<>();
