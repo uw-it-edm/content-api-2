@@ -19,11 +19,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import edu.uw.edm.contentapi2.controller.search.v1.model.query.ComplexSearchFilter;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.Order;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchFacet;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchFilter;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchOrder;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchQueryModel;
+import edu.uw.edm.contentapi2.controller.search.v1.model.query.SimpleSearchFilter;
 import edu.uw.edm.contentapi2.repository.acs.openapi.SearchQueryBuilder;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.security.User;
@@ -98,6 +100,7 @@ public class SearchQueryBuilderImpl implements SearchQueryBuilder {
 
         return queryBody;
     }
+
 
     @Override
     public QueryBody addFilters(QueryBody queryBody, List<SearchFilter> searchFilters, String profileId, User user) throws NoSuchProfileException {
@@ -175,13 +178,48 @@ public class SearchQueryBuilderImpl implements SearchQueryBuilder {
     }
 
     private RequestFilterQuery toRequestFilterQuery(SearchFilter searchFilter, String profile, User user) throws NoSuchProfileException {
-        String acsFieldName = getFieldNameForACSQuery(profile, searchFilter.getField(), user);
-
-        String searchFilterTerm = searchFilter.getTerm();
-
-        String filterQuery = (searchFilter.isNot() ? NOT_TOKEN : EMPTY_STRING) + "(" + (isRangeQuery(searchFilterTerm) ? "" : TERM_EQUALS_TOKEN) + acsFieldName + SEARCH_IN_TERM_TOKEN + searchFilterTerm + ")";
-
+        final String filterQuery = this.createSearchFilterQuery(searchFilter, profile, user);
         return new RequestFilterQuery().query(filterQuery);
+    }
+
+    private String createSearchFilterQuery(SearchFilter searchFilter, String profile, User user) throws NoSuchProfileException {
+        if (searchFilter instanceof ComplexSearchFilter) {
+            return this.createComplexSearchFilterQuery((ComplexSearchFilter) searchFilter, profile, user);
+
+        } else {
+            return this.createSimpleSearchFilterQuery((SimpleSearchFilter) searchFilter, profile, user);
+        }
+    }
+
+    private String createSimpleSearchFilterQuery(SimpleSearchFilter simpleSearchFilter, String profile, User user) throws NoSuchProfileException {
+        final String acsFieldName = getFieldNameForACSQuery(profile, simpleSearchFilter.getField(), user);
+
+        final String searchFilterTerm = simpleSearchFilter.getTerm();
+
+        final String filterQuery = (simpleSearchFilter.isNot() ? NOT_TOKEN : EMPTY_STRING) + "(" + (isRangeQuery(searchFilterTerm) ? "" : TERM_EQUALS_TOKEN) + acsFieldName + SEARCH_IN_TERM_TOKEN + searchFilterTerm + ")";
+        return filterQuery;
+    }
+
+
+    private String createComplexSearchFilterQuery(ComplexSearchFilter complexSearchFilter, String profile, User user) throws NoSuchProfileException {
+        final StringBuilder complexFilterQuery = new StringBuilder();
+        if (complexSearchFilter.isNot()) {
+            complexFilterQuery.append(NOT_TOKEN);
+        }
+
+        complexFilterQuery.append("(");
+        for (int i = 0; i < complexSearchFilter.getFilters().size(); i++) {
+            final SearchFilter searchFilter = complexSearchFilter.getFilters().get(i);
+
+            if (i != 0) {
+                complexFilterQuery.append(complexSearchFilter.getConjunction());
+            }
+
+            final String searchFilterQuery = this.createSearchFilterQuery(searchFilter, profile, user);
+            complexFilterQuery.append(searchFilterQuery);
+        }
+        complexFilterQuery.append(")");
+        return complexFilterQuery.toString();
     }
 
 

@@ -13,9 +13,11 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
 
+import edu.uw.edm.contentapi2.controller.content.v3.model.Conjunction;
+import edu.uw.edm.contentapi2.controller.search.v1.model.query.ComplexSearchFilter;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.Order;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchFacet;
-import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchFilter;
+import edu.uw.edm.contentapi2.controller.search.v1.model.query.SimpleSearchFilter;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchQueryModel;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.security.User;
@@ -139,7 +141,7 @@ public class SearchQueryBuilderImplTest {
     public void add1FilterTest() throws NoSuchProfileException {
 
 
-        searchQueryModel.getFilters().add(new SearchFilter("my-field", "my-value", false));
+        searchQueryModel.getFilters().add(new SimpleSearchFilter("my-field", "my-value", false));
 
         searchQueryBuilder.addFilters(queryBody, searchQueryModel.getFilters(), "my-profile", user);
 
@@ -151,7 +153,7 @@ public class SearchQueryBuilderImplTest {
     public void add1RangeFilterTest() throws NoSuchProfileException {
 
 
-        searchQueryModel.getFilters().add(new SearchFilter("my-field", "[NOW-1DAY TO NOW+1DAY]", false));
+        searchQueryModel.getFilters().add(new SimpleSearchFilter("my-field", "[NOW-1DAY TO NOW+1DAY]", false));
 
         searchQueryBuilder.addFilters(queryBody, searchQueryModel.getFilters(), "my-profile", user);
 
@@ -162,7 +164,7 @@ public class SearchQueryBuilderImplTest {
     public void add1RangeFilterExclusiveTest() throws NoSuchProfileException {
 
 
-        searchQueryModel.getFilters().add(new SearchFilter("my-field", "<NOW-1DAY TO NOW+1DAY]", false));
+        searchQueryModel.getFilters().add(new SimpleSearchFilter("my-field", "<NOW-1DAY TO NOW+1DAY]", false));
 
         searchQueryBuilder.addFilters(queryBody, searchQueryModel.getFilters(), "my-profile", user);
 
@@ -175,7 +177,7 @@ public class SearchQueryBuilderImplTest {
     public void add1NotFilterTest() throws NoSuchProfileException {
 
 
-        searchQueryModel.getFilters().add(new SearchFilter("my-field", "my-value", true));
+        searchQueryModel.getFilters().add(new SimpleSearchFilter("my-field", "my-value", true));
 
         searchQueryBuilder.addFilters(queryBody, searchQueryModel.getFilters(), "my-profile", user);
 
@@ -187,8 +189,8 @@ public class SearchQueryBuilderImplTest {
     public void add2FiltersTest() throws NoSuchProfileException {
 
 
-        searchQueryModel.getFilters().add(new SearchFilter("my-field", "my-value", true));
-        searchQueryModel.getFilters().add(new SearchFilter("my-second-field", "my-second-value", false));
+        searchQueryModel.addFilter(new SimpleSearchFilter("my-field", "my-value", true));
+        searchQueryModel.addFilter(new SimpleSearchFilter("my-second-field", "my-second-value", false));
 
         searchQueryBuilder.addFilters(queryBody, searchQueryModel.getFilters(), "my-profile", user);
 
@@ -198,10 +200,79 @@ public class SearchQueryBuilderImplTest {
     }
 
     @Test
+    public void add1ComplexFiltersTest() throws NoSuchProfileException {
+        final ComplexSearchFilter complexSearchFilter = new ComplexSearchFilter();
+        complexSearchFilter.addFilter(new SimpleSearchFilter("my-field", "my-value", true));
+        complexSearchFilter.addFilter(new SimpleSearchFilter("my-second-field", "my-second-value", false));
+        complexSearchFilter.setConjunction(Conjunction.and);
+
+        searchQueryModel.addFilter(complexSearchFilter);
+        searchQueryBuilder.addFilters(queryBody, searchQueryModel.getFilters(), "my-profile", user);
+
+        assertThat(queryBody.getFilterQueries().size(), is(1));
+        assertThat(queryBody.getFilterQueries().get(0).getQuery(), is(equalTo("(!(=my-field:my-value)and(=my-second-field:my-second-value))")));
+    }
+    @Test
+    public void add1NotComplexFiltersTest() throws NoSuchProfileException {
+        final ComplexSearchFilter complexSearchFilter = new ComplexSearchFilter();
+        complexSearchFilter.addFilter(new SimpleSearchFilter("my-field", "my-value", true));
+        complexSearchFilter.addFilter(new SimpleSearchFilter("my-second-field", "my-second-value", false));
+        complexSearchFilter.setConjunction(Conjunction.and);
+        complexSearchFilter.setNot(true);
+
+        searchQueryModel.addFilter(complexSearchFilter);
+        searchQueryBuilder.addFilters(queryBody, searchQueryModel.getFilters(), "my-profile", user);
+
+        assertThat(queryBody.getFilterQueries().size(), is(1));
+        assertThat(queryBody.getFilterQueries().get(0).getQuery(), is(equalTo("!(!(=my-field:my-value)and(=my-second-field:my-second-value))")));
+    }
+    @Test
+    public void add1NestedComplexFiltersTest() throws NoSuchProfileException {
+        final ComplexSearchFilter nestedComplexFilter = new ComplexSearchFilter();
+        nestedComplexFilter.addFilter(new SimpleSearchFilter("my-field", "my-value", true));
+        nestedComplexFilter.addFilter(new SimpleSearchFilter("my-second-field", "my-second-value", false));
+
+        final ComplexSearchFilter complexSearchFilter = new ComplexSearchFilter();
+        complexSearchFilter.addFilter(new SimpleSearchFilter("my-field-2", "my-value-2", false));
+        complexSearchFilter.addFilter(nestedComplexFilter);
+        complexSearchFilter.setConjunction(Conjunction.or);
+        complexSearchFilter.setNot(false);
+
+        searchQueryModel.addFilter(complexSearchFilter);
+        searchQueryBuilder.addFilters(queryBody, searchQueryModel.getFilters(), "my-profile", user);
+
+        assertThat(queryBody.getFilterQueries().size(), is(1));
+        assertThat(queryBody.getFilterQueries().get(0).getQuery(), is(equalTo("((=my-field-2:my-value-2)or(!(=my-field:my-value)and(=my-second-field:my-second-value)))")));
+    }
+    @Test
+    public void add1NestedComplexFiltersAnd2StandardFilterTest() throws NoSuchProfileException {
+        final ComplexSearchFilter nestedComplexFilter = new ComplexSearchFilter();
+        nestedComplexFilter.addFilter(new SimpleSearchFilter("my-field", "my-value", true));
+        nestedComplexFilter.addFilter(new SimpleSearchFilter("my-second-field", "my-second-value", false));
+
+        final ComplexSearchFilter complexSearchFilter = new ComplexSearchFilter();
+        complexSearchFilter.addFilter(new SimpleSearchFilter("my-field-2", "my-value-2", false));
+        complexSearchFilter.addFilter(nestedComplexFilter);
+        complexSearchFilter.setConjunction(Conjunction.or);
+        complexSearchFilter.setNot(false);
+
+
+        searchQueryModel.addFilter(new SimpleSearchFilter("my-field-3", "my-value-3", true));
+        searchQueryModel.addFilter(complexSearchFilter);
+        searchQueryModel.addFilter(new SimpleSearchFilter("my-field-4", "my-value-4", true));
+        searchQueryBuilder.addFilters(queryBody, searchQueryModel.getFilters(), "my-profile", user);
+
+        assertThat(queryBody.getFilterQueries().size(), is(3));
+        assertThat(queryBody.getFilterQueries().get(0).getQuery(), is(equalTo("!(=my-field-3:my-value-3)")));
+        assertThat(queryBody.getFilterQueries().get(1).getQuery(), is(equalTo("((=my-field-2:my-value-2)or(!(=my-field:my-value)and(=my-second-field:my-second-value)))")));
+        assertThat(queryBody.getFilterQueries().get(2).getQuery(), is(equalTo("!(=my-field-4:my-value-4)")));
+    }
+
+    @Test
     public void add1FilterAndProfileFilterTest() throws NoSuchProfileException {
 
 
-        searchQueryModel.getFilters().add(new SearchFilter("my-field", "my-value", true));
+        searchQueryModel.addFilter(new SimpleSearchFilter("my-field", "my-value", true));
 
         searchQueryBuilder.addFilters(queryBody, searchQueryModel.getFilters(), "my-profile", user);
 
@@ -216,7 +287,7 @@ public class SearchQueryBuilderImplTest {
     public void addOldSearchAPIFormatFilterTest() throws NoSuchProfileException {
 
 
-        searchQueryModel.getFilters().add(new SearchFilter("metadata.my-field.raw", "my-value", true));
+        searchQueryModel.addFilter(new SimpleSearchFilter("metadata.my-field.raw", "my-value", true));
 
         searchQueryBuilder.addFilters(queryBody, searchQueryModel.getFilters(), "my-profile", user);
 

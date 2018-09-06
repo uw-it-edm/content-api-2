@@ -10,8 +10,9 @@ import lombok.Data;
 /**
  * @author Maxime Deravet Date: 6/20/18
  */
+@Deprecated
 @Data
-public class SearchModel {
+public class LegacySearchModel {
 
     @NotNull
     List<String> search;
@@ -27,5 +28,4 @@ public class SearchModel {
     Set<String> additionalRequestedFields;
     @Deprecated
     private boolean directDatabaseSearch = false;
-
 }

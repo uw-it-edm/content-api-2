@@ -12,7 +12,6 @@ public class TestUtilities {
     public static  ContentAPIDocument getTestDocument(String documentId) {
         ContentAPIDocument document123 = new ContentAPIDocument();
 
-
         document123.setId(documentId);
         document123.setLabel("document" + documentId + " title");
 

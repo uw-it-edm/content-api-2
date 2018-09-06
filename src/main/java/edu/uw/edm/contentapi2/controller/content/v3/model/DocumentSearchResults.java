@@ -4,12 +4,15 @@ import java.util.HashSet;
 import java.util.Set;
 
 import lombok.Builder;
+import lombok.Getter;
 
 /**
  * @author Maxime Deravet Date: 6/20/18
  */
 
+@Deprecated
 @Builder
+@Getter
 public class DocumentSearchResults {
 
 
