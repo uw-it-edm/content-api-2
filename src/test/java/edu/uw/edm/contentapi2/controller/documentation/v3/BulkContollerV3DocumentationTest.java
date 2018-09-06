@@ -68,7 +68,7 @@ public class BulkContollerV3DocumentationTest {
     }
 
     @Test
-    public void updateItems() throws Exception {
+    public void bulkItemUpdate() throws Exception {
         final List<ContentAPIDocument> testDocuments = new ArrayList<>();
         testDocuments.add(getTestDocument("success-id-1"));
         testDocuments.add(getTestDocument("success-id-2"));
