@@ -21,6 +21,6 @@
 field1~=value1;field2~=value2
 ----
 
-
-* multiple query string in the search array will always be handled as `or`
+* multiple query string in the search array will always be handled as `and`
+* you are required to include a `ProfileId=` search in all calls
 

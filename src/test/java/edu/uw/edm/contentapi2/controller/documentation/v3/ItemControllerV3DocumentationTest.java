@@ -15,8 +15,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Arrays;
+
 import edu.uw.edm.contentapi2.controller.content.v3.ItemV3Controller;
+import edu.uw.edm.contentapi2.controller.content.v3.model.Conjunction;
 import edu.uw.edm.contentapi2.controller.content.v3.model.ContentAPIDocument;
+import edu.uw.edm.contentapi2.controller.content.v3.model.DocumentSearchResults;
+import edu.uw.edm.contentapi2.controller.content.v3.model.LegacySearchModel;
+import edu.uw.edm.contentapi2.controller.content.v3.model.SearchOrder;
 import edu.uw.edm.contentapi2.controller.documentation.config.ContentAPIRestDocTest;
 import edu.uw.edm.contentapi2.properties.SecurityProperties;
 import edu.uw.edm.contentapi2.security.User;
@@ -173,5 +179,38 @@ public class ItemControllerV3DocumentationTest {
                                 fieldWithPath("metadata").description("An object containing all the metadata available for your document")
                         )));
 
+    }
+
+    @Test
+    public void searchItems() throws Exception {
+        final LegacySearchModel searchModel = new LegacySearchModel();
+        searchModel.setConjunction(Conjunction.and);
+        searchModel.setSearch(Arrays.asList(
+                "ProfileId=test-profile",
+                "test-field=123*",
+                "test-field-2={gte}1;test-field-2={lt}20"));
+        searchModel.setOrder(SearchOrder.asc);
+        searchModel.setOrderBy("id");
+
+        final DocumentSearchResults documentSearchResults = DocumentSearchResults.builder()
+                .totalCount(0)
+                .build();
+
+        doReturn(documentSearchResults)
+                .when(documentFacade)
+                .searchDocuments(any(LegacySearchModel.class), any(User.class));
+
+        this.mockMvc.perform(MockMvcRequestBuilders.post(CONTEXT_PATH + "/content/v3/item/_search")
+                .content(objectMapper.writeValueAsBytes(searchModel))
+                .header(SecurityProperties.DEFAULT_AUTHENTICATION_HEADER, "my-auth-header")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(documentationResultHandler.document(
+                        relaxedResponseFields(
+                                fieldWithPath("documents").description("An array containing the documents that matched your query"),
+                                fieldWithPath("totalCount").description("Total number of documents for your search"),
+                                fieldWithPath("resultListSize").description("Number of documents in the current page")
+                        )));
     }
 }

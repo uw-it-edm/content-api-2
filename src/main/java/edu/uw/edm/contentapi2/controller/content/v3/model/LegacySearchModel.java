@@ -10,22 +10,22 @@ import lombok.Data;
 /**
  * @author Maxime Deravet Date: 6/20/18
  */
+@Deprecated
 @Data
-public class SearchModel {
+public class LegacySearchModel {
 
     @NotNull
-    List<String> search;
-    Conjunction conjunction = Conjunction.and;
+    private List<String> search;
+    private Conjunction conjunction = Conjunction.and;
 
 
-    int pageStart = 0;
-    int pageSize = 20;
-    String orderBy;
-    SearchOrder order;
+    private int pageStart = 0;
+    private int pageSize = 20;
+    private String orderBy;
+    private SearchOrder order;
 
     @Deprecated
-    Set<String> additionalRequestedFields;
+    private Set<String> additionalRequestedFields;
     @Deprecated
     private boolean directDatabaseSearch = false;
-
 }

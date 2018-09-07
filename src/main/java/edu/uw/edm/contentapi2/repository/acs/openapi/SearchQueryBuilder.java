@@ -4,8 +4,8 @@ import com.alfresco.client.api.search.body.QueryBody;
 
 import java.util.List;
 
-import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchFacet;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchFilter;
+import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchFacet;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchOrder;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchQueryModel;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
@@ -21,13 +21,13 @@ public interface SearchQueryBuilder {
 
     QueryBody addPagination(QueryBody queryBody, SearchQueryModel searchModel);
 
-    QueryBody addFilters(QueryBody queryBody, List<SearchFilter> filters, String profile, User user) throws NoSuchProfileException;
-
     QueryBody addSiteFilter(String profile, QueryBody queryBody);
 
     QueryBody addDefaultIncludedInfo(QueryBody queryBody);
 
     QueryBody addIsDocumentFilter(String profile, QueryBody queryBody);
+
+    QueryBody addFilters(QueryBody queryBody, List<SearchFilter> searchFilters, String profileId, User user) throws NoSuchProfileException;
 
     QueryBody addFacets(QueryBody queryBody, List<SearchFacet> facets, String profile, User user) throws NoSuchProfileException;
 }

@@ -7,12 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import edu.uw.edm.contentapi2.controller.content.v3.model.ContentAPIDocument;
 import edu.uw.edm.contentapi2.controller.content.v3.model.DocumentSearchResults;
-import edu.uw.edm.contentapi2.controller.content.v3.model.SearchModel;
+import edu.uw.edm.contentapi2.controller.content.v3.model.LegacySearchModel;
+import edu.uw.edm.contentapi2.controller.search.v1.model.query.ProfiledSearchQueryModel;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchQueryModel;
 import edu.uw.edm.contentapi2.controller.search.v1.model.result.SearchResultContainer;
 import edu.uw.edm.contentapi2.repository.ExternalDocumentRepository;
@@ -21,6 +19,7 @@ import edu.uw.edm.contentapi2.repository.exceptions.RepositoryException;
 import edu.uw.edm.contentapi2.repository.transformer.ExternalDocumentConverter;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.DocumentFacade;
+import edu.uw.edm.contentapi2.service.util.LegacySearchModelUtils;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -63,6 +62,7 @@ public class DocumentFacadeImpl implements DocumentFacade {
     public ContentAPIDocument updateDocument(String itemId, ContentAPIDocument updatedContentAPIDocument, User user) throws RepositoryException {
         return this.updateDocument(itemId, updatedContentAPIDocument, null, user);
     }
+
     @Override
     public ContentAPIDocument updateDocument(String itemId, ContentAPIDocument updatedContentAPIDocument, MultipartFile primaryFile, User user) throws RepositoryException {
         checkNotNull(user, "User is required");
@@ -73,24 +73,16 @@ public class DocumentFacadeImpl implements DocumentFacade {
         return converter.toContentApiDocument(contentRepository.updateDocument(itemId, updatedContentAPIDocument, primaryFile, user), user);
     }
 
+    @Deprecated
     @Override
-    public DocumentSearchResults searchDocuments(SearchModel searchModel, User user) throws RepositoryException {
+    public DocumentSearchResults searchDocuments(LegacySearchModel legacySearchModel, User user) throws RepositoryException {
         checkNotNull(user, "User is required");
-        checkNotNull(searchModel, "SearchModel is required");
+        checkNotNull(legacySearchModel, "LegacySearchModel is required");
 
-        final Set<ContentAPIDocument> documents = new HashSet<>();
+        final ProfiledSearchQueryModel searchQueryModel = LegacySearchModelUtils.convertToSearchQueryModel(legacySearchModel);
+        final SearchResultContainer searchResults = searchDocuments(searchQueryModel.getProfileId(), searchQueryModel, user);
 
-        //TODO searchDocuments should return total size
-        final Set<Document> cmisDocuments = contentRepository.searchDocuments(searchModel, user);
-        for (Document cmisDocument : cmisDocuments) {
-            documents.add(converter.toContentApiDocument(cmisDocument, user));
-        }
-
-        return DocumentSearchResults
-                .builder()
-                .documents(documents)
-                .totalCount(documents.size())
-                .build();
+        return LegacySearchModelUtils.convertToDocumentSearchResults(searchResults);
     }
 
     @Override

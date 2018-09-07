@@ -20,4 +20,8 @@ public class SearchQueryModel {
 
     private SearchOrder searchOrder = SearchOrder.getDefaultSearchOrder();
 
+    public void addFilter(SearchFilter filter) {
+        this.filters.add(filter);
+    }
 }
+

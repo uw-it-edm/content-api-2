@@ -21,14 +21,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import edu.uw.edm.contentapi2.controller.content.v3.model.ContentAPIDocument;
-import edu.uw.edm.contentapi2.controller.content.v3.model.SearchModel;
 import edu.uw.edm.contentapi2.properties.ACSProperties;
 import edu.uw.edm.contentapi2.repository.ExternalDocumentRepository;
 import edu.uw.edm.contentapi2.repository.ExternalProfileRepository;
@@ -263,13 +260,4 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
 
         return properties;
     }
-
-
-    @Override
-    public Set<Document> searchDocuments(SearchModel searchModel, User user) throws NoSuchProfileException {
-
-        //TODO will need to be implemented using edu.uw.edm.contentapi2.service.DocumentFacade.searchDocuments(java.lang.String, edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchQueryModel, edu.uw.edm.contentapi2.security.User)
-        return new HashSet<>();
-    }
-
 }
