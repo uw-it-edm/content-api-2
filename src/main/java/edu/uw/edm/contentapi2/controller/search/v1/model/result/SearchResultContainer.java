@@ -9,13 +9,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SearchResultContainer {
-    List<SearchResult> searchResults = new LinkedList<>();
+    private List<SearchResult> searchResults = new LinkedList<>();
 
     private List<FacetResult> facets = new LinkedList<>();
     private long totalCount;
     private String timeTaken;
-
-    public SearchResultContainer() {
-    }
 
 }

@@ -15,7 +15,7 @@ import static org.junit.Assert.assertThat;
 
 public class UserDetailsServiceTest {
 
-    UserDetailsService userDetailsService;
+    private UserDetailsService userDetailsService;
 
 
     @Test

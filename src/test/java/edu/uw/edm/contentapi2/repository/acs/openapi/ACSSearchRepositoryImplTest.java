@@ -32,9 +32,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ACSSearchRepositoryImplTest {
 
-    ACSSearchRepositoryImpl searchRepository;
+    private ACSSearchRepositoryImpl searchRepository;
 
-    User user = new User("test-user", "", Collections.emptyList());
+    private User user = new User("test-user", "", Collections.emptyList());
 
     @Mock
     private SearchQueryBuilderImpl searchQueryBuilder;

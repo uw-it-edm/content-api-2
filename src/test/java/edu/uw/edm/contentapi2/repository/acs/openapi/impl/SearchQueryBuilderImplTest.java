@@ -17,8 +17,8 @@ import edu.uw.edm.contentapi2.controller.content.v3.model.Conjunction;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.ComplexSearchFilter;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.Order;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchFacet;
-import edu.uw.edm.contentapi2.controller.search.v1.model.query.SimpleSearchFilter;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchQueryModel;
+import edu.uw.edm.contentapi2.controller.search.v1.model.query.SimpleSearchFilter;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.ProfileFacade;
@@ -38,14 +38,14 @@ import static org.mockito.Mockito.when;
 public class SearchQueryBuilderImplTest {
 
     @Mock
-    ProfileFacade profileFacade;
+    private ProfileFacade profileFacade;
 
-    SearchQueryBuilderImpl searchQueryBuilder;
+    private SearchQueryBuilderImpl searchQueryBuilder;
 
-    QueryBody queryBody;
-    SearchQueryModel searchQueryModel;
+    private QueryBody queryBody;
+    private SearchQueryModel searchQueryModel;
 
-    User user = new User("test-user", "", Collections.emptyList());
+    private User user = new User("test-user", "", Collections.emptyList());
 
     @Before
     public void setUp() throws NoSuchProfileException {
@@ -160,6 +160,7 @@ public class SearchQueryBuilderImplTest {
         assertThat(queryBody.getFilterQueries().size(), is(1));
         assertThat(queryBody.getFilterQueries().get(0).getQuery(), is(equalTo("(my-field:[NOW-1DAY TO NOW+1DAY])")));
     }
+
     @Test
     public void add1RangeFilterExclusiveTest() throws NoSuchProfileException {
 
@@ -212,6 +213,7 @@ public class SearchQueryBuilderImplTest {
         assertThat(queryBody.getFilterQueries().size(), is(1));
         assertThat(queryBody.getFilterQueries().get(0).getQuery(), is(equalTo("(!(=my-field:my-value)and(=my-second-field:my-second-value))")));
     }
+
     @Test
     public void add1NotComplexFiltersTest() throws NoSuchProfileException {
         final ComplexSearchFilter complexSearchFilter = new ComplexSearchFilter();
@@ -226,6 +228,7 @@ public class SearchQueryBuilderImplTest {
         assertThat(queryBody.getFilterQueries().size(), is(1));
         assertThat(queryBody.getFilterQueries().get(0).getQuery(), is(equalTo("!(!(=my-field:my-value)and(=my-second-field:my-second-value))")));
     }
+
     @Test
     public void add1NestedComplexFiltersTest() throws NoSuchProfileException {
         final ComplexSearchFilter nestedComplexFilter = new ComplexSearchFilter();
@@ -244,6 +247,7 @@ public class SearchQueryBuilderImplTest {
         assertThat(queryBody.getFilterQueries().size(), is(1));
         assertThat(queryBody.getFilterQueries().get(0).getQuery(), is(equalTo("((=my-field-2:my-value-2)or(!(=my-field:my-value)and(=my-second-field:my-second-value)))")));
     }
+
     @Test
     public void add1NestedComplexFiltersAnd2StandardFilterTest() throws NoSuchProfileException {
         final ComplexSearchFilter nestedComplexFilter = new ComplexSearchFilter();

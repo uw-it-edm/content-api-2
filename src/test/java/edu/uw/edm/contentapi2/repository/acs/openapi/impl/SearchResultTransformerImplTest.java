@@ -34,11 +34,11 @@ public class SearchResultTransformerImplTest {
     private static final String FIELD_1_VALUE = "field-1-value";
 
     @Mock
-    ProfileFacade profileFacade;
+    private ProfileFacade profileFacade;
 
-    SearchResultTransformer searchResultTransformer;
+    private SearchResultTransformer searchResultTransformer;
 
-    User user = new User("test-user", "", Collections.emptyList());
+    private User user = new User("test-user", "", Collections.emptyList());
 
 
     @Before

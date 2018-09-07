@@ -2,13 +2,10 @@ package edu.uw.edm.contentapi2.controller.documentation.v3;
 
 import org.apache.catalina.ssi.ByteArrayServletOutputStream;
 import org.apache.chemistry.opencmis.client.api.Document;
-import org.apache.chemistry.opencmis.client.api.Property;
 import org.apache.chemistry.opencmis.commons.data.ContentStream;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
@@ -20,14 +17,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.ByteArrayInputStream;
-import java.util.Arrays;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import edu.uw.edm.contentapi2.controller.content.v3.FileV3Controller;
-import edu.uw.edm.contentapi2.controller.content.v3.model.ContentDispositionType;
-import edu.uw.edm.contentapi2.controller.content.v3.model.ContentRenditionType;
 import edu.uw.edm.contentapi2.controller.documentation.config.ContentAPIRestDocTest;
 import edu.uw.edm.contentapi2.properties.SecurityProperties;
 import edu.uw.edm.contentapi2.repository.ExternalDocumentRepository;
@@ -37,13 +30,11 @@ import edu.uw.edm.contentapi2.service.DocumentFacade;
 import edu.uw.edm.contentapi2.service.FileServingService;
 
 import static edu.uw.edm.contentapi2.controller.documentation.config.ContentAPIRestDocTest.GENERATED_SNIPPETS_BASE_PATH;
-import static edu.uw.edm.contentapi2.controller.documentation.v3.ItemControllerV3DocumentationTest.V3_SNIPPETS_PATH;
-import static edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.Alfresco.AlfrescoFields.TITLE_FQDN;
+import static edu.uw.edm.contentapi2.controller.documentation.v3.FileControllerV3DocumentationTest.V3_SNIPPETS_PATH;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
@@ -81,20 +72,16 @@ public class FileControllerV3DocumentationTest {
 
 
     @Autowired
-    FileServingService fileServingService;
+    private FileServingService fileServingService;
     @MockBean
-    ExternalDocumentRepository<Document> externalDocumentRepository;
+    private ExternalDocumentRepository<Document> externalDocumentRepository;
 
     @MockBean
-    DocumentFacade documentFacade;
+    private DocumentFacade documentFacade;
 
     @Mock
     private HttpServletResponse response;
 
-
-    @Before
-    public void setUp() {
-    }
 
     @Test
     public void readFile() throws Exception {
@@ -129,7 +116,7 @@ public class FileControllerV3DocumentationTest {
                         requestParameters(
                                 parameterWithName("rendition").description("The rendition of the document to be retrieved (e.g. Web or Primary)")
                         )
-                    )
+                        )
                 );
 
     }
