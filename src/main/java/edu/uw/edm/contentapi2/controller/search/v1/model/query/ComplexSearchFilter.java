@@ -12,9 +12,6 @@ public class ComplexSearchFilter implements SearchFilter {
     private Conjunction conjunction = Conjunction.and;
     private boolean not = false;
 
-    public ComplexSearchFilter() {
-    }
-
     public void addFilter(SearchFilter filter) {
         this.filters.add(filter);
     }

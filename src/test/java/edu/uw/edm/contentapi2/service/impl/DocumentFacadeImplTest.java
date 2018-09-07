@@ -109,16 +109,4 @@ public class DocumentFacadeImplTest {
         searchResult.setDocument(TestUtilities.getTestDocument(itemId));
         return searchResult;
     }
-
-
-
-
-    //TODO: add test for searching range
-    //TODO: add test case insensitive
-    //TODO: add test case insensitive with wildcards
-    //TODO: add test with OR conjunction
-    //TODO: add test about other search parameters order, orderBy, pageSize, PageStart
-    //TODO: what about additionalRequestedFields
-    //TODO: how to handle directDatabaseSearch, should we through an exception or just ignore
-
 }

@@ -82,8 +82,10 @@ public class LegacySearchModelUtils {
 
         if (searchModelFilter.contains(CASE_INSENSITIVE_NOT_EQUALS)) {
             //TODO: handle CASE_INSENSITIVE_NOT_EQUALS
+            throw new IllegalArgumentException("Invalid search filter: '" + searchModelFilter + "' has not been implemented.");
         } else if (searchModelFilter.contains(CASE_INSENSITIVE_EQUALS)) {
             //TODO: handle  CASE_INSENSITIVE_EQUALS
+            throw new IllegalArgumentException("Invalid search filter: '" + searchModelFilter + "' has not been implemented.");
         } else if (searchModelFilter.contains(GREATER_THAN_OR_EQUALS)) {
             filter = createSearchFilter(searchModelFilter, GREATER_THAN_OR_EQUALS, GREATER_THAN_OR_EQUALS_REGEX);
         } else if (searchModelFilter.contains(GREATER_THAN)) {
@@ -97,7 +99,7 @@ public class LegacySearchModelUtils {
         } else if (searchModelFilter.contains(EQUALS)) {
             filter = createSearchFilter(searchModelFilter, EQUALS, EQUALS);
         } else {
-            throw new IllegalArgumentException("Invalid search filter: '"+searchModelFilter+"'");
+            throw new IllegalArgumentException("Invalid search filter: '" + searchModelFilter + "'");
         }
         return filter;
     }
@@ -109,26 +111,25 @@ public class LegacySearchModelUtils {
 
         final String field = searchTerms[0];
         final String term = convertToLuceneTerm(searchTerms[1], operator);
-        final boolean negate = ((operator == NOT_EQUALS) || (operator == CASE_INSENSITIVE_NOT_EQUALS));
+        final boolean negate = ((NOT_EQUALS.equals(operator)) || (CASE_INSENSITIVE_NOT_EQUALS.equals(operator)));
 
         return new SimpleSearchFilter(field, term, negate);
     }
 
     private static String convertToLuceneTerm(String term, String operator) {
-        if (operator == LESS_THAN) {
-            term = "[* TO " + term + ">";
-        }
-        if (operator == LESS_THAN_OR_EQUALS) {
-            term = "[* TO " + term + "]";
-        }
-        if (operator == GREATER_THAN) {
-            term = "<" + term + " TO *]";
+        String luceneTerm = term;
+
+        if (LESS_THAN.equals(operator)) {
+            luceneTerm = "[* TO " + term + ">";
+        } else if (LESS_THAN_OR_EQUALS.equals(operator)) {
+            luceneTerm = "[* TO " + term + "]";
+        } else if (GREATER_THAN.equals(operator)) {
+            luceneTerm = "<" + term + " TO *]";
+        } else if (GREATER_THAN_OR_EQUALS.equals(operator)) {
+            luceneTerm = "[" + term + " TO *]";
         }
 
-        if (operator == GREATER_THAN_OR_EQUALS) {
-            term = "[" + term + " TO *]";
-        }
-        return term;
+        return luceneTerm;
     }
 
 
