@@ -1,6 +1,5 @@
 package edu.uw.edm.contentapi2.controller.documentation.v3;
 
-import org.apache.catalina.ssi.ByteArrayServletOutputStream;
 import org.apache.chemistry.opencmis.client.api.Document;
 import org.apache.chemistry.opencmis.commons.data.ContentStream;
 import org.junit.Test;
@@ -26,7 +25,6 @@ import edu.uw.edm.contentapi2.properties.SecurityProperties;
 import edu.uw.edm.contentapi2.repository.ExternalDocumentRepository;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.security.UserDetailsService;
-import edu.uw.edm.contentapi2.service.DocumentFacade;
 import edu.uw.edm.contentapi2.service.FileServingService;
 
 import static edu.uw.edm.contentapi2.controller.documentation.config.ContentAPIRestDocTest.GENERATED_SNIPPETS_BASE_PATH;
@@ -71,13 +69,9 @@ public class FileControllerV3DocumentationTest {
     public RestDocumentationResultHandler documentationResultHandler;
 
 
-    @Autowired
-    private FileServingService fileServingService;
-    @MockBean
-    private ExternalDocumentRepository<Document> externalDocumentRepository;
 
     @MockBean
-    private DocumentFacade documentFacade;
+    private ExternalDocumentRepository<Document> externalDocumentRepository;
 
     @Mock
     private HttpServletResponse response;
@@ -85,8 +79,6 @@ public class FileControllerV3DocumentationTest {
 
     @Test
     public void readFile() throws Exception {
-        ByteArrayServletOutputStream outputStream = new ByteArrayServletOutputStream();
-
         Document mockDocument = mock(Document.class);
         doReturn("my-file.txt").when(mockDocument).getContentStreamFileName();
 
