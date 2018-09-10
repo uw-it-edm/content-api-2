@@ -40,16 +40,16 @@ import static org.mockito.Mockito.when;
 public class DocumentFacadeImplTest {
 
     @Mock
-    ExternalDocumentRepository repository;
+    private ExternalDocumentRepository repository;
 
     @Mock
-    ExternalDocumentConverter converter;
+    private ExternalDocumentConverter converter;
     @Mock
-    ExternalSearchDocumentRepository searchRepository;
+    private  ExternalSearchDocumentRepository searchRepository;
     @Mock
     private User user;
 
-    DocumentFacadeImpl documentFacade;
+    private  DocumentFacadeImpl documentFacade;
 
     @Before
     public void setUp() {

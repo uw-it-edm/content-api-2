@@ -56,9 +56,9 @@ public class BulkContollerV3DocumentationTest {
     public RestDocumentationResultHandler documentationResultHandler;
 
     @MockBean
-    ContentApiProperties contentApiProperties;
+    private ContentApiProperties contentApiProperties;
     @MockBean
-    DocumentFacade documentFacade;
+    private DocumentFacade documentFacade;
 
     @Before
     public void setup() {

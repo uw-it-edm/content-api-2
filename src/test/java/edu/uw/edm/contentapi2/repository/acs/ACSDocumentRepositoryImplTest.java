@@ -33,6 +33,7 @@ import static edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.Co
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -46,23 +47,20 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ACSDocumentRepositoryImplTest {
-
-
-    Session mockSession;
-
-    ACSDocumentRepositoryImpl documentRepository;
+    private Session mockSession;
+    private ACSDocumentRepositoryImpl documentRepository;
 
     @Mock
-    ExternalProfileRepository profileRepository;
+    private ExternalProfileRepository profileRepository;
     @Mock
-    ProfileFacade profileFacade;
+    private ProfileFacade profileFacade;
     @Mock
-    SiteFinder siteFinder;
+    private SiteFinder siteFinder;
 
     @Mock
-    Folder mockDocumentLibraryFolderForProfile;
+    private Folder mockDocumentLibraryFolderForProfile;
 
-    User testUser = new User("test-user", "", Collections.emptyList());
+    private User testUser = new User("test-user", "", Collections.emptyList());
 
     @Before
     public void setUp() throws NoSuchProfileException {
@@ -138,6 +136,6 @@ public class ACSDocumentRepositoryImplTest {
         verify(mockDocumentLibraryFolderForProfile).createDocument(captor.capture(), any(), any());
         final Map<String, Object> createDocumentPropertiesParameter = captor.getValue();
         assertThat(createDocumentPropertiesParameter.size(), is(5));
-        assertEquals(true, createDocumentPropertiesParameter.containsKey("test:testKey"));
+        assertTrue( createDocumentPropertiesParameter.containsKey("test:testKey"));
     }
 }

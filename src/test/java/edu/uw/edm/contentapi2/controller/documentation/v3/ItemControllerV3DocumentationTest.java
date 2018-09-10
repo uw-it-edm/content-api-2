@@ -2,7 +2,6 @@ package edu.uw.edm.contentapi2.controller.documentation.v3;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,11 +69,6 @@ public class ItemControllerV3DocumentationTest {
 
     @MockBean
     DocumentFacade documentFacade;
-
-    @Before
-    public void setup() {
-
-    }
 
     @Test
     public void getItemMetadata() throws Exception {
