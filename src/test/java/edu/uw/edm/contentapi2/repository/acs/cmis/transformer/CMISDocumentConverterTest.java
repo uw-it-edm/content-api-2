@@ -51,7 +51,7 @@ public class CMISDocumentConverterTest {
 
     @Test
     public void toContentApiDocument() throws NoSuchProfileException {
-        final Document repositoryDocumentMock = mock(org.apache.chemistry.opencmis.client.api.Document.class);
+        final Document repositoryDocumentMock = mock(Document.class);
         when(repositoryDocumentMock.getId()).thenReturn("doc-id");
         when(repositoryDocumentMock.getPropertyValue(RepositoryConstants.Alfresco.AlfrescoFields.TITLE_FQDN)).thenReturn("doc name");
 
@@ -75,7 +75,7 @@ public class CMISDocumentConverterTest {
 
     @Test
     public void versionIsRemovedFromIdTest() throws NoSuchProfileException {
-        final Document repositoryDocumentMock = mock(org.apache.chemistry.opencmis.client.api.Document.class);
+        final Document repositoryDocumentMock = mock(Document.class);
         when(repositoryDocumentMock.getId()).thenReturn("doc-id;1.0");
         when(repositoryDocumentMock.getPropertyValue(RepositoryConstants.Alfresco.AlfrescoFields.TITLE_FQDN)).thenReturn("doc name");
 
@@ -91,7 +91,7 @@ public class CMISDocumentConverterTest {
 
     @Test
     public void idDoesntRequireVersionTest() throws NoSuchProfileException {
-        final Document repositoryDocumentMock = mock(org.apache.chemistry.opencmis.client.api.Document.class);
+        final Document repositoryDocumentMock = mock(Document.class);
         when(repositoryDocumentMock.getId()).thenReturn("doc-id");
         when(repositoryDocumentMock.getPropertyValue(RepositoryConstants.Alfresco.AlfrescoFields.TITLE_FQDN)).thenReturn("doc name");
 
@@ -106,7 +106,7 @@ public class CMISDocumentConverterTest {
 
     @Test
     public void sysPrefixPropertiesAreRemovedFromDocumentTest() throws NoSuchProfileException, UndefinedFieldException {
-        final Document repositoryDocumentMock = mock(org.apache.chemistry.opencmis.client.api.Document.class);
+        final Document repositoryDocumentMock = mock(Document.class);
         when(repositoryDocumentMock.getId()).thenReturn("doc-id");
 
         final Property<?> sysProperty = mock(Property.class);
