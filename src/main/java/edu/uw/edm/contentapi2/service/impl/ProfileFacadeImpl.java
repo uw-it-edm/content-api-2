@@ -141,28 +141,29 @@ public class ProfileFacadeImpl implements ProfileFacade {
     }
 
     @Override
-    public Object convertToRepoDataType(String profileId, User user, String
-            fqdnRepoFieldName, Object value) throws NoSuchProfileException {
+    public Object convertToRepoDataType(String profileId, User user, String fqdnRepoFieldName, Object value) throws NoSuchProfileException {
         final String contentApiFieldName = this.convertToContentApiFieldFromFQDNRepositoryField(profileId, fqdnRepoFieldName);
         final ProfileDefinitionV4 profileDefinition = getProfileDefinition(profileId, user);
 
         final FieldDefinition fieldDefinition = getFieldDefinition(profileDefinition, fqdnRepoFieldName, contentApiFieldName);
         checkNotNull(fieldDefinition, "Unable to determine FieldDefinition for '%s' in profile '%s'", contentApiFieldName, profileId);
 
+        final Object convertedValue;
         switch (fieldDefinition.getType()) {
             case date:
-                value = DataTypeUtils.convertToLosAngelesDate(value);
+                convertedValue = DataTypeUtils.convertToLosAngelesDate(value);
                 break;
             case bool:
-                value = DataTypeUtils.convertToBoolean(value);
+                convertedValue = DataTypeUtils.convertToBoolean(value);
                 break;
             case integer:
-                value = DataTypeUtils.convertToInteger(value);
+                convertedValue = DataTypeUtils.convertToInteger(value);
                 break;
             default:
+                convertedValue = value;
                 break;
         }
-        return value;
+        return convertedValue;
 
     }
 
