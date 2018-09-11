@@ -120,7 +120,7 @@ public class ProfileFacadeImpl implements ProfileFacade {
     
     private FieldDefinition getFieldDefinition(ProfileDefinitionV4 profileDefinition, String fqdnRepoFieldName, String contentApiFieldName){
         FieldDefinition fieldDefinition;
-        if(RepositoryConstants.Alfresco.AlfrescoFields.ITEM_ID_FQDN.equals(fqdnRepoFieldName)){
+        if(RepositoryConstants.CMIS.ITEM_ID_FQDN.equals(fqdnRepoFieldName)){
             fieldDefinition = profileDefinition.getId();
         }else if(RepositoryConstants.Alfresco.AlfrescoFields.TITLE_FQDN.equals(fqdnRepoFieldName)){
             fieldDefinition = profileDefinition.getLabel();

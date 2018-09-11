@@ -12,6 +12,13 @@ import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.ProfileFacade;
 
+import static edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.CMIS.CONTENT_STREAM_LENGTH_FQDN;
+import static edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.CMIS.CONTENT_STREAM_MIME_TYPE_FQDN;
+import static edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.CMIS.CREATED_BY_FQDN;
+import static edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.CMIS.CREATION_DATE_FQDN;
+import static edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.CMIS.LAST_MODIFICATION_DATE_FQDN;
+import static edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.CMIS.LAST_MODIFIER_FQDN;
+import static edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.CMIS.NAME_FQDN;
 import static edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.ContentAPI.PROFILE_ID;
 
 /**
@@ -53,19 +60,19 @@ public class SearchResultTransformerImpl implements SearchResultTransformer {
 
         //TODO check if we need other fields
 
-        document.getMetadata().put(getContentFieldName(profileId, "creationDate"), resultNode.getCreatedAt());
+        document.getMetadata().put(getContentFieldName(profileId, CREATION_DATE_FQDN), resultNode.getCreatedAt());
         if (resultNode.getCreatedByUser() != null) {
-            document.getMetadata().put(getContentFieldName(profileId, "createdBy"), resultNode.getCreatedByUser().getId());
+            document.getMetadata().put(getContentFieldName(profileId, CREATED_BY_FQDN), resultNode.getCreatedByUser().getId());
         }
         if (resultNode.getContent() != null) {
-            document.getMetadata().put(getContentFieldName(profileId, "contentStreamMimeType"), resultNode.getContent().getMimeType());
-            document.getMetadata().put(getContentFieldName(profileId, "contentStreamLength"), resultNode.getContent().getSizeInBytes());
+            document.getMetadata().put(getContentFieldName(profileId, CONTENT_STREAM_MIME_TYPE_FQDN), resultNode.getContent().getMimeType());
+            document.getMetadata().put(getContentFieldName(profileId, CONTENT_STREAM_LENGTH_FQDN), resultNode.getContent().getSizeInBytes());
         }
-        document.getMetadata().put(getContentFieldName(profileId, "lastModificationDate"), resultNode.getModifiedAt());
+        document.getMetadata().put(getContentFieldName(profileId, LAST_MODIFICATION_DATE_FQDN), resultNode.getModifiedAt());
         if (resultNode.getModifiedByUser() != null) {
-            document.getMetadata().put(getContentFieldName(profileId, "lastModifier"), resultNode.getModifiedByUser().getId());
+            document.getMetadata().put(getContentFieldName(profileId, LAST_MODIFIER_FQDN), resultNode.getModifiedByUser().getId());
         }
-        document.getMetadata().put(getContentFieldName(profileId, "name"), resultNode.getName());
+        document.getMetadata().put(getContentFieldName(profileId, NAME_FQDN), resultNode.getName());
         document.getMetadata().put(PROFILE_ID,profileId);
 
         resultNode.getProperties().forEach((key, value) -> {
