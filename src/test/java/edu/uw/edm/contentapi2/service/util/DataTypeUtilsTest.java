@@ -3,6 +3,7 @@ package edu.uw.edm.contentapi2.service.util;
 import org.junit.Test;
 
 import java.math.BigInteger;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
@@ -82,12 +83,14 @@ public class DataTypeUtilsTest {
         assertThat(result, instanceOf(Integer.class));
         assertEquals(10, result);
     }
+
     @Test
     public void convertDoubleToInteger() {
         final Object result = DataTypeUtils.convertToInteger(Double.valueOf(10.0));
         assertThat(result, instanceOf(Integer.class));
         assertEquals(10, result);
     }
+
     @Test(expected = IllegalArgumentException.class)
     public void whenConvertToIntegerInvalidStampThrowIllegalArgumentException() {
         DataTypeUtils.convertToInteger(new Date());
@@ -104,12 +107,14 @@ public class DataTypeUtilsTest {
         final Double tooMuchPrecision = 123.45;
         DataTypeUtils.convertToInteger(tooMuchPrecision);
     }
+
     @Test(expected = ArithmeticException.class)
     public void whenConvertDoubleToIntegerLosesDataThrow() {
         Long tooBig = Long.valueOf(Integer.MAX_VALUE);
         tooBig += Integer.MAX_VALUE;
         DataTypeUtils.convertToInteger(tooBig);
     }
+
     @Test
     public void convertLosAngelesCalendarToTimeStamp() {
         final GregorianCalendar value = new GregorianCalendar(2018, 06, 11);
@@ -148,10 +153,29 @@ public class DataTypeUtilsTest {
         assertEquals(1531260000000L, result);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void whenConvertToTimeInvalidStampThrowIllegalArgumentException() {
-        DataTypeUtils.convertToTimeStamp("invalid");
+    @Test
+    public void convertLosAngelesIso8601StringToTimeStamp() {
+        final String iso8601dateString = "2018-09-11T15:16:53.988-0700";
+        final Object result = DataTypeUtils.convertToTimeStamp(iso8601dateString);
+        assertThat(result, instanceOf(Long.class));
+        assertEquals(1536704213988L, result);
     }
 
+    @Test
+    public void convertBrusselsIso8601StringToTimeStamp() {
+        final String iso8601dateString = "2018-09-12T00:20:00.470+0200";
+        final Object result = DataTypeUtils.convertToTimeStamp(iso8601dateString);
+        assertThat(result, instanceOf(Long.class));
+        assertEquals(1536704400470L, result);
+    }
+
+    @Test(expected = DateTimeParseException.class) //TODO: should we be catching this and throwing an IllegalArgumentException?
+    public void whenConvertToTimeInvalidStampStringThrowIllegalArgumentException() {
+        DataTypeUtils.convertToTimeStamp("invalidString");
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void whenConvertToTimeInvalidStampThrowIllegalArgumentException() {
+        DataTypeUtils.convertToTimeStamp(BigInteger.TEN);
+    }
 
 }

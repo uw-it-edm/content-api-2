@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.math.BigInteger;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -103,7 +104,7 @@ public class ProfileFacadeImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void convertingInvalidDateThrowsIllegalArgumentException() throws NoSuchProfileException, UndefinedFieldException {
-        profileFacade.convertToContentApiDataType("testProfile", mock(User.class), "testDate", "invalid");
+        profileFacade.convertToContentApiDataType("testProfile", mock(User.class), "testDate", BigInteger.TEN);
     }
 
     @Test(expected = IllegalArgumentException.class)
