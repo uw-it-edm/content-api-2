@@ -13,6 +13,7 @@ public class RepositoryConstants {
     }
 
     public static final class Alfresco {
+        public  static final String ALFRESCO_SYSTEM_PREFIX = "sys:";
         public static final class ExtensionNames {
             public static final String MANDATORY_ASPECTS = "mandatoryAspects";
         }

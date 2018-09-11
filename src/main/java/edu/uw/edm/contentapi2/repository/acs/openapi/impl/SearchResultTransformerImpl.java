@@ -5,10 +5,13 @@ import com.alfresco.client.api.search.model.ResultNodeRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 import edu.uw.edm.contentapi2.controller.content.v3.model.ContentAPIDocument;
 import edu.uw.edm.contentapi2.controller.search.v1.model.result.SearchResult;
 import edu.uw.edm.contentapi2.repository.acs.openapi.SearchResultTransformer;
 import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants;
+import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.ProfileFacade;
 
@@ -24,6 +27,7 @@ import static edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.Co
 /**
  * @author Maxime Deravet Date: 6/25/18
  */
+
 @Service
 public class SearchResultTransformerImpl implements SearchResultTransformer {
 
@@ -37,57 +41,52 @@ public class SearchResultTransformerImpl implements SearchResultTransformer {
 
 
     @Override
-    public SearchResult toSearchResult(ResultNodeRepresentation resultNode, String profileId, User user) {
-        SearchResult result = new SearchResult();
+    public SearchResult toSearchResult(ResultNodeRepresentation resultNode, String profileId, User user) throws NoSuchProfileException {
+        final ContentAPIDocument document = toContentApiDocument(resultNode, profileId, user);
 
-        ContentAPIDocument document = toContentApiDocument(resultNode, profileId, user);
-
+        final SearchResult result = new SearchResult();
         result.setDocument(document);
         result.setIndexName(profileId);
-
         result.setScore(resultNode.getSearch().getScore());
 
         return result;
     }
 
-    private ContentAPIDocument toContentApiDocument(ResultNodeRepresentation resultNode, String profileId, User user) {
-
-
-        ContentAPIDocument document = new ContentAPIDocument();
+    private ContentAPIDocument toContentApiDocument(ResultNodeRepresentation resultNode, String profileId, User user) throws NoSuchProfileException {
+        final ContentAPIDocument document = new ContentAPIDocument();
 
         document.setId(resultNode.getId());
         document.setLabel((String) resultNode.getProperties().get(RepositoryConstants.Alfresco.AlfrescoFields.TITLE_FQDN));
-
+        document.getMetadata().put(PROFILE_ID, profileId);
         //TODO check if we need other fields
 
-        document.getMetadata().put(getContentFieldName(profileId, CREATION_DATE_FQDN), resultNode.getCreatedAt());
+        document.getMetadata().putAll(convertField(user, profileId, CREATION_DATE_FQDN, resultNode.getCreatedAt()));
         if (resultNode.getCreatedByUser() != null) {
-            document.getMetadata().put(getContentFieldName(profileId, CREATED_BY_FQDN), resultNode.getCreatedByUser().getId());
+            document.getMetadata().putAll(convertField(user, profileId, CREATED_BY_FQDN, resultNode.getCreatedByUser().getId()));
         }
         if (resultNode.getContent() != null) {
-            document.getMetadata().put(getContentFieldName(profileId, CONTENT_STREAM_MIME_TYPE_FQDN), resultNode.getContent().getMimeType());
-            document.getMetadata().put(getContentFieldName(profileId, CONTENT_STREAM_LENGTH_FQDN), resultNode.getContent().getSizeInBytes());
+            document.getMetadata().putAll(convertField(user, profileId, CONTENT_STREAM_MIME_TYPE_FQDN, resultNode.getContent().getMimeType()));
+            document.getMetadata().putAll(convertField(user, profileId, CONTENT_STREAM_LENGTH_FQDN, resultNode.getContent().getSizeInBytes()));
         }
-        document.getMetadata().put(getContentFieldName(profileId, LAST_MODIFICATION_DATE_FQDN), resultNode.getModifiedAt());
-        if (resultNode.getModifiedByUser() != null) {
-            document.getMetadata().put(getContentFieldName(profileId, LAST_MODIFIER_FQDN), resultNode.getModifiedByUser().getId());
-        }
-        document.getMetadata().put(getContentFieldName(profileId, NAME_FQDN), resultNode.getName());
-        document.getMetadata().put(PROFILE_ID,profileId);
 
-        resultNode.getProperties().forEach((key, value) -> {
-            document.getMetadata().put(getContentFieldName(profileId, key), value);
-        });
+        document.getMetadata().putAll(convertField(user, profileId, LAST_MODIFICATION_DATE_FQDN, resultNode.getModifiedAt()));
+
+        if (resultNode.getModifiedByUser() != null) {
+            document.getMetadata().putAll(convertField(user, profileId, LAST_MODIFIER_FQDN, resultNode.getModifiedByUser().getId()));
+        }
+
+        document.getMetadata().putAll(convertField(user, profileId, NAME_FQDN, resultNode.getName()));
+
+        final Map<String, Object> contentApiMetadata = profileFacade.convertMetadataToContentApiDataTypes(resultNode, user, profileId);
+        document.getMetadata().putAll(contentApiMetadata);
+
 
         return document;
     }
 
-
-    private String getContentFieldName(String profileId, String acsFieldName) {
-
-        return profileFacade.convertToContentApiFieldFromFQDNRepositoryField(profileId, acsFieldName);
+    private final Map<String, Object> convertField(User user, String profileId, String fqdnRepoFieldName, Object fieldValue) throws NoSuchProfileException {
+        return profileFacade.convertMetadataFieldToContentApiDataType(user, profileId, fqdnRepoFieldName, fieldValue);
 
     }
-
 
 }

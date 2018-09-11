@@ -44,6 +44,15 @@ public class DataTypeUtils {
             // NOOP
         } else if (value instanceof Integer) {
             integer = (Integer) value;
+        } else if (value instanceof Long) {
+            integer = Math.toIntExact((Long) value);
+        } else if (value instanceof Double) {
+            final Double doubleValue = (Double) value;
+            if (doubleValue % 1 == 0) {
+                integer = doubleValue.intValue();
+            } else {
+                throw new ArithmeticException("integer overflow: converting double value to integer");
+            }
         } else if (value instanceof BigInteger) {
             integer = ((BigInteger) value).intValueExact();
         } else if (value instanceof String) {
@@ -61,6 +70,8 @@ public class DataTypeUtils {
         } else if (value instanceof Calendar) {
             final Calendar cal = (Calendar) value;
             timestamp = cal.getTimeInMillis();
+        } else if (value instanceof Date) {
+            timestamp = ((Date) value).getTime();
         } else {
             throw new IllegalArgumentException("Unhandled Data Type: " + value.getClass());
         }

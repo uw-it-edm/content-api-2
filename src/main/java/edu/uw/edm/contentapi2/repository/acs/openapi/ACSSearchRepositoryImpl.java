@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -61,11 +62,11 @@ public class ACSSearchRepositoryImpl implements ExternalSearchDocumentRepository
             if (searchResult == null) {
                 throw new RepositoryException("couldn't execute search");
             }
-            List<SearchResult> results = searchResult
-                    .getList()
-                    .stream()
-                    .map((ResultNodeRepresentation resultNodeRepresentation) -> searchResultTransformer.toSearchResult(resultNodeRepresentation, profile, user))
-                    .collect(Collectors.toList());
+
+            final List<SearchResult> results = new ArrayList<>();
+            for (ResultNodeRepresentation resultNodeRepresentation : searchResult.getList()) {
+                results.add(searchResultTransformer.toSearchResult(resultNodeRepresentation, profile, user));
+            }
 
             List<FacetResult> facets = searchResult.getContext()
                     .getFacetFields()

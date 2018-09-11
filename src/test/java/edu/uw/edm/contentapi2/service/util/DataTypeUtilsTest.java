@@ -36,7 +36,7 @@ public class DataTypeUtilsTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void whenConvertToBooleanInvalidStampThrowIllegalArumentException() {
+    public void whenConvertToBooleanInvalidStampThrowIllegalArgumentException() {
         DataTypeUtils.convertToBoolean(1);
     }
 
@@ -51,63 +51,105 @@ public class DataTypeUtilsTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void whenConvertToDateInvalidStampThrowIllegalArumentException() {
+    public void whenConvertToDateInvalidStampThrowIllegalArgumentException() {
         DataTypeUtils.convertToLosAngelesDate("invalid");
     }
 
     @Test
     public void convertStringToInteger() {
-        Object result = DataTypeUtils.convertToInteger("10");
+        final Object result = DataTypeUtils.convertToInteger("10");
         assertThat(result, instanceOf(Integer.class));
         assertEquals(10, result);
     }
 
     @Test
     public void convertIntToInteger() {
-        Object result = DataTypeUtils.convertToInteger(10);
+        final Object result = DataTypeUtils.convertToInteger(10);
         assertThat(result, instanceOf(Integer.class));
         assertEquals(10, result);
     }
 
     @Test
     public void convertBigIntegerToInteger() {
-        Object result = DataTypeUtils.convertToInteger(BigInteger.TEN);
+        final Object result = DataTypeUtils.convertToInteger(BigInteger.TEN);
         assertThat(result, instanceOf(Integer.class));
         assertEquals(10, result);
     }
 
+    @Test
+    public void convertLongToInteger() {
+        final Object result = DataTypeUtils.convertToInteger(Long.valueOf(10L));
+        assertThat(result, instanceOf(Integer.class));
+        assertEquals(10, result);
+    }
+    @Test
+    public void convertDoubleToInteger() {
+        final Object result = DataTypeUtils.convertToInteger(Double.valueOf(10.0));
+        assertThat(result, instanceOf(Integer.class));
+        assertEquals(10, result);
+    }
     @Test(expected = IllegalArgumentException.class)
-    public void whenConvertToIntegerInvalidStampThrowIllegalArumentException() {
+    public void whenConvertToIntegerInvalidStampThrowIllegalArgumentException() {
         DataTypeUtils.convertToInteger(new Date());
     }
 
     @Test(expected = ArithmeticException.class)
-    public void whenConvertToIntegerLosesDataThrow() {
-        BigInteger tooBig = BigInteger.valueOf(Integer.MAX_VALUE).add(BigInteger.ONE);
+    public void whenConvertBigIntegerToIntegerLosesDataThrow() {
+        final BigInteger tooBig = BigInteger.valueOf(Integer.MAX_VALUE).add(BigInteger.ONE);
         DataTypeUtils.convertToInteger(tooBig);
     }
 
-
+    @Test(expected = ArithmeticException.class)
+    public void whenConvertLongToIntegerLosesDataThrow() {
+        final Double tooMuchPrecision = 123.45;
+        DataTypeUtils.convertToInteger(tooMuchPrecision);
+    }
+    @Test(expected = ArithmeticException.class)
+    public void whenConvertDoubleToIntegerLosesDataThrow() {
+        Long tooBig = Long.valueOf(Integer.MAX_VALUE);
+        tooBig += Integer.MAX_VALUE;
+        DataTypeUtils.convertToInteger(tooBig);
+    }
     @Test
-    public void convertLosAngelesDateToTimeStamp(){
-        final GregorianCalendar value = new GregorianCalendar(2018,06,11);
+    public void convertLosAngelesCalendarToTimeStamp() {
+        final GregorianCalendar value = new GregorianCalendar(2018, 06, 11);
         value.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
-        Object result = DataTypeUtils.convertToTimeStamp(value);
+        final Object result = DataTypeUtils.convertToTimeStamp(value);
         assertThat(result, instanceOf(Long.class));
         assertEquals(1531292400000L, result);
     }
 
     @Test
-    public void convertBrusselsDateToTimeStamp(){
-        final GregorianCalendar value = new GregorianCalendar(2018,06,11);
+    public void convertBrusselsCalendarToTimeStamp() {
+        final GregorianCalendar value = new GregorianCalendar(2018, 06, 11);
         value.setTimeZone(TimeZone.getTimeZone("Europe/Brussels"));
-        Object result = DataTypeUtils.convertToTimeStamp(value);
+        final Object result = DataTypeUtils.convertToTimeStamp(value);
+        assertThat(result, instanceOf(Long.class));
+        assertEquals(1531260000000L, result);
+    }
+
+    @Test
+    public void convertLosAngelesDateToTimeStamp() {
+        final GregorianCalendar calendar = new GregorianCalendar(2018, 06, 11);
+        calendar.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
+        final Date value = calendar.getTime();
+        final Object result = DataTypeUtils.convertToTimeStamp(value);
+        assertThat(result, instanceOf(Long.class));
+        assertEquals(1531292400000L, result);
+    }
+
+    @Test
+    public void convertBrusselsDateToTimeStamp() {
+        final GregorianCalendar calendar = new GregorianCalendar(2018, 06, 11);
+        calendar.setTimeZone(TimeZone.getTimeZone("Europe/Brussels"));
+        final Date value = calendar.getTime();
+        final Object result = DataTypeUtils.convertToTimeStamp(value);
         assertThat(result, instanceOf(Long.class));
         assertEquals(1531260000000L, result);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void whenConvertToTimeInvalidStampThrowIllegalArumentException() {
+    public void whenConvertToTimeInvalidStampThrowIllegalArgumentException() {
         DataTypeUtils.convertToTimeStamp("invalid");
     }
 
