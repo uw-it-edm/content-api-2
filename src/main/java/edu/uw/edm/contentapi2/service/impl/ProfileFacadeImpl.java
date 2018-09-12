@@ -100,7 +100,7 @@ public class ProfileFacadeImpl implements ProfileFacade {
         Map<String, Object> convertedMetadataField = new HashMap<>();
 
         if (!fqdnRepoFieldName.startsWith(ALFRESCO_SYSTEM_PREFIX)) { // do not share system properties
-            final String fieldName = this.convertToContentApiFieldFromRepositoryField(profile, fqdnRepoFieldName);
+            final String fieldName = this.convertToContentApiFieldFromFQDNRepositoryField(profile, fqdnRepoFieldName);
             try {
                 final Object convertedFieldValue = this.convertToContentApiDataType(profile, user, fqdnRepoFieldName, fieldValue);
                 convertedMetadataField.put(fieldName, convertedFieldValue);
