@@ -39,7 +39,7 @@ public class RepositoryConstants {
         public static final String CONTENT_STREAM_MIME_TYPE_FQDN = "cmis:contentStreamMimeType";
         public static final String ITEM_ID_FQDN = "cmis:objectId";
         public static final String LAST_MODIFICATION_DATE_FQDN = "cmis:lastModificationDate";
-        public static final String LAST_MODIFIER_FQDN = "cmis:lastModifier";
+        public static final String LAST_MODIFIER_FQDN = "cmis:lastModifiedBy";
         public static final String NAME_FQDN = "cmis:name";
 
 
