@@ -10,9 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchFacet;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchQueryModel;
 import edu.uw.edm.contentapi2.controller.search.v1.model.result.BucketResult;
 import edu.uw.edm.contentapi2.controller.search.v1.model.result.FacetResult;
@@ -47,34 +50,27 @@ public class ACSSearchRepositoryImpl implements ExternalSearchDocumentRepository
 
     @Override
     public SearchResultContainer searchDocuments(String profile, SearchQueryModel searchModel, User user) throws RepositoryException {
-        QueryBody queryBody = buildQuery(profile, searchModel, user);
+        final QueryBody queryBody = buildQuery(profile, searchModel, user);
 
-        SearchResultContainer searchResultContainer = new SearchResultContainer();
-
+        final SearchResultContainer searchResultContainer = new SearchResultContainer();
 
         try {
             if (log.isTraceEnabled()) {
                 log.trace(queryBody.toString());
 
             }
-            ResultSetRepresentation<ResultNodeRepresentation> searchResult = acsSearchAPI.searchCall(queryBody).execute().body();
+            final ResultSetRepresentation<ResultNodeRepresentation> searchResult = acsSearchAPI.searchCall(queryBody).execute().body();
             if (searchResult == null) {
                 throw new RepositoryException("couldn't execute search");
             }
-            List<SearchResult> results = searchResult
+            final List<SearchResult> results = searchResult
                     .getList()
                     .stream()
                     .map((ResultNodeRepresentation resultNodeRepresentation) -> searchResultTransformer.toSearchResult(resultNodeRepresentation, profile, user))
                     .collect(Collectors.toList());
 
-            List<FacetResult> facets = searchResult.getContext()
-                    .getFacetFields()
-                    .stream()
-                    .map(this::createFacetResult)
-                    .collect(Collectors.toList());
-
+            final List<FacetResult> facets = createFacetResults(searchModel, searchResult);
             searchResultContainer.setFacets(facets);
-
             searchResultContainer.setTotalCount(searchResult.getPagination().getTotalItems());
 
 
@@ -88,16 +84,31 @@ public class ACSSearchRepositoryImpl implements ExternalSearchDocumentRepository
         return searchResultContainer;
     }
 
-    private FacetResult createFacetResult(ResultSetContextFacetFields resultSetContextFacetFields) {
-        FacetResult facetResult = new FacetResult(resultSetContextFacetFields.getLabel());
+    private List<FacetResult> createFacetResults(SearchQueryModel searchModel, ResultSetRepresentation<ResultNodeRepresentation> searchResult) {
+        final List<FacetResult> facetResults = new ArrayList<>();
+        for (SearchFacet searchFacet : searchModel.getFacets()) { //create FacetResult for every facet in searchModel, even if empty
+            final String facetLabel = searchFacet.getField();
+            final Optional<ResultSetContextFacetFields> searchFacetResults = searchResult.getContext().getFacetFields()
+                    .stream()
+                    .filter(facetField -> facetField.getLabel().equals(facetLabel))
+                    .findAny();
+            facetResults.add(this.createFacetResult(facetLabel, searchFacetResults));
+        }
+        return facetResults;
+    }
 
-        resultSetContextFacetFields.getBuckets().forEach(resultSetContextBuckets -> {
-            BucketResult bucketResult = new BucketResult();
-            bucketResult.setKey(resultSetContextBuckets.getLabel());
-            bucketResult.setCount(resultSetContextBuckets.getCount().longValue());
+    private FacetResult createFacetResult(String facetLabel, Optional<ResultSetContextFacetFields> facetResults) {
+        final FacetResult facetResult = new FacetResult(facetLabel);
 
-            facetResult.addBucketResult(bucketResult);
-        });
+        facetResults.ifPresent(facetFields ->
+                facetFields.getBuckets().forEach(resultSetContextBuckets -> {
+                    BucketResult bucketResult = new BucketResult();
+                    bucketResult.setKey(resultSetContextBuckets.getLabel());
+                    bucketResult.setCount(resultSetContextBuckets.getCount().longValue());
+
+                    facetResult.addBucketResult(bucketResult);
+                })
+        );
 
         return facetResult;
     }
