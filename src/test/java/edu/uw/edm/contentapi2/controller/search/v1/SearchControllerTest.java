@@ -3,7 +3,6 @@ package edu.uw.edm.contentapi2.controller.search.v1;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -46,10 +45,6 @@ public class SearchControllerTest {
 
     @MockBean
     private FieldMapper fieldMapper;
-
-    @InjectMocks
-    private SearchController searchController;
-
 
     @Test
     public void searchInIndex() throws Exception {
