@@ -1,5 +1,7 @@
 package edu.uw.edm.contentapi2.controller.search.v1.model.query;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,6 +14,7 @@ public class SearchQueryModel {
 
     private List<SearchFacet> facets = new LinkedList<>();
 
+    @JsonDeserialize(contentAs = SimpleSearchFilter.class)
     private List<SearchFilter> filters = new LinkedList<>();
 
     private int from = 0;
