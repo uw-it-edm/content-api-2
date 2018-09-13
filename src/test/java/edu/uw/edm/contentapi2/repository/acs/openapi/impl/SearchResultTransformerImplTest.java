@@ -12,15 +12,20 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import edu.uw.edm.contentapi2.controller.search.v1.model.result.SearchResult;
 import edu.uw.edm.contentapi2.repository.acs.openapi.SearchResultTransformer;
 import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants;
+import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.ProfileFacade;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 /**
@@ -48,33 +53,30 @@ public class SearchResultTransformerImplTest {
 
 
     @Test
-    public void toContentApiDocument() {
+    public void toContentApiDocument() throws NoSuchProfileException {
+        final Map<String, Object> convertedMetaData = new HashMap<>();
+        convertedMetaData.put(CONTENT_FIELD_1_NAME, FIELD_1_VALUE);
+        convertedMetaData.put(RepositoryConstants.ContentAPI.PROFILE_ID, "my-profile");
+        when(profileFacade.convertMetadataToContentApiDataTypes(any(ResultNodeRepresentation.class), any(User.class), eq("my-profile"))).thenReturn(convertedMetaData);
 
-        ResultNodeRepresentation resultNode = new ResultNodeRepresentation();
-
-        LinkedTreeMap<String, Object> properties = new LinkedTreeMap<>();
-
-        when(profileFacade.convertToContentApiFieldFromFQDNRepositoryField("my-profile", REPO_FIELD_1_NAME)).thenReturn(CONTENT_FIELD_1_NAME);
-
+        final LinkedTreeMap<String, Object> properties = new LinkedTreeMap<>();
         properties.put(RepositoryConstants.Alfresco.AlfrescoFields.TITLE_FQDN, "my-title");
         properties.put(REPO_FIELD_1_NAME, FIELD_1_VALUE);
-        resultNode.setProperties(properties);
 
-        resultNode.setId("my-id");
-
-        SearchEntry searchEntry = new SearchEntry();
+        final SearchEntry searchEntry = new SearchEntry();
         searchEntry.setScore(9000f);
+
+        final ResultNodeRepresentation resultNode = new ResultNodeRepresentation();
+        resultNode.setProperties(properties);
+        resultNode.setId("my-id");
         resultNode.setSearch(searchEntry);
 
 
-        SearchResult result = searchResultTransformer.toSearchResult(resultNode, "my-profile", user);
-
+        final SearchResult result = searchResultTransformer.toSearchResult(resultNode, "my-profile", user);
 
         assertThat(result.getDocument().getId(), is("my-id"));
         assertThat(result.getDocument().getLabel(), is("my-title"));
-
         assertThat(result.getDocument().getMetadata().get(CONTENT_FIELD_1_NAME), is(FIELD_1_VALUE));
-
         assertThat(result.get_score(), is(9000f));
     }
 }
