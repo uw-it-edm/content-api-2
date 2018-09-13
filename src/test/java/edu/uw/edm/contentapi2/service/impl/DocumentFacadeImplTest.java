@@ -70,7 +70,7 @@ public class DocumentFacadeImplTest {
     }
 
     @Test
-    public void searchDocumentsExactId() throws RepositoryException {
+    public void legacySearchDocumentsExactId() throws RepositoryException {
         final LegacySearchModel legacySearchModel = new LegacySearchModel();
         final List<String> searches = new ArrayList<>();
         searches.add(PROFILE_ID +"=test-profile");
