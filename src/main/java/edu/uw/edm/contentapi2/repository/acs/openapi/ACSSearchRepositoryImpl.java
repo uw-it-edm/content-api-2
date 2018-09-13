@@ -63,11 +63,11 @@ public class ACSSearchRepositoryImpl implements ExternalSearchDocumentRepository
             if (searchResult == null) {
                 throw new RepositoryException("couldn't execute search");
             }
-            final List<SearchResult> results = searchResult
-                    .getList()
-                    .stream()
-                    .map((ResultNodeRepresentation resultNodeRepresentation) -> searchResultTransformer.toSearchResult(resultNodeRepresentation, profile, user))
-                    .collect(Collectors.toList());
+
+            final List<SearchResult> results = new ArrayList<>();
+            for (ResultNodeRepresentation resultNodeRepresentation : searchResult.getList()) {
+                results.add(searchResultTransformer.toSearchResult(resultNodeRepresentation, profile, user));
+            }
 
             final List<FacetResult> facets = createFacetResults(searchModel, searchResult);
             searchResultContainer.setFacets(facets);

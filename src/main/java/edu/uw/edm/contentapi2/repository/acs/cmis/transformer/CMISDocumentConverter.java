@@ -1,9 +1,10 @@
 package edu.uw.edm.contentapi2.repository.acs.cmis.transformer;
 
 import org.apache.chemistry.opencmis.client.api.Document;
-import org.apache.chemistry.opencmis.client.api.Property;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 import edu.uw.edm.contentapi2.controller.content.v3.model.ContentAPIDocument;
 import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants;
@@ -11,8 +12,6 @@ import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.repository.transformer.ExternalDocumentConverter;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.ProfileFacade;
-import edu.uw.edm.contentapi2.service.exceptions.UndefinedFieldException;
-import lombok.extern.slf4j.Slf4j;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.ContentAPI.PROFILE_ID;
@@ -20,10 +19,10 @@ import static edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.Co
 /**
  * @author Maxime Deravet Date: 4/3/18
  */
-@Slf4j
+
 @Service
 public class CMISDocumentConverter implements ExternalDocumentConverter<org.apache.chemistry.opencmis.client.api.Document> {
-    private static final String ALFRESCO_SYSTEM_PREFIX = "sys:";
+
     private ProfileFacade profileFacade;
 
     @Autowired
@@ -43,19 +42,8 @@ public class CMISDocumentConverter implements ExternalDocumentConverter<org.apac
 
         contentAPIDocument.setLabel(cmisDocument.getPropertyValue(RepositoryConstants.Alfresco.AlfrescoFields.TITLE_FQDN));
 
-        for (Property property : cmisDocument.getProperties()) {
-            if (!property.getId().startsWith(ALFRESCO_SYSTEM_PREFIX)) { // do not share system properties
-                final String fieldName = profileFacade.convertToContentApiFieldFromRepositoryField(profile, property.getLocalName());
-                try {
-                    final Object fieldValue = profileFacade.convertToContentApiDataType(profile, user, property.getId(), property.getValue());
-                    contentAPIDocument.getMetadata().put(fieldName, fieldValue);
-                } catch (UndefinedFieldException undefinedFieldException) {
-                    log.trace(undefinedFieldException.getMessage());
-                }
-
-            }
-        }
-
+        final Map<String, Object> contentApiMetadata = profileFacade.convertMetadataToContentApiDataTypes(cmisDocument, user, profile);
+        contentAPIDocument.getMetadata().putAll(contentApiMetadata);
         contentAPIDocument.getMetadata().put(PROFILE_ID, profile);
 
         return contentAPIDocument;

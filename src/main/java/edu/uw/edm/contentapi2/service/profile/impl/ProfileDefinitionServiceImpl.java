@@ -43,7 +43,7 @@ public class ProfileDefinitionServiceImpl implements ProfileDefinitionService {
         final String contentType = fieldMapper.getContentTypeForProfile(profileId);
         final Map<String, PropertyDefinition<?>> propertyDefinitions = profileRepository.getPropertyDefinition(user, contentType);
 
-        final PropertyDefinition idField = propertyDefinitions.get(RepositoryConstants.Alfresco.AlfrescoFields.ITEM_ID_FQDN);
+        final PropertyDefinition idField = propertyDefinitions.get(RepositoryConstants.CMIS.ITEM_ID_FQDN);
         final FieldDefinition id = FieldDefinition.builder()
                 .repoFieldName(idField.getId())
                 .type(MappingType.fromPropertyType(idField.getPropertyType()))
@@ -72,7 +72,7 @@ public class ProfileDefinitionServiceImpl implements ProfileDefinitionService {
     }
 
     private Map<String, FieldDefinition> createDocumentMetadataFields(String profileId, Map<String, PropertyDefinition<?>> propertyDefinitions) {
-        final List<String> specialFields = Arrays.asList(RepositoryConstants.Alfresco.AlfrescoFields.TITLE_FQDN, RepositoryConstants.Alfresco.AlfrescoFields.ITEM_ID_FQDN);
+        final List<String> specialFields = Arrays.asList(RepositoryConstants.Alfresco.AlfrescoFields.TITLE_FQDN, RepositoryConstants.CMIS.ITEM_ID_FQDN);
         final List<String> metadataKeys = propertyDefinitions.keySet()
                 .stream()
                 .filter(repoFieldName -> !specialFields.contains(repoFieldName)) // remove specialFields from metadata
