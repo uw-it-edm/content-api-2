@@ -13,6 +13,8 @@ import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,7 +38,7 @@ import static edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.CM
 @Slf4j
 @Service
 public class FileServingServiceImpl implements FileServingService {
-
+    private Pattern WEB_VIEWABLE_MIME_TYPE_REGEX_PATTERN = Pattern.compile("application/pdf|image/png|image/gif|image/jpeg");
     private ExternalDocumentRepository<Document> externalDocumentRepository;
 
     @Autowired
@@ -93,7 +95,13 @@ public class FileServingServiceImpl implements FileServingService {
         if (ContentRenditionType.Primary.equals(renditionType)) {
             contentStream = document.getContentStream();
         } else if (ContentRenditionType.Web.equals(renditionType)) {
-            contentStream = getWebRenditionContentStream(document);
+            final Matcher webViewableMimeType = WEB_VIEWABLE_MIME_TYPE_REGEX_PATTERN.matcher(document.getContentStreamMimeType());
+            if (webViewableMimeType.matches()) { // if original document is webviewable return that
+                contentStream = document.getContentStream();
+            } else {
+                contentStream = getWebRenditionContentStream(document);
+            }
+
         } else {
             log.error("Unexpected rendition type: '{}', unable to return contentStream", renditionType);
         }
@@ -129,7 +137,7 @@ public class FileServingServiceImpl implements FileServingService {
 
     private void serveLinkToNativePdf(HttpServletRequest request, HttpServletResponse response, String itemId, String originalFileName) {
         response.setContentType(MediaType.APPLICATION_PDF_VALUE);
-        final String downloadUrl = HttpRequestUtils.getOriginalFileDownloadURL(itemId,request);
+        final String downloadUrl = HttpRequestUtils.getOriginalFileDownloadURL(itemId, request);
         try (PDDocument document = PdfUtils.createUnableToConvertToPdf(itemId, downloadUrl, originalFileName)) {
             document.save(response.getOutputStream());
         } catch (IOException e) {
