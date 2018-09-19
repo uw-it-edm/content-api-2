@@ -30,6 +30,7 @@ import static edu.uw.edm.contentapi2.controller.constants.ControllerConstants.He
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -109,14 +110,28 @@ public class FileServingServiceImplTest {
     }
 
     @Test
-    public void serveWebRendition() throws IOException, RepositoryException {
+    public void serveWebRenditionWhenOriginalIsWebViewable() throws IOException, RepositoryException {
         when(mockDocument.getContentStreamFileName()).thenReturn("test.png");
+        when(mockDocument.getContentStreamMimeType()).thenReturn("image/png");
 
         fileServingService.serveFile("my-item-id", ContentRenditionType.Web, ContentDispositionType.inline, false, mock(User.class), mock(HttpServletRequest.class),mockHttpServletResponse);
 
         verify(externalDocumentRepository, times(1)).getDocumentById(eq("my-item-id"), any(User.class), any());
         verify(mockHttpServletResponse,times(1)).setHeader(CONTENT_DISPOSITION,"inline;filename=\"my-item-id.png\"");
-        assertEquals("This is a test stream2.", new String(outputStream.toByteArray()));
+        verify(mockDocument, times(0)).getRenditions();
+        assertEquals("This is a test stream.", new String(outputStream.toByteArray()));
 
+    }
+    @Test
+    public void serveWebRenditionWhenOriginalWasConvertedToPdf() throws IOException, RepositoryException {
+        when(mockDocument.getContentStreamFileName()).thenReturn("test.csv");
+        when(mockDocument.getContentStreamMimeType()).thenReturn("text/csv");
+
+        fileServingService.serveFile("my-item-id", ContentRenditionType.Web, ContentDispositionType.inline, false, mock(User.class), mock(HttpServletRequest.class),mockHttpServletResponse);
+
+        verify(externalDocumentRepository, times(1)).getDocumentById(eq("my-item-id"), any(User.class), any());
+        verify(mockHttpServletResponse,times(1)).setHeader(CONTENT_DISPOSITION,"inline;filename=\"my-item-id.csv\"");
+        verify(mockDocument, atLeast(1)).getRenditions();
+        assertEquals("This is a test stream2.", new String(outputStream.toByteArray()));
     }
 }
