@@ -24,10 +24,10 @@ public class HttpRequestUtils {
 
         final String domain = getSchemeAndDomain(currentUriComponents);
         final String basePath = getBasePath(currentUriComponents);
-        final String format = String.format(DOWNLOAD_URL_TEMPLATE, domain, basePath, itemId);
-        log.debug("download url for '{}'  is : {}", itemId, format);
+        final String originalFileDownloadUrl = String.format(DOWNLOAD_URL_TEMPLATE, domain, basePath, itemId);
+        log.debug("download url for '{}'  is : {}", itemId, originalFileDownloadUrl);
 
-        return format;
+        return originalFileDownloadUrl;
     }
 
     private static String getBasePath( UriComponents uriComponents){
