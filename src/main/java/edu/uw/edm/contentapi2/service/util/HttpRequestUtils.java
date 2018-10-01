@@ -26,7 +26,7 @@ public class HttpRequestUtils {
         final String basePath = getBasePath(currentUriComponents);
         final String format = String.format(DOWNLOAD_URL_TEMPLATE, domain, basePath, itemId);
         log.debug("download url for '{}'  is : {}", itemId, format);
-        //uriComponents.getSchemeSpecificPart()
+
         return format;
     }
 
