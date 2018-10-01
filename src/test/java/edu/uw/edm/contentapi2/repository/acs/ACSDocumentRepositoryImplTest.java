@@ -5,6 +5,7 @@ import org.apache.chemistry.opencmis.client.api.Folder;
 import org.apache.chemistry.opencmis.client.api.ObjectType;
 import org.apache.chemistry.opencmis.client.api.Session;
 import org.apache.chemistry.opencmis.commons.definitions.PropertyDefinition;
+import org.apache.chemistry.opencmis.commons.exceptions.CmisObjectNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,8 +25,10 @@ import edu.uw.edm.contentapi2.repository.acs.cmis.ACSDocumentRepositoryImpl;
 import edu.uw.edm.contentapi2.repository.acs.cmis.SiteFinder;
 import edu.uw.edm.contentapi2.repository.acs.cmis.connection.ACSSessionCreator;
 import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants;
+import edu.uw.edm.contentapi2.repository.exceptions.NoSuchDocumentException;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.repository.exceptions.NotADocumentException;
+import edu.uw.edm.contentapi2.repository.exceptions.RepositoryException;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.ProfileFacade;
 
@@ -75,8 +78,18 @@ public class ACSDocumentRepositoryImplTest {
         documentRepository = new ACSDocumentRepositoryImpl(sessionCreator, new ACSProperties(), profileRepository, profileFacade, siteFinder);
     }
 
-    @Test
-    public void cmisGetByIdShouldBeCalledTest() throws NotADocumentException {
+    @Test(expected = NoSuchDocumentException.class)
+    public void whenCmisReturnNotFoundThenThrowNotSuchDocumentExceptionTest() throws RepositoryException {
+
+        when(mockSession.getObject(eq("my-id"), any())).thenThrow(new CmisObjectNotFoundException("my-id"));
+
+        documentRepository.getDocumentById("my-id", mock(User.class));
+
+        verify(mockSession, times(1)).getObject(eq("my-id"), any());
+
+    }
+        @Test
+    public void cmisGetByIdShouldBeCalledTest() throws RepositoryException {
 
         when(mockSession.getObject(eq("my-id"), any())).thenReturn(mock(Document.class));
 

@@ -14,6 +14,7 @@ import org.apache.chemistry.opencmis.commons.PropertyIds;
 import org.apache.chemistry.opencmis.commons.data.ContentStream;
 import org.apache.chemistry.opencmis.commons.definitions.PropertyDefinition;
 import org.apache.chemistry.opencmis.commons.enums.VersioningState;
+import org.apache.chemistry.opencmis.commons.exceptions.CmisObjectNotFoundException;
 import org.apache.chemistry.opencmis.commons.impl.MimeTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,8 +34,10 @@ import edu.uw.edm.contentapi2.repository.acs.cmis.connection.ACSSessionCreator;
 import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.Alfresco.AlfrescoAspects;
 import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.Alfresco.AlfrescoFields;
 import edu.uw.edm.contentapi2.repository.exceptions.CannotUpdateDocumentException;
+import edu.uw.edm.contentapi2.repository.exceptions.NoSuchDocumentException;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.repository.exceptions.NotADocumentException;
+import edu.uw.edm.contentapi2.repository.exceptions.RepositoryException;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.ProfileFacade;
 import lombok.extern.slf4j.Slf4j;
@@ -66,12 +69,12 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
     }
 
     @Override
-    public Document getDocumentById(String documentId, User user) throws NotADocumentException {
+    public Document getDocumentById(String documentId, User user) throws RepositoryException {
         return getDocumentById(documentId, user, null);
     }
 
     @Override
-    public Document getDocumentById(String documentId, User user, String renditionFilter) throws NotADocumentException {
+    public Document getDocumentById(String documentId, User user, String renditionFilter) throws RepositoryException {
         checkNotNull(user, "User is required");
         checkArgument(!Strings.isNullOrEmpty(documentId), "DocumentId is required");
 
@@ -98,7 +101,7 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
     }
 
     @Override
-    public Document updateDocument(String documentId, ContentAPIDocument updatedContentAPIDocument, MultipartFile primaryFile, User user) throws NotADocumentException, CannotUpdateDocumentException, NoSuchProfileException {
+    public Document updateDocument(String documentId, ContentAPIDocument updatedContentAPIDocument, MultipartFile primaryFile, User user) throws RepositoryException {
         checkNotNull(user, "User is required");
         checkArgument(!Strings.isNullOrEmpty(documentId), "DocumentId is required");
         checkNotNull(updatedContentAPIDocument, "Document is required");
@@ -120,18 +123,23 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
         return documentById;
     }
 
-    private Document getDocumentById(String documentId, Session sessionForUser) throws NotADocumentException {
+    private Document getDocumentById(String documentId, Session sessionForUser) throws RepositoryException {
         return getDocumentById(documentId, sessionForUser, null);
 
     }
 
-    private Document getDocumentById(String documentId, Session sessionForUser, String renditionFilter) throws NotADocumentException {
+    private Document getDocumentById(String documentId, Session sessionForUser, String renditionFilter) throws RepositoryException {
         final OperationContext oc = sessionForUser.getDefaultContext();
         if (!Strings.isNullOrEmpty(renditionFilter)) {
             oc.setRenditionFilterString(renditionFilter);
         }
 
-        final CmisObject cmisObject = sessionForUser.getObject(documentId, oc);
+        final CmisObject cmisObject;
+        try {
+            cmisObject = sessionForUser.getObject(documentId, oc);
+        } catch (CmisObjectNotFoundException nfe) {
+            throw new NoSuchDocumentException(documentId);
+        }
 
         if (cmisObject instanceof Document) {
             return (Document) cmisObject;
