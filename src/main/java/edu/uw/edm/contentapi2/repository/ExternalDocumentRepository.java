@@ -11,7 +11,7 @@ import edu.uw.edm.contentapi2.security.User;
  * @author Maxime Deravet Date: 4/3/18
  */
 public interface ExternalDocumentRepository<T> {
-    T getDocumentById(String documentId, User user, String renditionFilter) throws NotADocumentException;
+    T getDocumentById(String documentId, User user, String renditionFilter) throws RepositoryException;
 
     T getDocumentById(String documentId, User user) throws RepositoryException;
 
