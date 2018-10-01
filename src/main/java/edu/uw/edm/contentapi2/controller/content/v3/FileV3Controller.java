@@ -18,6 +18,9 @@ import edu.uw.edm.contentapi2.controller.content.v3.model.ContentRenditionType;
 import edu.uw.edm.contentapi2.repository.exceptions.RepositoryException;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.FileServingService;
+import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.Tag;
+import io.micrometer.core.instrument.Tags;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -44,6 +47,7 @@ public class FileV3Controller {
             HttpServletResponse response) throws RepositoryException, IOException {
 
         if (forcePDF != null) {
+            Metrics.counter("edm.repo.forcePdf").increment();
             log.warn("Deprecated parameter 'forcePDF' has been passed from client, for itemId '{}' and user '{}'", itemId, user.getUsername());
         }
         fileServingService.serveFile(itemId, renditionType, contentDispositionType, useChannel, user, request, response);
