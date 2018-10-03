@@ -256,9 +256,9 @@ public class SearchQueryBuilderImpl implements SearchQueryBuilder {
         String repoFQDNFieldName = profileFacade.getRepoFQDNFieldName(contentFieldName, profileId, user);
 
         if (repoFQDNFieldName.equals(RepositoryConstants.CMIS.CREATION_DATE_FQDN)) {
-            return RepositoryConstants.Alfresco.AlfrescoSearchFields.CREATION_DATE;
+            return RepositoryConstants.Alfresco.AlfrescoSearchRequestFields.CREATION_DATE;
         } else if (repoFQDNFieldName.equals(RepositoryConstants.CMIS.LAST_MODIFICATION_DATE_FQDN)) {
-            return RepositoryConstants.Alfresco.AlfrescoSearchFields.LAST_MODIFICATION_DATE;
+            return RepositoryConstants.Alfresco.AlfrescoSearchRequestFields.LAST_MODIFICATION_DATE;
         } else {
             return repoFQDNFieldName.replace("cmis:", "cm:");
         }
