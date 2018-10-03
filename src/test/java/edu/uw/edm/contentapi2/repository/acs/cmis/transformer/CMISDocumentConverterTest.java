@@ -123,6 +123,8 @@ public class CMISDocumentConverterTest {
         verify(profileFacade, never()).convertToContentApiDataType(any(), any(), any(), any());
 
         assertThat("docId", contentAPIDocument.getId(), is(equalTo("doc-id")));
-        assertEquals(1, contentAPIDocument.getMetadata().size());
+
+        //ProfileId and FileSize
+        assertEquals(2, contentAPIDocument.getMetadata().size());
     }
 }

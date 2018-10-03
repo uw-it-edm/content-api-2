@@ -10,6 +10,8 @@ public class RepositoryConstants {
         public static final String PROFILE_ID = "ProfileId";
         public static final String ID = "id";
         public static final String LABEL = "label";
+        public static final String WEB_EXTENSION = "WebExtension";
+        public static final String FILE_SIZE = "FileSize";
     }
 
     public static final class Alfresco {
@@ -55,6 +57,7 @@ public class RepositoryConstants {
             public static final class Filters {
                 public static final String WEB = "application/pdf,image/*";
                 public static final String NONE = "cmis:none";
+                public static final String ALL = "*";
             }
 
 
