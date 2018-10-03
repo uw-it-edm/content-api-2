@@ -63,7 +63,7 @@ public class CMISDocumentConverter implements ExternalDocumentConverter<org.apac
     private void setWebExtensionInfo(Document cmisDocument, ContentAPIDocument contentAPIDocument) {
         String fileName = cmisDocument.getContentStreamFileName();
         if (fileName != null && fileName.contains(FILE_EXTENSION_SEPARATOR)) {
-            contentAPIDocument.getMetadata().put(RepositoryConstants.ContentAPI.WEB_EXTENSION, fileName.substring(fileName.lastIndexOf('-') + 1));
+            contentAPIDocument.getMetadata().put(RepositoryConstants.ContentAPI.WEB_EXTENSION, fileName.substring(fileName.lastIndexOf(FILE_EXTENSION_SEPARATOR) + 1));
         }
         contentAPIDocument.getMetadata().put(RepositoryConstants.ContentAPI.FILE_SIZE, cmisDocument.getContentStreamLength());
 
