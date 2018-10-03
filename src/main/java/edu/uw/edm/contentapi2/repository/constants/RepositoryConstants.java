@@ -13,9 +13,15 @@ public class RepositoryConstants {
     }
 
     public static final class Alfresco {
-        public  static final String ALFRESCO_SYSTEM_PREFIX = "sys:";
+        public static final String ALFRESCO_SYSTEM_PREFIX = "sys:";
+
         public static final class ExtensionNames {
             public static final String MANDATORY_ASPECTS = "mandatoryAspects";
+        }
+
+        public static final class AlfrescoSearchRequestFields {
+            public static final String CREATION_DATE = "cm:created";
+            public static final String LAST_MODIFICATION_DATE = "cm:modified";
         }
 
         public static final class AlfrescoFields {
@@ -45,6 +51,7 @@ public class RepositoryConstants {
 
         public static final class Renditions {
             public static final String THUMBNAIL_KIND = "cmis:thumbnail";
+
             public static final class Filters {
                 public static final String WEB = "application/pdf,image/*";
                 public static final String NONE = "cmis:none";
