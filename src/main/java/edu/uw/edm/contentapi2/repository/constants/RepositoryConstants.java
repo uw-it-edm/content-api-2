@@ -18,6 +18,10 @@ public class RepositoryConstants {
             public static final String MANDATORY_ASPECTS = "mandatoryAspects";
         }
 
+        public static final class AlfrescoSearchFields {
+            public static final String CREATION_DATE = "cm:created";
+            public static final String LAST_MODIFICATION_DATE =  "cm:modified";
+        }
         public static final class AlfrescoFields {
 
             public static final String TITLE_FQDN = "cm:title";

@@ -27,6 +27,7 @@ import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchOrder;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchQueryModel;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.SimpleSearchFilter;
 import edu.uw.edm.contentapi2.repository.acs.openapi.SearchQueryBuilder;
+import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.ProfileFacade;
@@ -251,6 +252,15 @@ public class SearchQueryBuilderImpl implements SearchQueryBuilder {
     }
 
     private String getCSFieldName(String profileId, String contentFieldName, User user) throws NoSuchProfileException {
-        return profileFacade.getRepoFQDNFieldName(contentFieldName, profileId, user).replace("cmis:", "cm:");
+
+        String repoFQDNFieldName = profileFacade.getRepoFQDNFieldName(contentFieldName, profileId, user);
+
+        if (repoFQDNFieldName.equals(RepositoryConstants.CMIS.CREATION_DATE_FQDN)) {
+            return RepositoryConstants.Alfresco.AlfrescoSearchFields.CREATION_DATE;
+        } else if (repoFQDNFieldName.equals(RepositoryConstants.CMIS.LAST_MODIFICATION_DATE_FQDN)) {
+            return RepositoryConstants.Alfresco.AlfrescoSearchFields.LAST_MODIFICATION_DATE;
+        } else {
+            return repoFQDNFieldName.replace("cmis:", "cm:");
+        }
     }
 }

@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchFacet;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchQueryModel;
@@ -26,6 +25,7 @@ import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.repository.exceptions.RepositoryException;
 import edu.uw.edm.contentapi2.security.User;
 import lombok.extern.slf4j.Slf4j;
+import retrofit2.Response;
 
 /**
  * @author Maxime Deravet Date: 6/22/18
@@ -59,10 +59,13 @@ public class ACSSearchRepositoryImpl implements ExternalSearchDocumentRepository
                 log.trace(queryBody.toString());
 
             }
-            final ResultSetRepresentation<ResultNodeRepresentation> searchResult = acsSearchAPI.searchCall(queryBody).execute().body();
-            if (searchResult == null) {
-                throw new RepositoryException("couldn't execute search");
+            Response<ResultSetRepresentation<ResultNodeRepresentation>> searchCall = acsSearchAPI.searchCall(queryBody).execute();
+
+            if (!searchCall.isSuccessful()) {
+                throw new RepositoryException("couldn't execute search  :" + searchCall.errorBody().string());
             }
+
+            final ResultSetRepresentation<ResultNodeRepresentation> searchResult = searchCall.body();
 
             final List<SearchResult> results = new ArrayList<>();
             for (ResultNodeRepresentation resultNodeRepresentation : searchResult.getList()) {
