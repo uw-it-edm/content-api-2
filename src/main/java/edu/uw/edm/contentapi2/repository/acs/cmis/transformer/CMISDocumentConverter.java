@@ -68,7 +68,10 @@ public class CMISDocumentConverter implements ExternalDocumentConverter<org.apac
         contentAPIDocument.getMetadata().put(RepositoryConstants.ContentAPI.FILE_SIZE, cmisDocument.getContentStreamLength());
 
         if (!CollectionUtils.isEmpty(cmisDocument.getRenditions())) {
-            Optional<Rendition> firstPdfRendition = cmisDocument.getRenditions().stream().filter(rendition -> RENDITION_TYPE_PDF.equals(rendition.getKind())).findFirst();
+            Optional<Rendition> firstPdfRendition = cmisDocument.getRenditions()
+                    .stream()
+                    .filter(rendition -> RENDITION_TYPE_PDF.equals(rendition.getKind()))
+                    .findFirst();
             if (firstPdfRendition.isPresent()) {
                 //Override webExtensions and FileSize
                 log.debug("Found a pdf rendition");

@@ -3,6 +3,7 @@ package edu.uw.edm.contentapi2.repository.acs.cmis.transformer;
 import org.apache.chemistry.opencmis.client.api.Document;
 import org.apache.chemistry.opencmis.client.api.DocumentType;
 import org.apache.chemistry.opencmis.client.api.Property;
+import org.apache.chemistry.opencmis.client.api.Rendition;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,7 +36,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Maxime Deravet Date: 4/4/18
  */
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class CMISDocumentConverterTest {
 
     @Mock
@@ -50,15 +51,104 @@ public class CMISDocumentConverterTest {
     }
 
     @Test
-    public void toContentApiDocument() throws NoSuchProfileException {
-        final Document repositoryDocumentMock = mock(Document.class);
-        when(repositoryDocumentMock.getId()).thenReturn("doc-id");
-        when(repositoryDocumentMock.getPropertyValue(RepositoryConstants.Alfresco.AlfrescoFields.TITLE_FQDN)).thenReturn("doc name");
+    public void whenNoRenditionsThenWebExtensionIsFilenameExtensionTest() throws NoSuchProfileException {
+        Document docId = getMockDocument("docId", "my:doctype");
+
+        when(docId.getRenditions()).thenReturn(null);
+        when(docId.getContentStreamFileName()).thenReturn("myfile.txt");
+        when(docId.getContentStreamLength()).thenReturn(123L);
+
+        final ContentAPIDocument contentAPIDocument = converter.toContentApiDocument(docId, mock(User.class));
+
+        assertThat("WebExtension", contentAPIDocument.getMetadata().get("WebExtension"), is("txt"));
+        assertThat("FileSize", contentAPIDocument.getMetadata().get("FileSize"), is(123L));
+
+    }
+
+    @Test
+    public void whenPDFRenditionsThenWebExtensionIsPDFTest() throws NoSuchProfileException {
+        Document docId = getMockDocument("docId", "my:doctype");
+
+        List<Rendition> renditions = new ArrayList<>();
+        Rendition pdfRendition = mock(Rendition.class);
+
+        when(pdfRendition.getKind()).thenReturn("pdf");
+        when(pdfRendition.getLength()).thenReturn(1234L);
+        renditions.add(pdfRendition);
 
 
-        final DocumentType documentTypeMock = mock(DocumentType.class);
-        when(documentTypeMock.getLocalName()).thenReturn("doctype");
-        when(repositoryDocumentMock.getDocumentType()).thenReturn(documentTypeMock);
+        when(docId.getRenditions()).thenReturn(renditions);
+        when(docId.getContentStreamFileName()).thenReturn("myfile.txt");
+        when(docId.getContentStreamLength()).thenReturn(123L);
+
+        final ContentAPIDocument contentAPIDocument = converter.toContentApiDocument(docId, mock(User.class));
+
+        assertThat("WebExtension", contentAPIDocument.getMetadata().get("WebExtension"), is("pdf"));
+        assertThat("FileSize", contentAPIDocument.getMetadata().get("FileSize"), is(1234L));
+
+    }
+
+    @Test
+    public void whenMultiplePDFRenditionsThenFirstIsUsedTest() throws NoSuchProfileException {
+        Document docId = getMockDocument("docId", "my:doctype");
+
+        List<Rendition> renditions = new ArrayList<>();
+        Rendition pdfRendition = mock(Rendition.class);
+
+        when(pdfRendition.getKind()).thenReturn("pdf");
+        when(pdfRendition.getLength()).thenReturn(1234L);
+        renditions.add(pdfRendition);
+
+        Rendition pdfRendition2 = mock(Rendition.class);
+
+        when(pdfRendition2.getKind()).thenReturn("pdf");
+        when(pdfRendition2.getLength()).thenReturn(456L);
+        renditions.add(pdfRendition2);
+
+
+        when(docId.getRenditions()).thenReturn(renditions);
+        when(docId.getContentStreamFileName()).thenReturn("myfile.txt");
+        when(docId.getContentStreamLength()).thenReturn(123L);
+
+        final ContentAPIDocument contentAPIDocument = converter.toContentApiDocument(docId, mock(User.class));
+
+        assertThat("WebExtension", contentAPIDocument.getMetadata().get("WebExtension"), is("pdf"));
+        assertThat("FileSize", contentAPIDocument.getMetadata().get("FileSize"), is(1234L));
+
+    }
+
+    @Test
+    public void whenMultipleRenditionsThePDFIsUsedTest() throws NoSuchProfileException {
+        Document docId = getMockDocument("docId", "my:doctype");
+
+        List<Rendition> renditions = new ArrayList<>();
+        Rendition docLibRendition = mock(Rendition.class);
+
+        when(docLibRendition.getKind()).thenReturn("doclib");
+        when(docLibRendition.getLength()).thenReturn(1234L);
+        renditions.add(docLibRendition);
+
+        Rendition pdfRendition2 = mock(Rendition.class);
+
+        when(pdfRendition2.getKind()).thenReturn("pdf");
+        when(pdfRendition2.getLength()).thenReturn(456L);
+        renditions.add(pdfRendition2);
+
+
+        when(docId.getRenditions()).thenReturn(renditions);
+        when(docId.getContentStreamFileName()).thenReturn("myfile.txt");
+        when(docId.getContentStreamLength()).thenReturn(123L);
+
+        final ContentAPIDocument contentAPIDocument = converter.toContentApiDocument(docId, mock(User.class));
+
+        assertThat("WebExtension", contentAPIDocument.getMetadata().get("WebExtension"), is("pdf"));
+        assertThat("FileSize", contentAPIDocument.getMetadata().get("FileSize"), is(456L));
+
+    }
+
+    @Test
+    public void toContentApiDocumentTest() throws NoSuchProfileException {
+        final Document repositoryDocumentMock = getMockDocument("doc-id", "doctype");
 
         final Map<String, Object> convertedMetaData = new HashMap<>();
         convertedMetaData.put("Property1", "value1");
@@ -75,29 +165,16 @@ public class CMISDocumentConverterTest {
 
     @Test
     public void versionIsRemovedFromIdTest() throws NoSuchProfileException {
-        final Document repositoryDocumentMock = mock(Document.class);
-        when(repositoryDocumentMock.getId()).thenReturn("doc-id;1.0");
-        when(repositoryDocumentMock.getPropertyValue(RepositoryConstants.Alfresco.AlfrescoFields.TITLE_FQDN)).thenReturn("doc name");
-
-        final DocumentType documentTypeMock = mock(DocumentType.class);
-        when(documentTypeMock.getLocalName()).thenReturn("my:doctype");
-        when(repositoryDocumentMock.getDocumentType()).thenReturn(documentTypeMock);
+        final Document repositoryDocumentMock = getMockDocument("doc-id;1.0", "my:doctype");
 
         final ContentAPIDocument contentAPIDocument = converter.toContentApiDocument(repositoryDocumentMock, mock(User.class));
 
         assertThat("docId", contentAPIDocument.getId(), is(equalTo("doc-id")));
     }
 
-
     @Test
     public void idDoesntRequireVersionTest() throws NoSuchProfileException {
-        final Document repositoryDocumentMock = mock(Document.class);
-        when(repositoryDocumentMock.getId()).thenReturn("doc-id");
-        when(repositoryDocumentMock.getPropertyValue(RepositoryConstants.Alfresco.AlfrescoFields.TITLE_FQDN)).thenReturn("doc name");
-
-        final DocumentType documentTypeMock = mock(DocumentType.class);
-        when(documentTypeMock.getLocalName()).thenReturn("my:doctype");
-        when(repositoryDocumentMock.getDocumentType()).thenReturn(documentTypeMock);
+        final Document repositoryDocumentMock = getMockDocument("doc-id", "my:doctype");
 
         final ContentAPIDocument contentAPIDocument = converter.toContentApiDocument(repositoryDocumentMock, mock(User.class));
 
@@ -127,4 +204,16 @@ public class CMISDocumentConverterTest {
         //ProfileId and FileSize
         assertEquals(2, contentAPIDocument.getMetadata().size());
     }
+
+    private Document getMockDocument(String docId, String docType) {
+        final Document repositoryDocumentMock = mock(Document.class);
+        when(repositoryDocumentMock.getId()).thenReturn(docId);
+        when(repositoryDocumentMock.getPropertyValue(RepositoryConstants.Alfresco.AlfrescoFields.TITLE_FQDN)).thenReturn("doc name");
+
+        final DocumentType documentTypeMock = mock(DocumentType.class);
+        when(documentTypeMock.getLocalName()).thenReturn(docType);
+        when(repositoryDocumentMock.getDocumentType()).thenReturn(documentTypeMock);
+        return repositoryDocumentMock;
+    }
+
 }
