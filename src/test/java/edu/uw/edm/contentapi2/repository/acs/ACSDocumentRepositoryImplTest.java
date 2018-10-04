@@ -3,6 +3,7 @@ package edu.uw.edm.contentapi2.repository.acs;
 import org.apache.chemistry.opencmis.client.api.Document;
 import org.apache.chemistry.opencmis.client.api.Folder;
 import org.apache.chemistry.opencmis.client.api.ObjectType;
+import org.apache.chemistry.opencmis.client.api.OperationContext;
 import org.apache.chemistry.opencmis.client.api.Session;
 import org.apache.chemistry.opencmis.commons.definitions.PropertyDefinition;
 import org.apache.chemistry.opencmis.commons.exceptions.CmisObjectNotFoundException;
@@ -70,7 +71,9 @@ public class ACSDocumentRepositoryImplTest {
         ACSSessionCreator sessionCreator = mock(ACSSessionCreator.class);
 
         mockSession = mock(Session.class);
+        OperationContext mockOperationContext = mock(OperationContext.class);
         when(sessionCreator.getSessionForUser(any(User.class))).thenReturn(mockSession);
+        when(mockSession.getDefaultContext()).thenReturn(mockOperationContext);
 
 
         when(siteFinder.getSiteRootFolderFromContentApiDocument(any(ContentAPIDocument.class), eq(testUser))).thenReturn(mockDocumentLibraryFolderForProfile);

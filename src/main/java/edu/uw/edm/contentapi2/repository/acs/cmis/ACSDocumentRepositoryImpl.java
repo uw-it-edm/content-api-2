@@ -31,6 +31,7 @@ import edu.uw.edm.contentapi2.properties.ACSProperties;
 import edu.uw.edm.contentapi2.repository.ExternalDocumentRepository;
 import edu.uw.edm.contentapi2.repository.ExternalProfileRepository;
 import edu.uw.edm.contentapi2.repository.acs.cmis.connection.ACSSessionCreator;
+import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants;
 import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.Alfresco.AlfrescoAspects;
 import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.Alfresco.AlfrescoFields;
 import edu.uw.edm.contentapi2.repository.exceptions.CannotUpdateDocumentException;
@@ -69,8 +70,11 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
     }
 
     @Override
+    /**
+     * Get info about all the available renditions by default
+     */
     public Document getDocumentById(String documentId, User user) throws RepositoryException {
-        return getDocumentById(documentId, user, null);
+        return getDocumentById(documentId, user, RepositoryConstants.CMIS.Renditions.Filters.ALL);
     }
 
     @Override
