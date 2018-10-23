@@ -201,6 +201,18 @@ public class SearchQueryBuilderImplTest {
     }
 
     @Test
+    public void addFilterWithWhitespaceTest() throws NoSuchProfileException {
+        searchQueryModel.addFilter(new SimpleSearchFilter("my-field", "my value", true));
+        searchQueryModel.addFilter(new SimpleSearchFilter("my-second-field", "my second    value", false));
+
+        searchQueryBuilder.addFilters(queryBody, searchQueryModel.getFilters(), "my-profile", user);
+
+        assertThat(queryBody.getFilterQueries().size(), is(2));
+        assertThat(queryBody.getFilterQueries().get(0).getQuery(), is(equalTo("!(=my-field:my\\ value)")));
+        assertThat(queryBody.getFilterQueries().get(1).getQuery(), is(equalTo("(=my-second-field:my\\ second\\ \\ \\ \\ value)")));
+    }
+
+    @Test
     public void add1ComplexFiltersTest() throws NoSuchProfileException {
         final ComplexSearchFilter complexSearchFilter = new ComplexSearchFilter();
         complexSearchFilter.addFilter(new SimpleSearchFilter("my-field", "my-value", true));

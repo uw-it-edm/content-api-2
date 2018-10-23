@@ -70,6 +70,10 @@ ext {
 
 test {
 	outputs.dir snippetsDir
+    testLogging {
+        events "failed"
+        exceptionFormat "full"
+    }
 }
 
 asciidoctor {
