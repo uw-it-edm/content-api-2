@@ -196,8 +196,10 @@ public class SearchQueryBuilderImpl implements SearchQueryBuilder {
         final String acsFieldName = getFieldNameForACSQuery(profile, simpleSearchFilter.getField(), user);
 
         final String searchFilterTerm = simpleSearchFilter.getTerm();
-        final String escapedSearchFilterTerm = searchFilterTerm.replace(" ","\\ ");
-        final String filterQuery = (simpleSearchFilter.isNot() ? NOT_TOKEN : EMPTY_STRING) + "(" + (isRangeQuery(escapedSearchFilterTerm) ? "" : TERM_EQUALS_TOKEN) + acsFieldName + SEARCH_IN_TERM_TOKEN + escapedSearchFilterTerm + ")";
+        final boolean isRangeQuery = isRangeQuery(searchFilterTerm);
+        final String escapedSearchFilterTerm = isRangeQuery? searchFilterTerm:searchFilterTerm.replace(" ","\\ ");
+
+        final String filterQuery = (simpleSearchFilter.isNot() ? NOT_TOKEN : EMPTY_STRING) + "(" + (isRangeQuery ? "" : TERM_EQUALS_TOKEN) + acsFieldName + SEARCH_IN_TERM_TOKEN + escapedSearchFilterTerm + ")";
         return filterQuery;
     }
 
