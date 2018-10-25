@@ -1,0 +1,225 @@
+= Content API V3
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+
+link:../index.html[back to index]
+
+[[overview]]
+= Overview
+
+[[overview-http-status-codes]]
+== HTTP status codes
+
+Content API tries to adhere as closely as possible to standard HTTP and REST conventions in its
+use of HTTP status codes.
+
+|===
+| Status code | Usage
+
+| `200 OK`
+| The request completed successfully
+
+| `400 Bad Request`
+| The request was malformed.
+
+| `404 Not Found`
+| The requested resource did not exist
+|===
+
+
+[[item]]
+== Item V3
+[[get-item-metadata]]
+=== Get Item Metadata
+
+A `GET` request to retrieve the metadata associated with a content item
+
+==== Path Param
+
+include::{snippets}/v3/get-item-metadata/path-parameters.adoc[]
+
+==== Request structure
+
+include::{snippets}/v3/get-item-metadata/http-request.adoc[]
+
+==== Request header
+
+include::{snippets}/v3/get-item-metadata/request-headers.adoc[]
+
+==== Example request
+
+include::{snippets}/v3/get-item-metadata/curl-request.adoc[]
+
+==== Example response
+
+include::{snippets}/v3/get-item-metadata/response-fields.adoc[]
+
+include::{snippets}/v3/get-item-metadata/http-response.adoc[]
+
+[[search-items]]
+=== Search Items
+
+A `POST` request to search for documents
+
+
+==== Request structure
+include::searchModelDoc.adoc[]
+include::{snippets}/v3/search-items/request-fields.adoc[]
+include::{snippets}/v3/search-items/http-request.adoc[]
+
+
+==== Example request
+
+include::{snippets}/v3/search-items/curl-request.adoc[]
+
+==== Example response
+
+include::{snippets}/v3/search-items/response-fields.adoc[]
+
+include::{snippets}/v3/search-items/http-response.adoc[]
+
+
+[[create-item]]
+=== Create Item
+
+A `POST` request to create a new content item. Note that content items are created using a multipart
+form request so that multiple different parts can be provided. These include the metadata for
+the item in JSON format, the file itself, and an optional 'alternate' file that can be used
+as the web-viewable rendition of the content item.
+
+The metadata is the multipart item "document," the file is the multipart item "attachment," and
+the alternate web-viewable file is the multipart item "alternate."
+
+Different content profiles require different metadata to be provided, and it can be tricky to identify
+the correct combination of metadata by trial-and-error, so you may want to contact the EDM team
+to get a sample JSON for the metadata you will be submitting before proceeding. 
+
+==== Request structure
+
+include::{snippets}/v3/create-item/http-request.adoc[]
+
+
+==== Example request
+
+include::{snippets}/v3/create-item/curl-request.adoc[]
+
+==== Example response
+
+include::{snippets}/v3/create-item/response-fields.adoc[]
+
+include::{snippets}/v3/create-item/http-response.adoc[]
+
+
+[[Update-item]]
+=== Update Item
+
+A `POST` or `PUT` request to update an existing document
+If you don't send an `attachment`, only the metadata will be updated.
+Note that content items are updated using a multipart form request just like the create item
+payload above.
+
+The metadata is the multipart item "document," the file is the multipart item "attachment," and
+the alternate web-viewable file is the multipart item "alternate."
+
+
+==== Request structure
+
+include::{snippets}/v3/update-item/http-request.adoc[]
+
+
+==== Example request
+
+include::{snippets}/v3/update-item/curl-request.adoc[]
+
+==== Example response
+
+include::{snippets}/v3/update-item/response-fields.adoc[]
+
+include::{snippets}/v3/update-item/http-response.adoc[]
+
+[[expire-item]]
+=== Expire (Delete) Item
+
+A `DELETE` request to expire a document
+
+==== Path Param
+
+include::{snippets}/v3/expire-item/path-parameters.adoc[]
+
+==== Request structure
+
+include::{snippets}/v3/expire-item/http-request.adoc[]
+
+==== Request header
+
+include::{snippets}/v3/expire-item/request-headers.adoc[]
+
+==== Example request
+
+include::{snippets}/v3/expire-item/curl-request.adoc[]
+
+==== Example response
+
+include::{snippets}/v3/expire-item/http-response.adoc[]
+
+[[bulk]]
+== Bulk V3
+[[bulk-item-update]]
+=== Bulk Update of Items
+
+A `POST`request to update multiple items (30 documents max) at the same time
+
+Status Codes :
+
+* 200 if all documents were updated
+* 202 if some documents were updated
+* 500 if no documents were updated
+
+
+==== Request structure
+
+include::{snippets}/v3/bulk-item-update/http-request.adoc[]
+
+==== Example request
+
+include::{snippets}/v3/bulk-item-update/curl-request.adoc[]
+
+==== Example response
+
+include::{snippets}/v3/bulk-item-update/response-fields.adoc[]
+
+include::{snippets}/v3/bulk-item-update/http-response.adoc[]
+
+
+[[file]]
+== File V3
+
+[[read-file]]
+=== Download File
+
+A `GET`request to retrieve the file associated with a content item
+
+==== Path Param
+
+include::{snippets}/v3/read-file/path-parameters.adoc[]
+
+==== Request Params
+
+include::{snippets}/v3/read-file/request-parameters.adoc[]
+
+==== Request structure
+
+include::{snippets}/v3/read-file/http-request.adoc[]
+
+==== Example request
+
+include::{snippets}/v3/read-file/curl-request.adoc[]
+
+==== Example response
+
+include::{snippets}/v3/read-file/http-response.adoc[]
+

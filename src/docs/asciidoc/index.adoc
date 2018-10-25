@@ -1,0 +1,46 @@
+= Content API
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+
+[[overview]]
+= Overview
+
+[[overview-http-status-codes]]
+== HTTP status codes
+
+Content API tries to adhere as closely as possible to standard HTTP and REST conventions in its
+use of HTTP status codes.
+
+|===
+| Status code | Usage
+
+| `200 OK`
+| The request completed successfully
+
+| `400 Bad Request`
+| The request was malformed.
+
+| `404 Not Found`
+| The requested resource did not exist
+|===
+
+[[overview-host]]
+== Host
+
+The examples in this documentation uses `server.dns` as a placeholder value.
+Please replace it with the actual host value where Content API is being called.
+
+[[overview-request-header]]
+== Request Header
+
+Please contact the EDM team to request for authentication-header values.
+
+== link:v3/index.html[Content-api V3 Documentation]
+
+== link:v4/index.html[Content-api V4 Documentation]
+
+

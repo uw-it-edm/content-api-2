@@ -1,0 +1,26 @@
+
+.Search query syntax
+[options="header"]
+|==================
+|Format           | Function
+|field=value      | Exact search
+|field~=value     | Case insensitive search ( not implemented for direct database search )
+|field~=*value   | Case insensitive search, with leading wildcard
+|field~=value*   | Case insensitive search, with trailing wildcard
+|field~=\*value* | Case insensitive search, with leading and trailing wildcard
+|field=\{gte}value | Greater than or equals
+|field=\{gt}value  | Greater than
+|field=\{lte}value | Lower than or equals
+|field=\{lt}value  | Lower than
+|==================
+
+* you can put a `!` before `=` or `~=` to represent a `not`
+* you can query on multiple field by separating the queries by a `;` , In that case, the conjunction will be defined by the `conjunction` field (`and`/`or`)
+
+----
+field1~=value1;field2~=value2
+----
+
+* multiple query string in the search array will always be handled as `and`
+* you are required to include a `ProfileId=` search in all calls
+

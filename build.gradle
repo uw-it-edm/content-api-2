@@ -1,0 +1,227 @@
+buildscript {
+	ext {
+		springBootVersion = '2.0.5.RELEASE'
+		openCMISVersion = '1.1.0'
+		guavaVersion = '26.0-jre'
+		alfrescoJavaClientVersion = '1.0.0-beta2'
+		springCloudReleaseTrain = 'Finchley.SR1'
+	}
+	repositories {
+		jcenter()
+		mavenCentral()
+		maven { url 'http://dl.bintray.com/maximede/gradle-plugins' }
+		maven { url "https://plugins.gradle.org/m2/" }
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath "edu.uw.concert:gradle-gitflow:0.3.0"
+		classpath "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.5.2"
+		classpath("org.jfrog.buildinfo:build-info-extractor-gradle:4.8.1")
+		classpath("nu.studer:gradle-credentials-plugin:1.0.4")
+		classpath("org.asciidoctor:asciidoctor-gradle-plugin:1.5.8.1")
+	}
+
+}
+
+plugins {
+	id 'jacoco'
+	id 'com.github.kt3k.coveralls' version '2.6.3'
+}
+
+apply plugin: 'java'
+apply plugin: 'com.gorylenko.gradle-git-properties'
+apply plugin: 'edu.uw.concert.gitflow'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+apply plugin: 'nu.studer.credentials'
+apply plugin: "com.jfrog.artifactory"
+apply plugin: 'maven-publish'
+
+apply plugin: 'org.asciidoctor.convert'
+
+
+group = 'edu.uw.edm'
+sourceCompatibility = 1.8
+
+repositories {
+	jcenter()
+	mavenLocal()
+	maven { url "http://repo.spring.io/milestone" }
+}
+
+bootJar {
+	baseName = 'content-api-2'
+
+	dependsOn asciidoctor
+	from ("${asciidoctor.outputDir}/html5") {
+		into 'static/docs'
+	}
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.5.1'
+}
+
+
+ext {
+	snippetsDir = file('build/generated-snippets')
+}
+
+test {
+	outputs.dir snippetsDir
+    testLogging {
+        events "failed"
+        exceptionFormat "full"
+    }
+}
+
+asciidoctor {
+	attributes 'snippets': snippetsDir
+	inputs.dir snippetsDir
+	dependsOn test
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:$springCloudReleaseTrain"
+	}
+}
+
+
+dependencies {
+	compile('org.springframework.boot:spring-boot-starter-actuator')
+	compile('org.springframework.boot:spring-boot-starter-cache')
+    compile("org.springframework.boot:spring-boot-starter-security")
+	compile('org.springframework.boot:spring-boot-starter-web')
+
+
+	compile("org.apache.chemistry.opencmis:chemistry-opencmis-client-impl:$openCMISVersion")
+
+	compile("com.google.guava:guava:$guavaVersion")
+
+	compile('com.github.ben-manes.caffeine:caffeine')
+
+	compile("org.alfresco.client:alfresco-java-client:$alfrescoJavaClientVersion")
+	compile("org.apache.pdfbox:pdfbox:2.0.12")
+
+	compileOnly('org.springframework.boot:spring-boot-configuration-processor')
+	compileOnly('org.projectlombok:lombok')
+
+	testCompile('com.squareup.okhttp3:mockwebserver:3.10.0')
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+	testCompile('org.springframework.restdocs:spring-restdocs-mockmvc')
+}
+
+
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			from components.java
+
+			// Override the default artifact ID (or try to)
+			artifactId = jar.baseName
+
+			groupId = 'edu.uw.edm'
+
+			// Set the parent so that the pom we get is valid -- otherwise we don't have any version numbers
+			// for the Spring dependencies
+			pom.withXml {
+				asNode().appendNode('parent')
+						.appendNode('groupId', 'org.springframework.boot').parent()
+						.appendNode('artifactId', 'spring-boot-starter-parent').parent()
+						.appendNode('version', "${project.springBootVersion}")
+
+				asNode().appendNode('repositories').appendNode('repository')
+						.appendNode('id', 'spring-releases').parent()
+						.appendNode('url', 'http://repo.spring.io/libs-release')
+			}
+		}
+	}
+}
+
+
+artifactory {
+	contextUrl =  System.getenv('ARTIFACTORY_CONTEXT')   //The base Artifactory URL if not overridden by the publisher/resolver
+
+
+	publish {
+		repository {
+			// The Artifactory repository key to publish to
+			def inferredRepoKey = System.getenv('ARTIFACTORY_SNAPSHOT_REPO')
+
+			if (!version.toString().contains("SNAPSHOT") && !version.toString().contains("dirty")) {
+				inferredRepoKey = System.getenv('ARTIFACTORY_RELEASE_REPO')
+			}
+
+			repoKey = inferredRepoKey
+			logger.lifecycle "Using $inferredRepoKey as publishing repo"
+
+			// Username comes from ~/.gradle/gradle.properties
+			def resolveUserName = project.getProperties().get('eaiw.artifactoryPublishUser')
+			if (! resolveUserName?.trim()) {
+				// try to get it from an environment variable
+				resolveUserName = System.getenv("ARTIFACTORY_PUBLISH_USER")
+			}
+
+			username = resolveUserName
+
+			// Password comes from ~/.gradle/gradle.encrypted.properties
+			if (credentials?.propertyMissing(resolveUserName)) {
+				password = credentials[resolveUserName]
+			}else {
+				// try to get it from an environment variable
+				password  = System.getenv("ARTIFACTORY_PUBLISH_PASSWORD")
+			}
+		}
+
+		defaults {
+			publications ('mavenJava')
+		}
+	}
+
+	resolve {
+		repository {
+			// The Artifactory repository key to resolve through
+			repoKey = System.getenv('ARTIFACTORY_RESOLVE_REPO')
+
+			// Username comes from ~/.gradle/gradle.properties
+			def resolveUserName = project.getProperties().get('eaiw.artifactoryResolveUser')
+			if (! resolveUserName?.trim()) {
+				// try to get it from an environment variable
+				resolveUserName = System.getenv("ARTIFACTORY_PUBLISH_USER")
+			}
+
+			username = resolveUserName
+
+			// Password comes from ~/.gradle/gradle.encrypted.properties
+			if (credentials?.propertyMissing(resolveUserName)) {
+				password = credentials[resolveUserName]
+			}else {
+				// try to get it from an environment variable
+				password  = System.getenv("ARTIFACTORY_PUBLISH_PASSWORD")
+			}
+		}
+	}
+}
+
+
+// make sure we have an artifact to publish
+artifactoryPublish.dependsOn jar
+
+
+if (version.toString().contains("dirty")) {
+	artifactoryPublish.skip = true // as documented
+	artifactoryPublish.onlyIf { false } // NOT documented
+
+}
+
+artifactoryPublish.dependsOn bootJar
+
+//code coverage
+jacocoTestReport {
+    reports {
+        xml.enabled = true // coveralls plugin depends on xml format report
+        html.enabled = true
+    }
+}
