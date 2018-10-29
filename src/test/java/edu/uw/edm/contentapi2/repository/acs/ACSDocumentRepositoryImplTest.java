@@ -26,6 +26,7 @@ import edu.uw.edm.contentapi2.repository.acs.cmis.ACSDocumentRepositoryImpl;
 import edu.uw.edm.contentapi2.repository.acs.cmis.SiteFinder;
 import edu.uw.edm.contentapi2.repository.acs.cmis.connection.ACSSessionCreator;
 import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants;
+import edu.uw.edm.contentapi2.repository.exceptions.DocumentAlreadyExistsException;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchDocumentException;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.repository.exceptions.NotADocumentException;
@@ -115,7 +116,7 @@ public class ACSDocumentRepositoryImplTest {
 
 
     @Test
-    public void createDocumentTest() throws NoSuchProfileException {
+    public void createDocumentTest() throws NoSuchProfileException, DocumentAlreadyExistsException {
         when(profileFacade.convertToRepoDataType(anyString(), any(User.class), eq("test:testKey"), any())).thenAnswer(i -> i.getArguments()[3]);//return fourth argument
         when(profileFacade.convertToContentApiFieldFromRepositoryField(anyString(), anyString())).thenAnswer(i -> i.getArguments()[1]);//return second argument
         when(profileFacade.getContentTypeForProfile(any())).thenReturn("test:TestProfile");

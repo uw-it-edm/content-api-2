@@ -14,6 +14,7 @@ import org.apache.chemistry.opencmis.commons.PropertyIds;
 import org.apache.chemistry.opencmis.commons.data.ContentStream;
 import org.apache.chemistry.opencmis.commons.definitions.PropertyDefinition;
 import org.apache.chemistry.opencmis.commons.enums.VersioningState;
+import org.apache.chemistry.opencmis.commons.exceptions.CmisContentAlreadyExistsException;
 import org.apache.chemistry.opencmis.commons.exceptions.CmisObjectNotFoundException;
 import org.apache.chemistry.opencmis.commons.impl.MimeTypes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,7 @@ import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants;
 import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.Alfresco.AlfrescoAspects;
 import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.Alfresco.AlfrescoFields;
 import edu.uw.edm.contentapi2.repository.exceptions.CannotUpdateDocumentException;
+import edu.uw.edm.contentapi2.repository.exceptions.DocumentAlreadyExistsException;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchDocumentException;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.repository.exceptions.NotADocumentException;
@@ -90,7 +92,7 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
 
 
     @Override
-    public Document createDocument(ContentAPIDocument document, MultipartFile primaryFile, User user) throws NoSuchProfileException {
+    public Document createDocument(ContentAPIDocument document, MultipartFile primaryFile, User user) throws NoSuchProfileException, DocumentAlreadyExistsException {
         checkNotNull(user, "User is required");
         checkNotNull(document, "Document is required");
 
@@ -101,7 +103,15 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
         ContentStream contentStream = getCMISContentStream(primaryFile, session);
 
         Map<String, Object> properties = getCMISProperties(document, primaryFile.getOriginalFilename(), session, user);
-        return siteRootFolder.createDocument(properties, contentStream, VersioningState.MAJOR);
+        try {
+            return siteRootFolder.createDocument(properties, contentStream, VersioningState.MAJOR);
+        } catch (CmisContentAlreadyExistsException e) {
+            log.error("Content With Same Name Already exists", e);
+            throw new DocumentAlreadyExistsException(e.getMessage());
+        }catch (Exception e) {
+            log.error("couldn't create document", e);
+            throw e;
+        }
     }
 
     @Override
@@ -243,8 +253,7 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
         } else {
             documentName = filename;
         }
-        //TODO, UUID is awful here
-        return documentName + " " + UUID.randomUUID().toString();
+        return documentName;
     }
 
     private Map<String, Object> getFQDNPropertiesForMetadata(ContentAPIDocument document, Session session, User user) throws NoSuchProfileException {
