@@ -4,7 +4,7 @@ buildscript {
 		openCMISVersion = '1.1.0'
 		guavaVersion = '26.0-jre'
 		alfrescoJavaClientVersion = '1.0.0-beta2'
-		springCloudReleaseTrain = 'Finchley.SR1'
+		springCloudReleaseTrain = 'Finchley.SR2'
 	}
 	repositories {
 		jcenter()
