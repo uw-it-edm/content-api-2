@@ -1,6 +1,6 @@
 buildscript {
 	ext {
-		springBootVersion = '2.0.5.RELEASE'
+		springBootVersion = '2.1.0.RELEASE'
 		openCMISVersion = '1.1.0'
 		guavaVersion = '26.0-jre'
 		alfrescoJavaClientVersion = '1.0.0-beta2'
