@@ -1,6 +1,5 @@
 package edu.uw.edm.contentapi2.service;
 
-import org.hamcrest.MatcherAssert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -39,7 +38,7 @@ public class PublicationServiceTest {
 
     private DocumentFacade documentFacade;
 
-    User mockUser;
+    private User mockUser;
 
     @Before
     public void setUp() {
@@ -94,7 +93,6 @@ public class PublicationServiceTest {
 
         when(documentFacade.searchDocuments(eq("test-profile"), eq(searchQueryModel), eq(mockUser)))
                 .thenReturn(searchResultContainer);
-
 
 
         when(documentFacade.updateDocument(eq("test-id"), any(ContentAPIDocument.class), eq(mockUser)))
@@ -175,14 +173,13 @@ public class PublicationServiceTest {
         publicationService.updatePublication(allRequestParams, "test-profile", "clientProcessDefinitionKey", "clientProcessDefinitionKey", mockUser);
 
 
-
         ArgumentCaptor<ContentAPIDocument> updatedDocumentCaptor = ArgumentCaptor.forClass(ContentAPIDocument.class);
         verify(documentFacade).updateDocument(eq("test-id"), updatedDocumentCaptor.capture(), eq(mockUser));
 
         ContentAPIDocument updatedDocument = updatedDocumentCaptor.getValue();
 
-        assertThat(updatedDocument.getId(),is(equalTo("test-id")));
-        assertThat(updatedDocument.getMetadata().get("MyField"),is(equalTo("MyValue")));
-        assertThat(updatedDocument.getMetadata().get("PublishStatus"),is(equalTo("Published")));
+        assertThat(updatedDocument.getId(), is(equalTo("test-id")));
+        assertThat(updatedDocument.getMetadata().get("MyField"), is(equalTo("MyValue")));
+        assertThat(updatedDocument.getMetadata().get("PublishStatus"), is(equalTo("Published")));
     }
 }
