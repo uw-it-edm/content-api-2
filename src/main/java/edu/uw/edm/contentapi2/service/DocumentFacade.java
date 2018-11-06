@@ -26,4 +26,6 @@ public interface DocumentFacade {
     DocumentSearchResults searchDocuments(LegacySearchModel legacySearchModel, User user) throws RepositoryException;
 
     SearchResultContainer searchDocuments(String indexName, SearchQueryModel searchQueryModel, User user) throws RepositoryException;
+
+    void deleteDocumentById(String itemId, User user) throws RepositoryException;
 }

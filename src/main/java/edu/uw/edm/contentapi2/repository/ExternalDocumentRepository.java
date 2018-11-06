@@ -17,5 +17,7 @@ public interface ExternalDocumentRepository<T> {
 
     T createDocument(ContentAPIDocument document, MultipartFile primaryFile, User user) throws RepositoryException;
 
-    T updateDocument(String itemId, ContentAPIDocument updatedContentAPIDocument, MultipartFile primaryFile, User user) throws RepositoryException;
+    T updateDocument(String documentId, ContentAPIDocument updatedContentAPIDocument, MultipartFile primaryFile, User user) throws RepositoryException;
+
+    void deleteDocumentById(String documentId, User user) throws RepositoryException;
 }

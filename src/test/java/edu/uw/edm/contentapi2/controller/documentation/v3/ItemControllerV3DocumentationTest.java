@@ -35,6 +35,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.relaxedResponseFields;
@@ -94,6 +95,26 @@ public class ItemControllerV3DocumentationTest {
                                 fieldWithPath("id").description("The id of the document"),
                                 fieldWithPath("label").description("The label of the document"),
                                 fieldWithPath("metadata").description("An object containing all the metadata available for your document")
+                        )
+                ));
+
+    }
+
+    @Test
+    public void deleteItem() throws Exception {
+
+        this.mockMvc.perform(
+                delete(CONTEXT_PATH + "/content/v3/item/{itemId}", "123")
+                        .header(SecurityProperties.DEFAULT_AUTHENTICATION_HEADER, "my-auth-header")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isOk())
+                .andDo(documentationResultHandler.document(
+                        pathParameters(
+                                parameterWithName("itemId").description("Identifier for the content item")
+                        ),
+                        requestHeaders(
+                                headerWithName(SecurityProperties.DEFAULT_AUTHENTICATION_HEADER).description("authentication header")
                         )
                 ));
 

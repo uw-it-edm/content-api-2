@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import edu.uw.edm.contentapi2.controller.content.v3.model.ContentAPIDocument;
 import edu.uw.edm.contentapi2.properties.ACSProperties;
@@ -72,9 +71,25 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
     }
 
     @Override
+    public void deleteDocumentById(String documentId, User user) throws RepositoryException {
+        checkNotNull(user, "User is required");
+        checkArgument(!Strings.isNullOrEmpty(documentId), "DocumentId is required");
+
+        Session session = sessionCreator.getSessionForUser(user);
+
+        Document documentById = getDocumentById(documentId, session);
+
+        try {
+            session.delete(documentById, true);
+        } catch (Exception e) {
+            throw new RepositoryException(e);
+        }
+    }
+
     /**
      * Get info about all the available renditions by default
      */
+    @Override
     public Document getDocumentById(String documentId, User user) throws RepositoryException {
         return getDocumentById(documentId, user, RepositoryConstants.CMIS.Renditions.Filters.ALL);
     }
@@ -108,7 +123,7 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
         } catch (CmisContentAlreadyExistsException e) {
             log.error("Content With Same Name Already exists", e);
             throw new DocumentAlreadyExistsException(e.getMessage());
-        }catch (Exception e) {
+        } catch (Exception e) {
             log.error("couldn't create document", e);
             throw e;
         }
