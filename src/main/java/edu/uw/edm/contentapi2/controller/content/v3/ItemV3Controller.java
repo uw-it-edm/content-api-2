@@ -58,9 +58,9 @@ public class ItemV3Controller {
     }
 
     @RequestMapping(value = "/{itemId}", method = RequestMethod.DELETE)
-    public ResponseEntity expireItem(
+    public ResponseEntity deleteItem(
             @PathVariable("itemId") String itemId,
-            @RequestParam(value = "immediate", required = false, defaultValue = "false") Boolean immediate,
+            @RequestParam(value = "immediate", required = false) Boolean immediate,
             @AuthenticationPrincipal User user) throws RepositoryException {
 
 
