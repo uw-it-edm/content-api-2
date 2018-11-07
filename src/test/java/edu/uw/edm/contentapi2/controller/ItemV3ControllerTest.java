@@ -29,6 +29,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -52,6 +53,18 @@ public class ItemV3ControllerTest {
     private FieldMapper fieldMapper;
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Test
+    public void deleteItemIdTest() throws Exception {
+        ContentAPIDocument value = new ContentAPIDocument();
+        value.setId("my-item-id");
+
+        this.mockMvc.perform(delete("/content/v3/item/my-item-id").header(SecurityProperties.DEFAULT_AUTHENTICATION_HEADER, "test-user"))
+                .andExpect(status().isOk());
+
+        verify(documentFacade, times(1)).deleteDocumentById(eq("my-item-id"), any(User.class));
+    }
+
 
     @Test
     public void getItemIdTest() throws Exception {

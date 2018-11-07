@@ -1,11 +1,14 @@
 package edu.uw.edm.contentapi2.controller.content.v3;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,12 +22,15 @@ import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchQueryModel;
 import edu.uw.edm.contentapi2.repository.exceptions.RepositoryException;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.DocumentFacade;
+import io.micrometer.core.instrument.Metrics;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Maxime Deravet Date: 3/27/18
  */
 @RestController
 @RequestMapping("/content/v3/item")
+@Slf4j
 public class ItemV3Controller {
 
 
@@ -49,6 +55,25 @@ public class ItemV3Controller {
         final DocumentSearchResults documentSearchResults = documentFacade.searchDocuments(legacySearchModel, user);
 
         return documentSearchResults;
+    }
+
+    @RequestMapping(value = "/{itemId}", method = RequestMethod.DELETE)
+    public ResponseEntity deleteItem(
+            @PathVariable("itemId") String itemId,
+            @Deprecated @RequestParam(value = "immediate", required = false) Boolean immediate,
+            @AuthenticationPrincipal User user) throws RepositoryException {
+
+
+        if (immediate != null) {
+            Metrics.counter("edm.repo.delete.immediate").increment();
+            log.warn("Deprecated parameter 'immediate' has been passed from client, for itemId '{}' and user '{}'", itemId, user.getUsername());
+        }
+
+        documentFacade.deleteDocumentById(itemId, user);
+
+
+        return new ResponseEntity(HttpStatus.OK);
+
     }
 
 

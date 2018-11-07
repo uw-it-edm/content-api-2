@@ -94,4 +94,12 @@ public class DocumentFacadeImpl implements DocumentFacade {
         return searchRepository.searchDocuments(profile, searchQueryModel, user);
     }
 
+
+    @Override
+    public void deleteDocumentById(String itemId, User user) throws RepositoryException {
+        checkNotNull(user, "User is required");
+        checkNotNull(itemId, "ItemId is required");
+
+        contentRepository.deleteDocumentById(itemId, user);
+    }
 }

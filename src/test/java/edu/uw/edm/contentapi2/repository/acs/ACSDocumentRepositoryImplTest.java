@@ -83,6 +83,27 @@ public class ACSDocumentRepositoryImplTest {
     }
 
     @Test(expected = NoSuchDocumentException.class)
+    public void when_deleteAndDocDoesntExists_then_NoSuchDocumentExceptionTest() throws RepositoryException {
+        when(mockSession.getObject(eq("my-id"), any())).thenThrow(new CmisObjectNotFoundException("my-id"));
+
+        documentRepository.deleteDocumentById("my-id", mock(User.class));
+
+        verify(mockSession, times(1)).getObject(eq("my-id"), any());
+    }
+
+    @Test
+    public void when_delete_then_deleteAllVersionsIsCalledTest() throws RepositoryException {
+        Document mock = mock(Document.class);
+        when(mockSession.getObject(eq("my-id"), any())).thenReturn(mock);
+
+        documentRepository.deleteDocumentById("my-id", mock(User.class));
+
+        verify(mockSession, times(1)).getObject(eq("my-id"), any());
+        verify(mockSession, times(1)).delete(eq(mock),eq(true));
+    }
+
+
+    @Test(expected = NoSuchDocumentException.class)
     public void whenCmisReturnNotFoundThenThrowNotSuchDocumentExceptionTest() throws RepositoryException {
 
         when(mockSession.getObject(eq("my-id"), any())).thenThrow(new CmisObjectNotFoundException("my-id"));
@@ -92,7 +113,8 @@ public class ACSDocumentRepositoryImplTest {
         verify(mockSession, times(1)).getObject(eq("my-id"), any());
 
     }
-        @Test
+
+    @Test
     public void cmisGetByIdShouldBeCalledTest() throws RepositoryException {
 
         when(mockSession.getObject(eq("my-id"), any())).thenReturn(mock(Document.class));

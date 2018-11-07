@@ -138,30 +138,30 @@ include::{snippets}/v3/update-item/response-fields.adoc[]
 
 include::{snippets}/v3/update-item/http-response.adoc[]
 
-[[expire-item]]
-=== Expire (Delete) Item
+[[delete-item]]
+=== Delete Item
 
-A `DELETE` request to expire a document
+A `DELETE` request to delete a document
 
 ==== Path Param
 
-include::{snippets}/v3/expire-item/path-parameters.adoc[]
+include::{snippets}/v3/delete-item/path-parameters.adoc[]
 
 ==== Request structure
 
-include::{snippets}/v3/expire-item/http-request.adoc[]
+include::{snippets}/v3/delete-item/http-request.adoc[]
 
 ==== Request header
 
-include::{snippets}/v3/expire-item/request-headers.adoc[]
+include::{snippets}/v3/delete-item/request-headers.adoc[]
 
 ==== Example request
 
-include::{snippets}/v3/expire-item/curl-request.adoc[]
+include::{snippets}/v3/delete-item/curl-request.adoc[]
 
 ==== Example response
 
-include::{snippets}/v3/expire-item/http-response.adoc[]
+include::{snippets}/v3/delete-item/http-response.adoc[]
 
 [[bulk]]
 == Bulk V3
