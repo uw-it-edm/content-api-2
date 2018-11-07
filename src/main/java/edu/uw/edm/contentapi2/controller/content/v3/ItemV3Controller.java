@@ -60,7 +60,7 @@ public class ItemV3Controller {
     @RequestMapping(value = "/{itemId}", method = RequestMethod.DELETE)
     public ResponseEntity deleteItem(
             @PathVariable("itemId") String itemId,
-            @RequestParam(value = "immediate", required = false) Boolean immediate,
+            @Deprecated @RequestParam(value = "immediate", required = false) Boolean immediate,
             @AuthenticationPrincipal User user) throws RepositoryException {
 
 
