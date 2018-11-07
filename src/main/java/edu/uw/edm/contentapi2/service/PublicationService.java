@@ -23,6 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 import static edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.ContentAPI;
 
 /**
+ * @Deprecated : Once work-api is completely deprecated this endpoint will need to be removed
+ *
  * @author Maxime Deravet Date: 11/2/18
  */
 @Service

@@ -16,9 +16,12 @@ import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.PublicationService;
 
 /**
+ * @Deprecated : Once work-api is completely deprecated this endpoint will need to be removed
+ *
  * @author Maxime Deravet Date: 11/2/18
  */
 @RestController
+@Deprecated
 @RequestMapping("/content/v1/publication")
 public class ItemPublicationV1Controller {
 
