@@ -90,9 +90,13 @@ dependencyManagement {
 
 
 dependencies {
+	compile('org.springframework.boot:spring-boot-starter')
 	compile('org.springframework.boot:spring-boot-starter-actuator')
 	compile('org.springframework.boot:spring-boot-starter-cache')
     compile("org.springframework.boot:spring-boot-starter-security")
+    compile("org.springframework.boot:spring-boot-starter-aop")
+	compile('org.springframework.retry:spring-retry')
+
 	compile('org.springframework.boot:spring-boot-starter-web')
 
 
