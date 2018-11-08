@@ -2,6 +2,7 @@ package edu.uw.edm.contentapi2.controller.search.v1;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +22,7 @@ import edu.uw.edm.contentapi2.service.DocumentFacade;
  */
 @RestController
 @RequestMapping("/search/v1")
+@CrossOrigin
 public class SearchController {
 
     private DocumentFacade documentFacade;
