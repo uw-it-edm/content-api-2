@@ -58,12 +58,29 @@ public class SearchQueryBuilderImplTest {
 
 
     @Test
-    public void whenQueryThenQueryIsSentTest() {
-        searchQueryModel.setQuery("myTerm:hello");
+    public void whenMultipleTermQueryThenTextQueryTest() {
+        searchQueryModel.setQuery("hello goodbye");
         searchQueryBuilder.addQuery(queryBody, searchQueryModel);
 
-        assertThat(queryBody.getQuery().getQuery(), is(equalTo("myTerm:hello")));
+        assertThat(queryBody.getQuery().getQuery(), is(equalTo("d:text:\"hello\" OR d:text:\"goodbye\" OR d:text:\"hello goodbye\"")));
     }
+
+    @Test
+    public void whenSimpleQueryThenTextQueryTest() {
+        searchQueryModel.setQuery("hello");
+        searchQueryBuilder.addQuery(queryBody, searchQueryModel);
+
+        assertThat(queryBody.getQuery().getQuery(), is(equalTo("d:text:\"hello\"")));
+    }
+
+    @Test
+    public void whenSimpleIntQueryThenTextQueryTest() {
+        searchQueryModel.setQuery("123");
+        searchQueryBuilder.addQuery(queryBody, searchQueryModel);
+
+        assertThat(queryBody.getQuery().getQuery(), is(equalTo("d:text:\"123\" OR d:int:123")));
+    }
+
 
 
     @Test
