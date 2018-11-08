@@ -52,7 +52,7 @@ public class PublicationServiceTest {
 
 
     @Test(expected = ResourceNotFoundException.class)
-    public void when_noDocuments_then_no_update_test() throws RepositoryException {
+    public void whenNoDocumentsThenNoUpdateTest() throws RepositoryException {
 
         SearchQueryModel searchQueryModel = new SearchQueryModel();
 
@@ -74,7 +74,7 @@ public class PublicationServiceTest {
 
 
     @Test
-    public void when_2firstUpdateFails_then_retry_test() throws RepositoryException {
+    public void when2firstUpdateFailsThenRetryTest() throws RepositoryException {
 
         SearchQueryModel searchQueryModel = new SearchQueryModel();
 
@@ -106,7 +106,7 @@ public class PublicationServiceTest {
     }
 
     @Test
-    public void when_multipleResults_then_multipleUpdates_test() throws RepositoryException {
+    public void whenMultipleResultsThenMultipleUpdatesTest() throws RepositoryException {
 
         SearchQueryModel searchQueryModel = new SearchQueryModel();
 
@@ -143,7 +143,7 @@ public class PublicationServiceTest {
     }
 
     @Test
-    public void when_publication_then_documentUpdated_test() throws RepositoryException {
+    public void whenPublicationThenDocumentUpdatedTest() throws RepositoryException {
 
         SearchQueryModel searchQueryModel = new SearchQueryModel();
 
