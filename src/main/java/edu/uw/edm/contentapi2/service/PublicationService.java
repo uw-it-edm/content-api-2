@@ -34,8 +34,8 @@ public class PublicationService {
 
     private static final String PUBLISH_STATUS_FIELD_NAME = "PublishStatus";
     private static final String PUBLISH_STATUS_PUBLISHED = "Published";
-    protected static final String CLIENT_PROCESS_DEFINITION_KEY_FIELD_NAME = "clientProcessDefinitionKey";
-    protected static final String CLIENT_PROCESS_INSTANCE_ID_FIELD_NAME = "clientProcessInstanceId";
+    protected static final String CLIENT_PROCESS_DEFINITION_KEY_FIELD_NAME = "metadata.ClientProcessDefinitionKey";
+    protected static final String CLIENT_PROCESS_INSTANCE_ID_FIELD_NAME = "metadata.ClientProcessInstanceId";
     private DocumentFacade documentFacade;
 
     private RetryTemplate retryTemplate;
