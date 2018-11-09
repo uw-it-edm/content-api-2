@@ -18,7 +18,7 @@ buildscript {
 		classpath "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.5.2"
 		classpath("org.jfrog.buildinfo:build-info-extractor-gradle:4.8.1")
 		classpath("nu.studer:gradle-credentials-plugin:1.0.4")
-		classpath("org.asciidoctor:asciidoctor-gradle-plugin:1.5.9.1")
+		classpath("org.asciidoctor:asciidoctor-gradle-plugin:1.5.9.2")
 	}
 
 }
