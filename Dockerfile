@@ -1,4 +1,4 @@
-FROM openjdk:8-slim as builder
+FROM openjdk:9.0.4-slim as builder
 WORKDIR .
 
 
@@ -24,7 +24,7 @@ RUN ./gradlew build -x :bootJar -x test -x artifactoryDeploy -x artifactoryPubli
 COPY . .
 RUN ./gradlew build
 
-FROM openjdk:8-slim as app
+FROM openjdk:9.0.4-slim as app
 WORKDIR /root/
 COPY --from=builder /root/dev/app/build/libs/content-api-2*.jar .
 RUN mv content-api-2*.jar content-api-2.jar
