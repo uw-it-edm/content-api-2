@@ -23,6 +23,7 @@ import edu.uw.edm.contentapi2.controller.search.v1.model.result.SearchResultCont
 import edu.uw.edm.contentapi2.repository.ExternalSearchDocumentRepository;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.repository.exceptions.RepositoryException;
+import edu.uw.edm.contentapi2.repository.exceptions.SearchRepositoryException;
 import edu.uw.edm.contentapi2.security.User;
 import lombok.extern.slf4j.Slf4j;
 import retrofit2.Response;
@@ -62,7 +63,8 @@ public class ACSSearchRepositoryImpl implements ExternalSearchDocumentRepository
             Response<ResultSetRepresentation<ResultNodeRepresentation>> searchCall = acsSearchAPI.searchCall(queryBody).execute();
 
             if (!searchCall.isSuccessful()) {
-                throw new RepositoryException("couldn't execute search  :" + searchCall.errorBody().string());
+                final String errorBody = searchCall.errorBody().string();
+                throw new SearchRepositoryException("couldn't execute search  :" + errorBody, errorBody);
             }
 
             final ResultSetRepresentation<ResultNodeRepresentation> searchResult = searchCall.body();
@@ -80,7 +82,7 @@ public class ACSSearchRepositoryImpl implements ExternalSearchDocumentRepository
             searchResultContainer.setSearchResults(results);
         } catch (IOException e) {
             log.error(e.getMessage());
-            throw new RepositoryException(e);
+            throw new SearchRepositoryException(e);
         }
 
 

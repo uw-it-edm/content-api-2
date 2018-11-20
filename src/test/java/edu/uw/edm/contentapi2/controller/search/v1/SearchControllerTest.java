@@ -1,5 +1,7 @@
 package edu.uw.edm.contentapi2.controller.search.v1;
 
+import org.apache.chemistry.opencmis.commons.exceptions.CmisPermissionDeniedException;
+import org.apache.chemistry.opencmis.commons.exceptions.CmisUnauthorizedException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -21,14 +23,18 @@ import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchOrder;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.SearchQueryModel;
 import edu.uw.edm.contentapi2.controller.search.v1.model.query.SimpleSearchFilter;
 import edu.uw.edm.contentapi2.properties.SecurityProperties;
+import edu.uw.edm.contentapi2.repository.exceptions.SearchRepositoryException;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.DocumentFacade;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -45,6 +51,22 @@ public class SearchControllerTest {
 
     @MockBean
     private FieldMapper fieldMapper;
+
+    @Test
+    public void UnAuthorizedTest() throws Exception {
+        when(documentFacade.searchDocuments(anyString(),any(SearchQueryModel.class), any(User.class)))
+                .thenThrow(new SearchRepositoryException("error","{\"error\":{\"errorKey\":\"framework.exception.ApiDefault\",\"statusCode\":401,\"briefSummary\":\"10200046 Authentication failed for Web Script org/alfresco/api/SearchApiWebscript.post\",\"stackTrace\":\"For security reasons the stack trace is no longer displayed, but the property is kept for previous versions\",\"descriptionURL\":\"https://api-explorer.alfresco.com\"}}" ));
+
+
+        this.mockMvc.perform(post("/search/v1/testProfile")
+                .header(SecurityProperties.DEFAULT_AUTHENTICATION_HEADER, "test-user")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\n" +
+                        "    \"query\": \"test\"\n" +
+                        "}"))
+                .andExpect(status().isUnauthorized());
+    }
+
 
     @Test
     public void searchInIndex() throws Exception {
