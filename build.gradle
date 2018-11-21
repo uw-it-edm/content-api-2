@@ -71,7 +71,7 @@ ext {
 test {
 	outputs.dir snippetsDir
     testLogging {
-        events "failed"
+		events "passed", "skipped", "failed"
         exceptionFormat "full"
     }
 }

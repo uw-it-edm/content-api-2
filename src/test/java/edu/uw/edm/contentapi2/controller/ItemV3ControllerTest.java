@@ -2,6 +2,8 @@ package edu.uw.edm.contentapi2.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.apache.chemistry.opencmis.commons.exceptions.CmisPermissionDeniedException;
+import org.apache.chemistry.opencmis.commons.exceptions.CmisUnauthorizedException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,7 @@ import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.DocumentFacade;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -53,6 +56,25 @@ public class ItemV3ControllerTest {
     private FieldMapper fieldMapper;
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Test
+    public void UnAuthorizedTest() throws Exception {
+        when(documentFacade.getDocumentById(anyString(), any(User.class))).thenThrow(new CmisUnauthorizedException());
+
+
+        this.mockMvc.perform(get("/content/v3/item/my-item-id").header(SecurityProperties.DEFAULT_AUTHENTICATION_HEADER, "test-user"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void ForbiddenTest() throws Exception {
+        when(documentFacade.getDocumentById(anyString(), any(User.class))).thenThrow(new CmisPermissionDeniedException());
+
+
+        this.mockMvc.perform(get("/content/v3/item/my-item-id").header(SecurityProperties.DEFAULT_AUTHENTICATION_HEADER, "test-user"))
+                .andExpect(status().isForbidden());
+
+    }
 
     @Test
     public void deleteItemIdTest() throws Exception {

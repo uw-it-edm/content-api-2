@@ -15,4 +15,7 @@ public class SimpleSearchFilter implements SearchFilter {
         this.term = term;
         this.not = not;
     }
+
+    public SimpleSearchFilter() {
+    }
 }
