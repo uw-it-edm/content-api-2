@@ -1,6 +1,9 @@
 package edu.uw.edm.contentapi2.repository.acs.openapi.impl;
 
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.primitives.Ints;
 
 import com.alfresco.client.api.search.body.QueryBody;
 import com.alfresco.client.api.search.body.RequestFacetFields;
@@ -54,6 +57,9 @@ public class SearchQueryBuilderImpl implements SearchQueryBuilder {
     public static final String EMPTY_STRING = "";
 
     private static final Pattern rangeSearchPattern = Pattern.compile("[\\[<].*[tT][oO].*[\\]>]");
+    public static final String LUCENE_OR = "OR";
+    public static final String ACS_ALL_INTS = "d:int:";
+    public static final String ACS_ALL_TEXTS = "d:text:";
 
 
     private ProfileFacade profileFacade;
@@ -66,8 +72,26 @@ public class SearchQueryBuilderImpl implements SearchQueryBuilder {
 
     @Override
     public QueryBody addQuery(QueryBody queryBody, SearchQueryModel searchModel) {
-        if (!Strings.isNullOrEmpty(searchModel.getQuery())) {
-            queryBody.query(new RequestQuery().query(searchModel.getQuery()));
+        String query = searchModel.getQuery();
+        if (!Strings.isNullOrEmpty(query)) {
+            List<String> allQueries = new ArrayList<>();
+
+            Splitter.on(CharMatcher.whitespace()).split(query).forEach(term -> {
+                String termQuery = ACS_ALL_TEXTS + "\"" + term + "\"";
+
+                Integer integer = Ints.tryParse(term);
+                if (integer != null) {
+                    termQuery += " " + LUCENE_OR + " " + ACS_ALL_INTS + integer;
+                }
+
+                allQueries.add(termQuery);
+            });
+
+            if (allQueries.size() > 1) {
+                allQueries.add(ACS_ALL_TEXTS + "\"" + query + "\"");
+            }
+
+            queryBody.query(new RequestQuery().query(String.join(" " + LUCENE_OR + " ", allQueries)));
         } else {
             queryBody.query(new RequestQuery().query(MATCH_ALL_QUERY));
         }
@@ -197,7 +221,7 @@ public class SearchQueryBuilderImpl implements SearchQueryBuilder {
 
         final String searchFilterTerm = simpleSearchFilter.getTerm();
         final boolean isRangeQuery = isRangeQuery(searchFilterTerm);
-        final String escapedSearchFilterTerm = isRangeQuery? searchFilterTerm:searchFilterTerm.replace(" ","\\ ");
+        final String escapedSearchFilterTerm = isRangeQuery ? searchFilterTerm : searchFilterTerm.replace(" ", "\\ ");
 
         final String filterQuery = (simpleSearchFilter.isNot() ? NOT_TOKEN : EMPTY_STRING) + "(" + (isRangeQuery ? "" : TERM_EQUALS_TOKEN) + acsFieldName + SEARCH_IN_TERM_TOKEN + escapedSearchFilterTerm + ")";
         return filterQuery;

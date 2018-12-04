@@ -88,11 +88,9 @@ include::{snippets}/v3/search-items/http-response.adoc[]
 
 A `POST` request to create a new content item. Note that content items are created using a multipart
 form request so that multiple different parts can be provided. These include the metadata for
-the item in JSON format, the file itself, and an optional 'alternate' file that can be used
-as the web-viewable rendition of the content item.
+the item in JSON format and the file itself.
 
-The metadata is the multipart item "document," the file is the multipart item "attachment," and
-the alternate web-viewable file is the multipart item "alternate."
+The metadata is the multipart item "document" and the file is the multipart item "attachment".
 
 Different content profiles require different metadata to be provided, and it can be tricky to identify
 the correct combination of metadata by trial-and-error, so you may want to contact the EDM team
@@ -122,8 +120,7 @@ If you don't send an `attachment`, only the metadata will be updated.
 Note that content items are updated using a multipart form request just like the create item
 payload above.
 
-The metadata is the multipart item "document," the file is the multipart item "attachment," and
-the alternate web-viewable file is the multipart item "alternate."
+The metadata is the multipart item "document" and the file is the multipart item "attachment".
 
 
 ==== Request structure
@@ -141,30 +138,30 @@ include::{snippets}/v3/update-item/response-fields.adoc[]
 
 include::{snippets}/v3/update-item/http-response.adoc[]
 
-[[expire-item]]
-=== Expire (Delete) Item
+[[delete-item]]
+=== Delete Item
 
-A `DELETE` request to expire a document
+A `DELETE` request to delete a document
 
 ==== Path Param
 
-include::{snippets}/v3/expire-item/path-parameters.adoc[]
+include::{snippets}/v3/delete-item/path-parameters.adoc[]
 
 ==== Request structure
 
-include::{snippets}/v3/expire-item/http-request.adoc[]
+include::{snippets}/v3/delete-item/http-request.adoc[]
 
 ==== Request header
 
-include::{snippets}/v3/expire-item/request-headers.adoc[]
+include::{snippets}/v3/delete-item/request-headers.adoc[]
 
 ==== Example request
 
-include::{snippets}/v3/expire-item/curl-request.adoc[]
+include::{snippets}/v3/delete-item/curl-request.adoc[]
 
 ==== Example response
 
-include::{snippets}/v3/expire-item/http-response.adoc[]
+include::{snippets}/v3/delete-item/http-response.adoc[]
 
 [[bulk]]
 == Bulk V3

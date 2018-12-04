@@ -14,6 +14,7 @@ import org.apache.chemistry.opencmis.commons.PropertyIds;
 import org.apache.chemistry.opencmis.commons.data.ContentStream;
 import org.apache.chemistry.opencmis.commons.definitions.PropertyDefinition;
 import org.apache.chemistry.opencmis.commons.enums.VersioningState;
+import org.apache.chemistry.opencmis.commons.exceptions.CmisContentAlreadyExistsException;
 import org.apache.chemistry.opencmis.commons.exceptions.CmisObjectNotFoundException;
 import org.apache.chemistry.opencmis.commons.impl.MimeTypes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import edu.uw.edm.contentapi2.controller.content.v3.model.ContentAPIDocument;
 import edu.uw.edm.contentapi2.properties.ACSProperties;
@@ -35,6 +35,7 @@ import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants;
 import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.Alfresco.AlfrescoAspects;
 import edu.uw.edm.contentapi2.repository.constants.RepositoryConstants.Alfresco.AlfrescoFields;
 import edu.uw.edm.contentapi2.repository.exceptions.CannotUpdateDocumentException;
+import edu.uw.edm.contentapi2.repository.exceptions.DocumentAlreadyExistsException;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchDocumentException;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.repository.exceptions.NotADocumentException;
@@ -70,9 +71,25 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
     }
 
     @Override
+    public void deleteDocumentById(String documentId, User user) throws RepositoryException {
+        checkNotNull(user, "User is required");
+        checkArgument(!Strings.isNullOrEmpty(documentId), "DocumentId is required");
+
+        Session session = sessionCreator.getSessionForUser(user);
+
+        Document documentById = getDocumentById(documentId, session);
+
+        try {
+            session.delete(documentById, true);
+        } catch (Exception e) {
+            throw new RepositoryException(e);
+        }
+    }
+
     /**
      * Get info about all the available renditions by default
      */
+    @Override
     public Document getDocumentById(String documentId, User user) throws RepositoryException {
         return getDocumentById(documentId, user, RepositoryConstants.CMIS.Renditions.Filters.ALL);
     }
@@ -90,7 +107,7 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
 
 
     @Override
-    public Document createDocument(ContentAPIDocument document, MultipartFile primaryFile, User user) throws NoSuchProfileException {
+    public Document createDocument(ContentAPIDocument document, MultipartFile primaryFile, User user) throws NoSuchProfileException, DocumentAlreadyExistsException {
         checkNotNull(user, "User is required");
         checkNotNull(document, "Document is required");
 
@@ -101,7 +118,15 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
         ContentStream contentStream = getCMISContentStream(primaryFile, session);
 
         Map<String, Object> properties = getCMISProperties(document, primaryFile.getOriginalFilename(), session, user);
-        return siteRootFolder.createDocument(properties, contentStream, VersioningState.MAJOR);
+        try {
+            return siteRootFolder.createDocument(properties, contentStream, VersioningState.MAJOR);
+        } catch (CmisContentAlreadyExistsException e) {
+            log.error("Content With Same Name Already exists", e);
+            throw new DocumentAlreadyExistsException(e.getMessage());
+        } catch (Exception e) {
+            log.error("couldn't create document", e);
+            throw e;
+        }
     }
 
     @Override
@@ -243,8 +268,7 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
         } else {
             documentName = filename;
         }
-        //TODO, UUID is awful here
-        return documentName + " " + UUID.randomUUID().toString();
+        return documentName;
     }
 
     private Map<String, Object> getFQDNPropertiesForMetadata(ContentAPIDocument document, Session session, User user) throws NoSuchProfileException {

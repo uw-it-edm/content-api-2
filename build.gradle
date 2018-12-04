@@ -1,10 +1,10 @@
 buildscript {
 	ext {
-		springBootVersion = '2.0.5.RELEASE'
+		springBootVersion = '2.1.0.RELEASE'
 		openCMISVersion = '1.1.0'
-		guavaVersion = '26.0-jre'
+		guavaVersion = '27.0-jre'
 		alfrescoJavaClientVersion = '1.0.0-beta2'
-		springCloudReleaseTrain = 'Finchley.SR1'
+		springCloudReleaseTrain = 'Finchley.SR2'
 	}
 	repositories {
 		jcenter()
@@ -18,7 +18,7 @@ buildscript {
 		classpath "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.5.2"
 		classpath("org.jfrog.buildinfo:build-info-extractor-gradle:4.8.1")
 		classpath("nu.studer:gradle-credentials-plugin:1.0.4")
-		classpath("org.asciidoctor:asciidoctor-gradle-plugin:1.5.8.1")
+		classpath("org.asciidoctor:asciidoctor-gradle-plugin:1.5.9.2")
 	}
 
 }
@@ -71,7 +71,7 @@ ext {
 test {
 	outputs.dir snippetsDir
     testLogging {
-        events "failed"
+		events "passed", "skipped", "failed"
         exceptionFormat "full"
     }
 }
@@ -90,9 +90,13 @@ dependencyManagement {
 
 
 dependencies {
+	compile('org.springframework.boot:spring-boot-starter')
 	compile('org.springframework.boot:spring-boot-starter-actuator')
 	compile('org.springframework.boot:spring-boot-starter-cache')
     compile("org.springframework.boot:spring-boot-starter-security")
+    compile("org.springframework.boot:spring-boot-starter-aop")
+	compile('org.springframework.retry:spring-retry')
+
 	compile('org.springframework.boot:spring-boot-starter-web')
 
 

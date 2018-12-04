@@ -57,9 +57,17 @@ public class DocumentFacadeImplTest {
     }
 
     @Test
-    public void repositoryIsCalledWithCorrectId() throws RepositoryException {
+    public void when_delete_then_repositoryIsCalledWithCorrectIdTest() throws RepositoryException {
 
+        User mockUser = mock(User.class);
 
+        documentFacade.deleteDocumentById("doc-id", mockUser);
+
+        verify(repository, times(1)).deleteDocumentById(eq("doc-id"), eq(mockUser));
+    }
+
+    @Test
+    public void when_get_then_repositoryIsCalledWithCorrectIdTest() throws RepositoryException {
         User mockUser = mock(User.class);
         when(repository.getDocumentById(any(), any())).thenReturn(mock(Document.class));
 
