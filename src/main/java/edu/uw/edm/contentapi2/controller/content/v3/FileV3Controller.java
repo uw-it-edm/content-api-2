@@ -19,8 +19,7 @@ import edu.uw.edm.contentapi2.repository.exceptions.RepositoryException;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.FileServingService;
 import io.micrometer.core.instrument.Metrics;
-import io.micrometer.core.instrument.Tag;
-import io.micrometer.core.instrument.Tags;
+import io.micrometer.core.instrument.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -33,6 +32,22 @@ public class FileV3Controller {
     public FileV3Controller(FileServingService fileServingService) {
         this.fileServingService = fileServingService;
     }
+
+    @Deprecated
+    @RequestMapping(value = "{itemId}/{name:.*}", method = RequestMethod.GET)
+    public void read(@PathVariable("itemId") String itemId,
+                     @PathVariable("name") String name,
+                     @RequestParam(value = "disposition", defaultValue = "inline") ContentDispositionType contentDispositionType,
+                     @AuthenticationPrincipal User user,
+                     HttpServletRequest request,
+                     HttpServletResponse response) throws RepositoryException, IOException {
+        ContentRenditionType renditionType = ContentRenditionType.Primary;
+        if(StringUtils.isBlank(name) || name.toUpperCase().endsWith(".PDF") ){
+            renditionType = ContentRenditionType.Web;
+        }
+        read(itemId, renditionType, null, false, contentDispositionType, user, request, response);
+    }
+
 
     @RequestMapping(value = "{itemId}", method = RequestMethod.GET)
     public void read(
