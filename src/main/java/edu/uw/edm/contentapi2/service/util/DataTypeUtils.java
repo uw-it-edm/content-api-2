@@ -31,15 +31,22 @@ public class DataTypeUtils {
         Date date = null;
         if (value == null) {
             // NOOP
+        } else if (value instanceof String ) {
+            final Long longValue = Long.valueOf((String) value);
+            date = convertLongToLosAngelesDate(longValue);
         } else if (value instanceof Long) {
-            final GregorianCalendar gc = new GregorianCalendar();
-            gc.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
-            gc.setTimeInMillis((Long) value);
-            date = gc.getTime();
+            date = convertLongToLosAngelesDate((Long) value);
         } else {
             throw new IllegalArgumentException("Unhandled Data Type: " + value.getClass());
         }
         return date;
+    }
+
+    private static Date convertLongToLosAngelesDate(Long value){
+        final GregorianCalendar gc = new GregorianCalendar();
+        gc.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
+        gc.setTimeInMillis(value);
+        return gc.getTime();
     }
 
     public static Object convertToInteger(Object value) {
