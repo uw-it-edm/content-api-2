@@ -43,7 +43,7 @@ public class ItemV3Controller {
 
 
     /**
-     * @deprecated Replaced by {@link edu.uw.edm.contentapi2.controller.search.v1.SearchController#searchInIndex(String
+     * @deprecated Replaced by {@link edu.uw.edm.contentapi2.controller.search.v1.SearchControllerV1#searchInIndex(String
      * profile, SearchQueryModel searchQueryModel, User user)}
      */
     @Deprecated

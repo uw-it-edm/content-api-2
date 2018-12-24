@@ -1,0 +1,124 @@
+= Search API
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+
+[[overview]]
+= Overview
+
+[[overview-http-status-codes]]
+== HTTP status codes
+
+RESTful notes tries to adhere as closely as possible to standard HTTP and REST conventions in its
+use of HTTP status codes.
+
+|===
+| Status code | Usage
+
+| `200 OK`
+| The request completed successfully
+
+| `400 Bad Request`
+| The request was malformed.
+
+| `404 Not Found`
+| The requested resource did not exist
+|===
+
+
+[[Fields]]
+=== A note on special fields.
+
+
+////
+Search-API is using a backend doing full text indexing on the metadata of your documents.
+
+By default all the String fields are stemmed and tokenized. ie. a search on `house` might return results containing `housing`
+
+This can cause issues when trying to filter for a specific term (ie. you only want to search for `cats`)
+
+To solve this, all string fields have specials sub-fields that contains the non-processed token.
+
+|===
+|Special Field
+|Used For
+|String
+|Date
+|Number
+
+|.raw
+|filtering and facets
+|V
+|X
+|X
+
+|.lowercase
+|case insensitive sorting
+|V
+|X
+|X
+|===
+
+
+ie. if you want to filter on documents where your `buildingType` field is `house`, you'll want to use a filter that looks like this :
+
+```
+{
+    "field" : "metadata.buildingType.raw",
+    "term" : "house"
+}
+```
+////
+
+
+
+=== Filter vs Search
+
+query and filter might seem to accomplish the same goal but they aren't
+
+when you use query, search-api will relevance based score ( the `_score` field ). Score calculation is complex but the three main parts that contribute to the score are :
+
+* Term frequency : How often does the term appear in this document? The more often, the higher the weight
+* Inverse document frequency : How often does the term appear in all documents in the collection? The more often, the lower the weight
+* Field-length : How long is the field? The shorter the field, the higher the weight.
+
+When you use filter, search-api will do a boolean query. The search will only contain documents matching the filter and scoring is not used for the filter
+( but scoring will apply to the subset of filtered documents if you add a `query` ).
+
+
+[[search]]
+=== Search
+
+A `POST` request to search for documents
+
+
+////
+See https://www.elastic.co/guide/en/elasticsearch/reference/2.4/query-dsl-query-string-query.html#query-string-syntax for the query field syntax
+
+Default SearchOrder is `_score` desc meaning that most relevant results are at the top
+////
+
+
+==== Request structure
+
+include::{snippets}/v1/search/http-request.adoc[]
+
+
+==== Example request
+Using curl :
+
+include::{snippets}/v1/search/curl-request.adoc[]
+
+
+Using httpie :
+
+include::{snippets}/v1/search/httpie-request.adoc[]
+
+==== Example response
+
+include::{snippets}/v1/search/response-fields.adoc[]
+
+include::{snippets}/v1/search/http-response.adoc[]
