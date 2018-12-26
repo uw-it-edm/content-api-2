@@ -38,7 +38,7 @@ Search-API is using a backend doing full text indexing on the metadata of your d
 
 By default all the String fields are stemmed and tokenized. ie. a search on `house` might return results containing `housing`
 
-This can cause issues when trying to filter for a specific term (ie. you only want to search for `cats`)
+This can cause issues when trying to filter for a specific term (ie. you only want to search for `houses`)
 
 To solve this, all string fields have specials sub-fields that contains the non-processed token.
 
