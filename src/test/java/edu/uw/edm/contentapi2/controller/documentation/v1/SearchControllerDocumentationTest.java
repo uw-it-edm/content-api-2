@@ -13,7 +13,6 @@ import org.springframework.restdocs.mockmvc.RestDocumentationResultHandler;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -40,6 +39,7 @@ import static edu.uw.edm.contentapi2.controller.documentation.v1.SearchControlle
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.relaxedResponseFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
@@ -92,8 +92,7 @@ public class SearchControllerDocumentationTest {
 
 
         this.mockMvc.perform(
-                MockMvcRequestBuilders
-                        .post(CONTEXT_PATH + "/search/v1/{Profile}", "Profile")
+                post(CONTEXT_PATH + "/search/v1/{Profile}", "Profile")
                         .header(SecurityProperties.DEFAULT_AUTHENTICATION_HEADER, "my-auth-header")
                         .content(content)
                         .contentType(MediaType.APPLICATION_JSON)
