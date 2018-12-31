@@ -21,13 +21,13 @@ import edu.uw.edm.contentapi2.service.DocumentFacade;
  */
 @RestController
 @RequestMapping("/search/v1")
-public class SearchController {
+public class SearchControllerV1 {
 
     private DocumentFacade documentFacade;
 
 
     @Autowired
-    public SearchController(DocumentFacade documentFacade) {
+    public SearchControllerV1(DocumentFacade documentFacade) {
         this.documentFacade = documentFacade;
     }
 
