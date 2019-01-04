@@ -107,7 +107,7 @@ dependencies {
 	compile('com.github.ben-manes.caffeine:caffeine')
 
 	compile("org.alfresco.client:alfresco-java-client:$alfrescoJavaClientVersion")
-	compile("org.apache.pdfbox:pdfbox:2.0.12")
+	compile("org.apache.pdfbox:pdfbox:2.0.13")
 
 	compileOnly('org.springframework.boot:spring-boot-configuration-processor')
 	compileOnly('org.projectlombok:lombok')
