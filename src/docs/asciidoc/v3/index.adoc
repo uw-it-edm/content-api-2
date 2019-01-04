@@ -68,7 +68,6 @@ A `POST` request to search for documents
 
 ==== Request structure
 include::searchModelDoc.adoc[]
-include::{snippets}/v3/search-items/request-fields.adoc[]
 include::{snippets}/v3/search-items/http-request.adoc[]
 
 
