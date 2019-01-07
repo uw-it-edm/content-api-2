@@ -42,7 +42,7 @@ public class FileV3Controller {
                      HttpServletRequest request,
                      HttpServletResponse response) throws RepositoryException, IOException {
         ContentRenditionType renditionType = ContentRenditionType.Primary;
-        if(StringUtils.isBlank(name) || name.toUpperCase().endsWith(".PDF") ){
+        if (StringUtils.isBlank(name) || name.toUpperCase().endsWith(".PDF")) {
             renditionType = ContentRenditionType.Web;
         }
         read(itemId, renditionType, null, false, contentDispositionType, user, request, response);
