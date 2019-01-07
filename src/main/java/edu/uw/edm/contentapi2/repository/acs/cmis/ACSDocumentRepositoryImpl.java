@@ -39,6 +39,7 @@ import edu.uw.edm.contentapi2.repository.exceptions.DocumentAlreadyExistsExcepti
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchDocumentException;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.repository.exceptions.NotADocumentException;
+import edu.uw.edm.contentapi2.repository.exceptions.NotLatestVersionOfDocumentException;
 import edu.uw.edm.contentapi2.repository.exceptions.RepositoryException;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.ProfileFacade;
@@ -177,22 +178,36 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
         }
     }
 
-    private void createNewRevisionWithFile(Document documentToUpdate, ContentAPIDocument updatedContentAPIDocument, MultipartFile primaryFile, Session session, User user) throws CannotUpdateDocumentException {
-        ObjectId checkedOutDocumentId;
+    private void createNewRevisionWithFile(Document documentToUpdate, ContentAPIDocument updatedContentAPIDocument, MultipartFile primaryFile, Session session, User user) throws CannotUpdateDocumentException, NotLatestVersionOfDocumentException {
+
+        if (!documentToUpdate.isLatestVersion()) {
+            throw new NotLatestVersionOfDocumentException("Try again");
+        }
+
+
+        String checkedOutDocumentId;
         try {
-            checkedOutDocumentId = documentToUpdate.checkOut();
+            ObjectId oId = documentToUpdate.checkOut();
+            checkedOutDocumentId = oId.getId();
+            documentToUpdate.refresh();
         } catch (Exception e) {
             //TODO Document was probably already checked-out. Should we un-check it out ?
             if (acsProperties.isAutoUndoCheckout()) {
                 documentToUpdate.cancelCheckOut();
-                checkedOutDocumentId = documentToUpdate.checkOut();
+                ObjectId oId= documentToUpdate.checkOut();
+                checkedOutDocumentId = oId.getId();
             } else {
                 throw new CannotUpdateDocumentException(e);
             }
         }
         Document newDocumentVersion = (Document) session.getObject(checkedOutDocumentId);
         try {
-            Map<String, Object> cmisProperties = getCMISPropertiesForUpdate(updatedContentAPIDocument, documentToUpdate.getName(), session, user);
+            Map<String, Object> cmisProperties = getCMISPropertiesForUpdate(updatedContentAPIDocument, primaryFile.getOriginalFilename(), session, user);
+
+            // Forcing content stream file name to make sure cmis:name is updated
+            cmisProperties.put(PropertyIds.CONTENT_STREAM_FILE_NAME, getCMISName(primaryFile.getOriginalFilename(), updatedContentAPIDocument));
+
+            addTypeAndAspectToProperties(cmisProperties, updatedContentAPIDocument, user);
 
             //TODO should we use major versions ?
             newDocumentVersion.checkIn(true, cmisProperties, getCMISContentStream(primaryFile, session), "");
@@ -201,6 +216,14 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
             newDocumentVersion.cancelCheckOut();
             throw new CannotUpdateDocumentException(e);
         }
+    }
+
+    private void addTypeAndAspectToProperties(Map<String, Object> cmisProperties, ContentAPIDocument updatedContentAPIDocument, User user) throws NoSuchProfileException {
+        final String contentType = getFQDNContentType(updatedContentAPIDocument);
+        cmisProperties.put(PropertyIds.OBJECT_TYPE_ID, contentType);
+
+        final List<String> mandatoryAspectIds = profileRepository.getMandatoryAspects(user, contentType);
+        cmisProperties.put(PropertyIds.SECONDARY_OBJECT_TYPE_IDS, mandatoryAspectIds);
     }
 
     private ContentStream getCMISContentStream(MultipartFile primaryFile, Session session) {
@@ -225,11 +248,7 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
 
     private Map<String, Object> getCMISProperties(ContentAPIDocument document, String filename, Session session, User user) throws NoSuchProfileException {
         final Map<String, Object> properties = new HashMap<>();
-        final String contentType = getFQDNContentType(document);
-        properties.put(PropertyIds.OBJECT_TYPE_ID, contentType);
-
-        final List<String> mandatoryAspectIds = profileRepository.getMandatoryAspects(user, contentType);
-        properties.put(PropertyIds.SECONDARY_OBJECT_TYPE_IDS, mandatoryAspectIds);
+        addTypeAndAspectToProperties(properties, document, user);
         properties.putAll(getCMISPropertiesForUpdate(document, filename, session, user));
 
         return properties;
