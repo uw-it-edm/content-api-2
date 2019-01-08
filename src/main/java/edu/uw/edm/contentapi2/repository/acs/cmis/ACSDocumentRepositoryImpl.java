@@ -16,6 +16,7 @@ import org.apache.chemistry.opencmis.commons.definitions.PropertyDefinition;
 import org.apache.chemistry.opencmis.commons.enums.VersioningState;
 import org.apache.chemistry.opencmis.commons.exceptions.CmisContentAlreadyExistsException;
 import org.apache.chemistry.opencmis.commons.exceptions.CmisObjectNotFoundException;
+import org.apache.chemistry.opencmis.commons.exceptions.CmisVersioningException;
 import org.apache.chemistry.opencmis.commons.impl.MimeTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -178,7 +179,7 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
         }
     }
 
-    private void createNewRevisionWithFile(Document documentToUpdate, ContentAPIDocument updatedContentAPIDocument, MultipartFile primaryFile, Session session, User user) throws CannotUpdateDocumentException, NotLatestVersionOfDocumentException {
+    private void createNewRevisionWithFile(Document documentToUpdate, ContentAPIDocument updatedContentAPIDocument, MultipartFile primaryFile, Session session, User user) throws CannotUpdateDocumentException, NotLatestVersionOfDocumentException, DocumentAlreadyExistsException {
 
         if (!documentToUpdate.isLatestVersion()) {
             throw new NotLatestVersionOfDocumentException("Try again");
@@ -194,7 +195,7 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
             //TODO Document was probably already checked-out. Should we un-check it out ?
             if (acsProperties.isAutoUndoCheckout()) {
                 documentToUpdate.cancelCheckOut();
-                ObjectId oId= documentToUpdate.checkOut();
+                ObjectId oId = documentToUpdate.checkOut();
                 checkedOutDocumentId = oId.getId();
             } else {
                 throw new CannotUpdateDocumentException(e);
@@ -209,12 +210,30 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
 
             addTypeAndAspectToProperties(cmisProperties, updatedContentAPIDocument, user);
 
+            logProperties(cmisProperties);
+
             //TODO should we use major versions ?
             newDocumentVersion.checkIn(true, cmisProperties, getCMISContentStream(primaryFile, session), "");
 
         } catch (Exception e) {
             newDocumentVersion.cancelCheckOut();
+
+            if (e instanceof CmisVersioningException && e.getMessage().contains("Cannot rename")) {
+                log.info(e.getMessage());
+                throw new DocumentAlreadyExistsException(e.getMessage() + " Please rename the provided file");
+            }
             throw new CannotUpdateDocumentException(e);
+        }
+    }
+
+    private void logProperties(Map<String, Object> cmisProperties) {
+        if (log.isTraceEnabled()) {
+            log.trace("sending update to cmis with these properties : ");
+            log.trace("----------- ");
+            cmisProperties.entrySet().forEach((entry) -> {
+                log.trace(entry.getKey() + " -- " + entry.getValue());
+            });
+            log.trace("----------- ");
         }
     }
 
@@ -265,14 +284,14 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
     private Map<String, Object> getCMISPropertiesForUpdate(ContentAPIDocument document, String filename, Session session, User user) throws NoSuchProfileException {
 
         Map<String, Object> properties = new HashMap<>();
+        properties.putAll(getFQDNPropertiesForMetadata(document, session, user));
+
         //Name is supposed to be unique in a folder ( and should be the file name )
         //TODO we should probably disable name uniqueness in ACS and remove the UUID
         //TODO on metadata update, we shouldn't update the name,
         properties.put(PropertyIds.NAME, getCMISName(filename, document));
 
         properties.put(AlfrescoFields.TITLE_FQDN, document.getLabel());
-
-        properties.putAll(getFQDNPropertiesForMetadata(document, session, user));
 
         //update shouldn't be allowed to change Profile
         properties.remove(PROFILE_ID);
