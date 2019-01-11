@@ -44,7 +44,7 @@ public class SearchQueryBuilderImpl implements SearchQueryBuilder {
     public static final String SEARCH_IN_TERM_TOKEN = ":";
     public static final String TERM_EQUALS_TOKEN = "=";
     public static final String NOT_TOKEN = "!";
-    public static final String SITE_TERM_QUERY = "SITE:";
+    public static final String CONTENT_MODEL_TERM_QUERY = "TYPE:";
 
     public static final List<String> DEFAULT_INCLUDED_FIELDS = Arrays.asList("properties", "aspectNames");
     public static final String TYPE_DOCUMENT_QUERY = "TYPE:\"cm:content\"";
@@ -52,8 +52,6 @@ public class SearchQueryBuilderImpl implements SearchQueryBuilder {
     public static final String LOWERCASE_SUFFIX = ".lowercase";
     public static final String METADATA_PREFIX = "metadata.";
 
-
-    public static final String MATCH_ALL_QUERY = "name:*";
     public static final String EMPTY_STRING = "";
 
     private static final Pattern rangeSearchPattern = Pattern.compile("[\\[<].*[tT][oO].*[\\]>]");
@@ -93,7 +91,7 @@ public class SearchQueryBuilderImpl implements SearchQueryBuilder {
 
             queryBody.query(new RequestQuery().query(String.join(" " + LUCENE_OR + " ", allQueries)));
         } else {
-            queryBody.query(new RequestQuery().query(MATCH_ALL_QUERY));
+            queryBody.query(new RequestQuery().query(TYPE_DOCUMENT_QUERY));
         }
 
         return queryBody;
@@ -174,14 +172,24 @@ public class SearchQueryBuilderImpl implements SearchQueryBuilder {
     }
 
     @Override
-    public QueryBody addSiteFilter(String profile, QueryBody queryBody) {
+    public QueryBody addContentModelFilter(String profileId, QueryBody queryBody) throws NoSuchProfileException {
         if (queryBody.getFilterQueries() == null) {
             queryBody.setFilterQueries(new ArrayList<>());
         }
 
-        queryBody.getFilterQueries().add(new RequestFilterQuery().query(SITE_TERM_QUERY + profile));
+        final String contentType = profileFacade.getContentTypeForProfile(profileId);
+        final String contentModelQuery = convertContentTypeToContentModelQuery(contentType);
+
+        queryBody.getFilterQueries().add(new RequestFilterQuery().query(contentModelQuery));
 
         return queryBody;
+    }
+
+    private String convertContentTypeToContentModelQuery(String contentType){
+        if(contentType.startsWith("D:")){ //removing 'D:' from 'D:prefix:contentModelName' returned from profileFacade
+            contentType = contentType.substring(2);
+        }
+        return CONTENT_MODEL_TERM_QUERY + "\"" +contentType  +"\"";
     }
 
     @Override
@@ -190,13 +198,6 @@ public class SearchQueryBuilderImpl implements SearchQueryBuilder {
 
         return queryBody;
     }
-
-    @Override
-    public QueryBody addIsDocumentFilter(String profile, QueryBody queryBody) {
-        queryBody.getFilterQueries().add(new RequestFilterQuery().query(TYPE_DOCUMENT_QUERY));
-        return queryBody;
-    }
-
 
     private boolean isRangeQuery(String term) {
         return rangeSearchPattern.matcher(term).matches();

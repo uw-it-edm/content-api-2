@@ -209,8 +209,7 @@ public class ACSSearchRepositoryImplTest {
 
         verify(searchQueryBuilder, times(1)).addQuery(any(QueryBody.class), eq(searchModel));
         verify(searchQueryBuilder, times(1)).addFilters(any(), eq(searchModel.getFilters()), eq("my-profile"), eq(user));
-        verify(searchQueryBuilder, times(1)).addSiteFilter(eq("my-profile"), any());
-        verify(searchQueryBuilder, times(1)).addIsDocumentFilter(eq("my-profile"), any());
+        verify(searchQueryBuilder, times(1)).addContentModelFilter(eq("my-profile"), any());
         verify(searchQueryBuilder, times(1)).addPagination(any(), eq(searchModel));
         verify(searchQueryBuilder, times(1)).addSorting(any(), eq(searchModel.getSearchOrder()), eq("my-profile"), eq(user));
         verify(searchQueryBuilder, times(1)).addDefaultIncludedInfo(any());

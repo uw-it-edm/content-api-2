@@ -54,6 +54,8 @@ public class SearchQueryBuilderImplTest {
         searchQueryBuilder = new SearchQueryBuilderImpl(profileFacade);
 
         when(profileFacade.getRepoFQDNFieldName(anyString(), anyString(), eq(user))).then(AdditionalAnswers.returnsFirstArg());
+        when(profileFacade.getContentTypeForProfile("my-profile")).thenReturn("D:my-profile");
+
     }
 
 
@@ -87,7 +89,7 @@ public class SearchQueryBuilderImplTest {
     public void whenQueryIsEmptyThenQueryAllIsSentTest() {
         searchQueryBuilder.addQuery(queryBody, searchQueryModel);
 
-        assertThat(queryBody.getQuery().getQuery(), is(equalTo("name:*")));
+        assertThat(queryBody.getQuery().getQuery(), is(equalTo("TYPE:\"cm:content\"")));
     }
 
     @Test
@@ -136,14 +138,6 @@ public class SearchQueryBuilderImplTest {
         assertThat(queryBody.getPaging(), is(notNullValue()));
         assertThat(queryBody.getPaging().getMaxItems(), is(5));
         assertThat(queryBody.getPaging().getSkipCount(), is(25));
-    }
-
-    @Test
-    public void shouldAddSiteFilterTest() {
-        searchQueryBuilder.addSiteFilter("my-profile", queryBody);
-
-        assertThat(queryBody.getFilterQueries().size(), is(1));
-        assertThat(queryBody.getFilterQueries().get(0).getQuery(), is(equalTo("SITE:my-profile")));
     }
 
     @Test
@@ -309,11 +303,11 @@ public class SearchQueryBuilderImplTest {
 
         searchQueryBuilder.addFilters(queryBody, searchQueryModel.getFilters(), "my-profile", user);
 
-        searchQueryBuilder.addSiteFilter("my-profile", queryBody);
+        searchQueryBuilder.addContentModelFilter("my-profile", queryBody);
 
         assertThat(queryBody.getFilterQueries().size(), is(2));
         assertThat(queryBody.getFilterQueries().get(0).getQuery(), is(equalTo("!(=my-field:my-value)")));
-        assertThat(queryBody.getFilterQueries().get(1).getQuery(), is(equalTo("SITE:my-profile")));
+        assertThat(queryBody.getFilterQueries().get(1).getQuery(), is(equalTo("TYPE:\"my-profile\"")));
     }
 
     @Test
@@ -324,11 +318,11 @@ public class SearchQueryBuilderImplTest {
 
         searchQueryBuilder.addFilters(queryBody, searchQueryModel.getFilters(), "my-profile", user);
 
-        searchQueryBuilder.addSiteFilter("my-profile", queryBody);
+        searchQueryBuilder.addContentModelFilter("my-profile", queryBody);
 
         assertThat(queryBody.getFilterQueries().size(), is(2));
         assertThat(queryBody.getFilterQueries().get(0).getQuery(), is(equalTo("!(=my-field:my-value)")));
-        assertThat(queryBody.getFilterQueries().get(1).getQuery(), is(equalTo("SITE:my-profile")));
+        assertThat(queryBody.getFilterQueries().get(1).getQuery(), is(equalTo("TYPE:\"my-profile\"")));
     }
 
     @Test
