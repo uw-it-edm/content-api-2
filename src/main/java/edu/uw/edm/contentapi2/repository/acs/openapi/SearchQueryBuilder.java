@@ -21,11 +21,9 @@ public interface SearchQueryBuilder {
 
     QueryBody addPagination(QueryBody queryBody, SearchQueryModel searchModel);
 
-    QueryBody addSiteFilter(String profile, QueryBody queryBody);
+    QueryBody addContentModelFilter(String profileId, QueryBody queryBody) throws NoSuchProfileException;
 
     QueryBody addDefaultIncludedInfo(QueryBody queryBody);
-
-    QueryBody addIsDocumentFilter(String profile, QueryBody queryBody);
 
     QueryBody addFilters(QueryBody queryBody, List<SearchFilter> searchFilters, String profileId, User user) throws NoSuchProfileException;
 
