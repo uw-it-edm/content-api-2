@@ -16,6 +16,7 @@ import org.apache.chemistry.opencmis.commons.definitions.PropertyDefinition;
 import org.apache.chemistry.opencmis.commons.enums.VersioningState;
 import org.apache.chemistry.opencmis.commons.exceptions.CmisContentAlreadyExistsException;
 import org.apache.chemistry.opencmis.commons.exceptions.CmisObjectNotFoundException;
+import org.apache.chemistry.opencmis.commons.exceptions.CmisVersioningException;
 import org.apache.chemistry.opencmis.commons.impl.MimeTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,6 +40,7 @@ import edu.uw.edm.contentapi2.repository.exceptions.DocumentAlreadyExistsExcepti
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchDocumentException;
 import edu.uw.edm.contentapi2.repository.exceptions.NoSuchProfileException;
 import edu.uw.edm.contentapi2.repository.exceptions.NotADocumentException;
+import edu.uw.edm.contentapi2.repository.exceptions.NotLatestVersionOfDocumentException;
 import edu.uw.edm.contentapi2.repository.exceptions.RepositoryException;
 import edu.uw.edm.contentapi2.security.User;
 import edu.uw.edm.contentapi2.service.ProfileFacade;
@@ -177,30 +179,70 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
         }
     }
 
-    private void createNewRevisionWithFile(Document documentToUpdate, ContentAPIDocument updatedContentAPIDocument, MultipartFile primaryFile, Session session, User user) throws CannotUpdateDocumentException {
-        ObjectId checkedOutDocumentId;
+    private void createNewRevisionWithFile(Document documentToUpdate, ContentAPIDocument updatedContentAPIDocument, MultipartFile primaryFile, Session session, User user) throws CannotUpdateDocumentException, NotLatestVersionOfDocumentException, DocumentAlreadyExistsException {
+
+        if (!documentToUpdate.isLatestVersion()) {
+            throw new NotLatestVersionOfDocumentException("Try again");
+        }
+
+
+        String checkedOutDocumentId;
         try {
-            checkedOutDocumentId = documentToUpdate.checkOut();
+            ObjectId oId = documentToUpdate.checkOut();
+            checkedOutDocumentId = oId.getId();
+            documentToUpdate.refresh();
         } catch (Exception e) {
             //TODO Document was probably already checked-out. Should we un-check it out ?
             if (acsProperties.isAutoUndoCheckout()) {
                 documentToUpdate.cancelCheckOut();
-                checkedOutDocumentId = documentToUpdate.checkOut();
+                ObjectId oId = documentToUpdate.checkOut();
+                checkedOutDocumentId = oId.getId();
             } else {
                 throw new CannotUpdateDocumentException(e);
             }
         }
         Document newDocumentVersion = (Document) session.getObject(checkedOutDocumentId);
         try {
-            Map<String, Object> cmisProperties = getCMISPropertiesForUpdate(updatedContentAPIDocument, documentToUpdate.getName(), session, user);
+            Map<String, Object> cmisProperties = getCMISPropertiesForUpdate(updatedContentAPIDocument, primaryFile.getOriginalFilename(), session, user);
+
+            // Forcing content stream file name to make sure cmis:name is updated
+            cmisProperties.put(PropertyIds.CONTENT_STREAM_FILE_NAME, getCMISName(primaryFile.getOriginalFilename(), updatedContentAPIDocument));
+
+            addTypeAndAspectToProperties(cmisProperties, updatedContentAPIDocument, user);
+
+            logProperties(cmisProperties);
 
             //TODO should we use major versions ?
             newDocumentVersion.checkIn(true, cmisProperties, getCMISContentStream(primaryFile, session), "");
 
         } catch (Exception e) {
             newDocumentVersion.cancelCheckOut();
+
+            if (e instanceof CmisVersioningException && e.getMessage().contains("Cannot rename")) {
+                log.info(e.getMessage());
+                throw new DocumentAlreadyExistsException(e.getMessage() + " Please rename the provided file");
+            }
             throw new CannotUpdateDocumentException(e);
         }
+    }
+
+    private void logProperties(Map<String, Object> cmisProperties) {
+        if (log.isTraceEnabled()) {
+            log.trace("sending update to cmis with these properties : ");
+            log.trace("----------- ");
+            cmisProperties.entrySet().forEach((entry) -> {
+                log.trace(entry.getKey() + " -- " + entry.getValue());
+            });
+            log.trace("----------- ");
+        }
+    }
+
+    private void addTypeAndAspectToProperties(Map<String, Object> cmisProperties, ContentAPIDocument updatedContentAPIDocument, User user) throws NoSuchProfileException {
+        final String contentType = getFQDNContentType(updatedContentAPIDocument);
+        cmisProperties.put(PropertyIds.OBJECT_TYPE_ID, contentType);
+
+        final List<String> mandatoryAspectIds = profileRepository.getMandatoryAspects(user, contentType);
+        cmisProperties.put(PropertyIds.SECONDARY_OBJECT_TYPE_IDS, mandatoryAspectIds);
     }
 
     private ContentStream getCMISContentStream(MultipartFile primaryFile, Session session) {
@@ -225,11 +267,7 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
 
     private Map<String, Object> getCMISProperties(ContentAPIDocument document, String filename, Session session, User user) throws NoSuchProfileException {
         final Map<String, Object> properties = new HashMap<>();
-        final String contentType = getFQDNContentType(document);
-        properties.put(PropertyIds.OBJECT_TYPE_ID, contentType);
-
-        final List<String> mandatoryAspectIds = profileRepository.getMandatoryAspects(user, contentType);
-        properties.put(PropertyIds.SECONDARY_OBJECT_TYPE_IDS, mandatoryAspectIds);
+        addTypeAndAspectToProperties(properties, document, user);
         properties.putAll(getCMISPropertiesForUpdate(document, filename, session, user));
 
         return properties;
@@ -246,14 +284,14 @@ public class ACSDocumentRepositoryImpl implements ExternalDocumentRepository<Doc
     private Map<String, Object> getCMISPropertiesForUpdate(ContentAPIDocument document, String filename, Session session, User user) throws NoSuchProfileException {
 
         Map<String, Object> properties = new HashMap<>();
+        properties.putAll(getFQDNPropertiesForMetadata(document, session, user));
+
         //Name is supposed to be unique in a folder ( and should be the file name )
         //TODO we should probably disable name uniqueness in ACS and remove the UUID
         //TODO on metadata update, we shouldn't update the name,
         properties.put(PropertyIds.NAME, getCMISName(filename, document));
 
         properties.put(AlfrescoFields.TITLE_FQDN, document.getLabel());
-
-        properties.putAll(getFQDNPropertiesForMetadata(document, session, user));
 
         //update shouldn't be allowed to change Profile
         properties.remove(PROFILE_ID);

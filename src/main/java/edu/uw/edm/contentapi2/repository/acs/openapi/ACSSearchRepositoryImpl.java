@@ -126,9 +126,7 @@ public class ACSSearchRepositoryImpl implements ExternalSearchDocumentRepository
 
         queryBody = searchQueryBuilder.addFilters(queryBody, searchModel.getFilters(), profile, user);
 
-        queryBody = searchQueryBuilder.addSiteFilter(profile, queryBody);
-
-        queryBody = searchQueryBuilder.addIsDocumentFilter(profile, queryBody);
+        queryBody = searchQueryBuilder.addContentModelFilter(profile, queryBody);
 
         queryBody = searchQueryBuilder.addPagination(queryBody, searchModel);
 
@@ -137,7 +135,6 @@ public class ACSSearchRepositoryImpl implements ExternalSearchDocumentRepository
         queryBody = searchQueryBuilder.addDefaultIncludedInfo(queryBody);
 
         queryBody = searchQueryBuilder.addFacets(queryBody, searchModel.getFacets(), profile, user);
-
 
         return queryBody;
     }

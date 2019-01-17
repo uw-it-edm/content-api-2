@@ -1,8 +1,8 @@
 buildscript {
 	ext {
-		springBootVersion = '2.1.0.RELEASE'
+		springBootVersion = '2.1.1.RELEASE'
 		openCMISVersion = '1.1.0'
-		guavaVersion = '27.0-jre'
+		guavaVersion = '27.0.1-jre'
 		alfrescoJavaClientVersion = '1.0.0-beta2'
 		springCloudReleaseTrain = 'Finchley.SR2'
 	}
@@ -107,7 +107,7 @@ dependencies {
 	compile('com.github.ben-manes.caffeine:caffeine')
 
 	compile("org.alfresco.client:alfresco-java-client:$alfrescoJavaClientVersion")
-	compile("org.apache.pdfbox:pdfbox:2.0.12")
+	compile("org.apache.pdfbox:pdfbox:2.0.13")
 
 	compileOnly('org.springframework.boot:spring-boot-configuration-processor')
 	compileOnly('org.projectlombok:lombok')
