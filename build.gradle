@@ -16,7 +16,7 @@ buildscript {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
 		classpath "edu.uw.concert:gradle-gitflow:0.3.0"
 		classpath "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.5.2"
-		classpath("org.jfrog.buildinfo:build-info-extractor-gradle:4.9.1")
+		classpath("org.jfrog.buildinfo:build-info-extractor-gradle:4.9.3")
 		classpath("nu.studer:gradle-credentials-plugin:1.0.7")
 		classpath("org.asciidoctor:asciidoctor-gradle-plugin:1.5.9.2")
 	}
